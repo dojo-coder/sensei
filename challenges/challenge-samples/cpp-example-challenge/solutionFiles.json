@@ -1,0 +1,9 @@
+{
+  "folders": {},
+  "files": {
+    "/app.cpp": { "visible": true, "readonly": false, "redacted": false },
+    "/app.hpp": { "visible": true, "readonly": false, "redacted": false },
+    "/main.cpp": { "visible": true, "readonly": false, "redacted": false }
+  }
+}
+

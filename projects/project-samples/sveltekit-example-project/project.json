@@ -1,0 +1,12 @@
+{
+  "title": "SvelteKit Items App",
+  "description": "A minimal but real SvelteKit (JavaScript) sandbox: a page that lists items loaded server-side via a +page.server.js load function, plus a GET /api/items JSON endpoint. A clean starting point for exploring SvelteKit routing, server load functions, and API endpoints.",
+  "template": "sveltekit",
+  "tags": [
+    "sveltekit",
+    "svelte",
+    "fullstack"
+  ],
+  "mainFilePath": "/src/routes/+page.svelte",
+  "activeFilePath": "/src/routes/+page.svelte"
+}

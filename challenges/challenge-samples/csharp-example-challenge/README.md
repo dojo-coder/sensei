@@ -1,0 +1,1 @@
+Implement **Hello** function that returns a string **'Hello World!'**

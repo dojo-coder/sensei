@@ -1,0 +1,12 @@
+{
+  "title": "Next.js Items App",
+  "description": "A minimal Next.js (App Router, JavaScript) sandbox: a server-rendered home page lists items, and a /api/items Route Handler returns the same items as JSON. A clean starting point for full-stack experiments.",
+  "template": "nextjs",
+  "tags": [
+    "nextjs",
+    "react",
+    "fullstack"
+  ],
+  "mainFilePath": "/app/page.jsx",
+  "activeFilePath": "/app/page.jsx"
+}

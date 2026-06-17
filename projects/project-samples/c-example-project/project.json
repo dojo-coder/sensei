@@ -1,0 +1,11 @@
+{
+  "title": "C FizzBuzz",
+  "description": "A tiny C terminal sandbox that prints FizzBuzz for the numbers 1 through 15.",
+  "template": "c",
+  "tags": [
+    "c",
+    "terminal"
+  ],
+  "mainFilePath": "/main.c",
+  "activeFilePath": "/main.c"
+}

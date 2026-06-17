@@ -1,0 +1,29 @@
+{
+  "name": "sensei",
+  "version": "1.0.0",
+  "description": "Create DojoCode resources — coding challenges, contests, learning paths, projects, and assignments — using AI-powered tools and MCP.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dojo-coder/sensei.git"
+  },
+  "keywords": [
+    "dojocode",
+    "coding-challenges",
+    "contests",
+    "learning-paths",
+    "projects",
+    "assignments",
+    "mcp",
+    "ai",
+    "education",
+    "model-context-protocol"
+  ],
+  "author": "DojoCode",
+  "license": "MIT",
+  "dependencies": {
+    "jszip": "^3.10.1"
+  }
+}

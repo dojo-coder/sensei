@@ -1,0 +1,12 @@
+{
+  "title": "React Native TypeScript Image Slider",
+  "description": "A runnable React Native + TypeScript sandbox (via react-native-web) featuring an image slider built from RN primitives, with Previous/Next controls that disable at the ends and a current/total counter.",
+  "template": "react-native-ts",
+  "tags": [
+    "react-native",
+    "typescript",
+    "mobile"
+  ],
+  "mainFilePath": "/index.tsx",
+  "activeFilePath": "/App.tsx"
+}

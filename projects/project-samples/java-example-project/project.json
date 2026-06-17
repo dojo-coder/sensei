@@ -1,0 +1,11 @@
+{
+  "title": "Java FizzBuzz",
+  "description": "A runnable Java sandbox that prints FizzBuzz for the numbers 1 through 15 using a small fizzBuzz(int) helper.",
+  "template": "java",
+  "tags": [
+    "java",
+    "terminal"
+  ],
+  "mainFilePath": "/Main.java",
+  "activeFilePath": "/Main.java"
+}

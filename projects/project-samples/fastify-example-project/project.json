@@ -1,0 +1,12 @@
+{
+  "title": "Fastify Items API",
+  "description": "A minimal but real Fastify + TypeScript HTTP API sandbox: a greeting route plus in-memory items endpoints (list and fetch by id). A clean starting point for building backend routes with Fastify's buildApp pattern.",
+  "template": "fastify",
+  "tags": [
+    "fastify",
+    "typescript",
+    "backend"
+  ],
+  "mainFilePath": "/src/server.ts",
+  "activeFilePath": "/src/app.ts"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Remix TypeScript Items App",
+  "description": "A minimal Remix (Vite) + TypeScript sandbox: a typed loader on the index route renders a small list of items, with a matching /api/items resource route that returns the same data as JSON.",
+  "template": "remix_ts",
+  "tags": [
+    "remix",
+    "react",
+    "typescript",
+    "fullstack"
+  ],
+  "mainFilePath": "/app/routes/_index.tsx",
+  "activeFilePath": "/app/routes/_index.tsx"
+}

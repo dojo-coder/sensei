@@ -1,0 +1,11 @@
+{
+  "folders": {
+    "/app": { "visible": true, "readonly": false },
+    "/app/routes": { "visible": true, "readonly": false }
+  },
+  "files": {
+    "/app/routes/_index.tsx": { "visible": true, "readonly": false, "redacted": false },
+    "/app/root.tsx": { "visible": false, "readonly": true, "redacted": false },
+    "/vite.config.js": { "visible": true, "readonly": true, "redacted": false }
+  }
+}

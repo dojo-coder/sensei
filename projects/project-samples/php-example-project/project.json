@@ -1,0 +1,11 @@
+{
+  "title": "PHP FizzBuzz",
+  "description": "A tiny runnable PHP terminal sandbox that prints FizzBuzz for the numbers 1 through 15.",
+  "template": "php",
+  "tags": [
+    "php",
+    "terminal"
+  ],
+  "mainFilePath": "/main.php",
+  "activeFilePath": "/main.php"
+}

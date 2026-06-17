@@ -1,0 +1,11 @@
+{
+  "title": "React Image Slider",
+  "description": "A small React + Vite sandbox: a styled image slider with Previous/Next buttons that disable at the ends. A clean starting point for experimenting with component state and props.",
+  "template": "react_jest",
+  "tags": [
+    "react",
+    "frontend"
+  ],
+  "mainFilePath": "/index.jsx",
+  "activeFilePath": "/App.jsx"
+}

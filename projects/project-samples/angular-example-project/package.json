@@ -1,0 +1,21 @@
+{
+  "name": "angular-image-slider",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "ng serve --port 5173",
+    "build": "ng build"
+  },
+  "dependencies": {
+    "@angular/core": "^17.3.0",
+    "@angular/common": "^17.3.0",
+    "@angular/compiler": "^17.3.0",
+    "@angular/platform-browser": "^17.3.0",
+    "@angular/platform-browser-dynamic": "^17.3.0",
+    "rxjs": "^7.8.0",
+    "zone.js": "^0.14.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "title": "C# FizzBuzz",
+  "description": "A small C# terminal sandbox that prints FizzBuzz for the numbers 1 through 15 using a reusable FizzBuzz(int) helper.",
+  "template": "csharp",
+  "tags": [
+    "csharp",
+    "terminal"
+  ],
+  "mainFilePath": "/Main.cs",
+  "activeFilePath": "/Main.cs"
+}

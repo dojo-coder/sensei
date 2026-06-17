@@ -1,0 +1,35 @@
+{
+  "title": "Arrays from Zero to Hero",
+  "description": "A guided path that takes a learner from basic array indexing to common interview-grade array techniques, one lesson at a time.",
+  "visibility": "community",
+  "status": "draft",
+  "nodes": [
+    {
+      "conceptKey": "array-basics",
+      "concepts": ["arrays", "indexing"],
+      "title": "Array Basics",
+      "description": "Reading, writing and iterating over arrays.",
+      "theory": "## Arrays\n\nAn array stores elements contiguously, so indexing is O(1). In this lesson you'll practice reading and writing elements and iterating with a simple loop.",
+      "questions": [
+        "What is the time complexity of indexing into an array by position?",
+        "Why does appending to a dynamic array amortize to O(1)?"
+      ],
+      "difficulty": 1,
+      "challenges": ["PUT-A-REAL-CHALLENGE-ID-HERE"],
+      "requiredChallenges": ["PUT-A-REAL-CHALLENGE-ID-HERE"],
+      "lessonEstimate": 15
+    },
+    {
+      "conceptKey": "two-pointers",
+      "concepts": ["arrays", "two-pointers"],
+      "title": "The Two-Pointer Technique",
+      "description": "Solve array problems in a single pass using two indices.",
+      "theory": "## Two pointers\n\nMany array problems that look like they need O(n^2) can be solved in O(n) by walking two indices toward each other or in the same direction.",
+      "questions": ["When is the two-pointer technique applicable?"],
+      "difficulty": 2,
+      "challenges": ["PUT-A-REAL-CHALLENGE-ID-HERE", "PUT-A-REAL-CHALLENGE-ID-HERE"],
+      "requiredChallenges": ["PUT-A-REAL-CHALLENGE-ID-HERE"],
+      "lessonEstimate": 25
+    }
+  ]
+}

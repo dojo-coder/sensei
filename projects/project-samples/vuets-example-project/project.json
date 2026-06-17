@@ -1,0 +1,12 @@
+{
+  "title": "Vue TypeScript Image Slider",
+  "description": "A small Vue 3 + TypeScript + Vite sandbox: a styled image slider with Previous/Next buttons that disable at the ends and a position counter. A clean starting point for experimenting with typed props and reactive state.",
+  "template": "vuets_jest",
+  "tags": [
+    "vue",
+    "typescript",
+    "frontend"
+  ],
+  "mainFilePath": "/main.ts",
+  "activeFilePath": "/App.vue"
+}

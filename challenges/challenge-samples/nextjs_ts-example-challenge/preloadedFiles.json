@@ -1,0 +1,13 @@
+{
+  "folders": {
+    "/src": { "visible": true, "readonly": false },
+    "/src/app": { "visible": true, "readonly": false }
+  },
+  "files": {
+    "/src/app/page.tsx": { "visible": true, "readonly": false, "redacted": false },
+    "/src/app/layout.tsx": { "visible": false, "readonly": true, "redacted": false },
+    "/src/app/globals.css": { "visible": false, "readonly": true, "redacted": false },
+    "/next.config.js": { "visible": true, "readonly": true, "redacted": false }
+  },
+  "activeFilePath": "/src/app/page.tsx"
+}

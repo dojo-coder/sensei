@@ -1,0 +1,4 @@
+{
+  "title": "Hello world page",
+  "description": "Build a SvelteKit route at `src/routes/+page.svelte` that renders an `<h1>` element containing the text `Hello, World!`.\n\nThe seed ships:\n\n- `src/routes/+page.svelte` — the route component (this is the file you edit)\n- `svelte.config.js` — already configured with `adapter-auto` + `vitePreprocess` (readonly)\n\n## Expected output\n\n```svelte\n<script>\n</script>\n\n<h1>Hello, World!</h1>\n```\n\nSvelte 5 syntax is supported. No runes or stores are needed for this challenge — a plain `<h1>` is enough."
+}

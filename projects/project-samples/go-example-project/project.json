@@ -1,0 +1,11 @@
+{
+  "title": "Go FizzBuzz",
+  "description": "A tiny runnable Go sandbox that prints FizzBuzz for the numbers 1 through 15.",
+  "template": "go",
+  "tags": [
+    "go",
+    "terminal"
+  ],
+  "mainFilePath": "/main.go",
+  "activeFilePath": "/main.go"
+}

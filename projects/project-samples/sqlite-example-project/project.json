@@ -1,0 +1,11 @@
+{
+  "title": "SQLite Music Library",
+  "description": "A self-contained SQLite (WASM) sandbox modeling a small music library: artists and their albums linked by a foreign key, ending with a JOIN + aggregate that ranks artists by album count.",
+  "template": "sqlite",
+  "tags": [
+    "sql",
+    "sqlite",
+    "database"
+  ],
+  "activeFilePath": "/03-query.sql"
+}

@@ -1,0 +1,11 @@
+{
+  "title": "Vanilla TypeScript Image Slider",
+  "description": "A small Vanilla TypeScript + Vite sandbox: a styled image slider with Previous/Next buttons that disable at the ends and a position counter. A clean starting point for experimenting with typed DOM rendering, no framework.",
+  "template": "vanillats_jest",
+  "tags": [
+    "typescript",
+    "frontend"
+  ],
+  "mainFilePath": "/main.ts",
+  "activeFilePath": "/main.ts"
+}

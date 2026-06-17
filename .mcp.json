@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "dojocode": {
+      "type": "http",
+      "url": "http://localhost:8833/api/v1/mcp"
+    }
+  }
+}

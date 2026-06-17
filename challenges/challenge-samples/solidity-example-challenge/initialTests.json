@@ -1,0 +1,16 @@
+{
+  "folders": {
+    "/tests": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "files": {
+    "/tests/Voting.t.sol": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  }
+}

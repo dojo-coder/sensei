@@ -1,0 +1,12 @@
+{
+  "title": "Angular Image Slider",
+  "description": "A small Angular standalone sandbox: a styled image slider with Previous/Next buttons that disable at the ends, plus a current/total counter. A clean starting point for experimenting with standalone components and @Input props.",
+  "template": "angular_jest",
+  "tags": [
+    "angular",
+    "typescript",
+    "frontend"
+  ],
+  "mainFilePath": "/main.ts",
+  "activeFilePath": "/app.component.ts"
+}

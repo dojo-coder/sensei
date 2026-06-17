@@ -1,0 +1,12 @@
+{
+  "title": "Hono Items API",
+  "description": "A small, runnable Hono + TypeScript HTTP API: a greeting route plus an in-memory items collection served with @hono/node-server. A clean starting point for building backend routes.",
+  "template": "hono",
+  "tags": [
+    "hono",
+    "typescript",
+    "backend"
+  ],
+  "mainFilePath": "/src/main.ts",
+  "activeFilePath": "/src/app.ts"
+}

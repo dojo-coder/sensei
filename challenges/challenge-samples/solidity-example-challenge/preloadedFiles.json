@@ -1,0 +1,22 @@
+{
+  "folders": {
+    "/src": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "files": {
+    "/src/Voting.sol": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/Main.s.sol": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "activeFilePath": "/src/Voting.sol"
+}

@@ -1,0 +1,11 @@
+{
+  "title": "React Native Image Slider",
+  "description": "A React Native (JavaScript) sandbox running in the browser via react-native-web: a styled image slider with Previous/Next controls that gray out at the ends and a position counter. A clean starting point for experimenting with RN primitives, state, and props.",
+  "template": "react-native",
+  "tags": [
+    "react-native",
+    "mobile"
+  ],
+  "mainFilePath": "/index.jsx",
+  "activeFilePath": "/App.jsx"
+}

@@ -1,0 +1,21 @@
+import { render, screen } from '@testing-library/svelte';
+import Page from './src/routes/+page.svelte';
+
+describe('Page', () => {
+  test("renders an <h1> containing 'Hello, World!'", () => {
+    render(Page);
+    const heading = screen.getByRole('heading', { level: 1 });
+    expect(heading).toBeInTheDocument();
+    expect(heading).toHaveTextContent('Hello, World!');
+  });
+
+  test("the text matches 'Hello, World!' exactly", () => {
+    render(Page);
+    expect(screen.getByText('Hello, World!')).toBeInTheDocument();
+  });
+
+  test('renders exactly one heading', () => {
+    render(Page);
+    expect(screen.getAllByRole('heading')).toHaveLength(1);
+  });
+});

@@ -1,0 +1,4 @@
+{
+  "title": "Longest Palindromic Substring",
+  "description": "Given a string `s`, return the **longest contiguous substring** of `s` that is a **palindrome**.\n\n### Rules & clarifications\n- If multiple longest palindromes exist, **return any one** of them.\n- If `s` is empty, return an empty string `\"\"`.\n- Palindromes are **case-sensitive** (e.g., `\"Aa\"` is not a palindrome).\n- Substring means **contiguous** characters (not a subsequence).\n\n### Examples\n- Input: `\"babad\"` → Output: `\"bab\"` *(or `\"aba\"`; both are valid)*\n- Input: `\"cbbd\"` → Output: `\"bb\"`\n- Input: `\"\"` → Output: `\"\"`\n- Input: `\"a\"` → Output: `\"a\"`\n- Input: `\"aaaa\"` → Output: `\"aaaa\"`"
+}

@@ -1,0 +1,12 @@
+{
+  "title": "Node.js TypeScript FizzBuzz",
+  "description": "A small Node.js + TypeScript sandbox that prints FizzBuzz for 1..15 using a typed, exported fizzbuzz(n) helper.",
+  "template": "nodets_jest",
+  "tags": [
+    "typescript",
+    "nodejs",
+    "terminal"
+  ],
+  "mainFilePath": "/main.ts",
+  "activeFilePath": "/index.ts"
+}

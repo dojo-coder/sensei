@@ -1,0 +1,11 @@
+{
+  "title": "Svelte Image Slider",
+  "description": "A small Svelte 5 + Vite sandbox: a styled image slider with Previous/Next buttons that disable at the ends and a current/total counter. A clean starting point for experimenting with Svelte component state and props.",
+  "template": "svelte",
+  "tags": [
+    "svelte",
+    "frontend"
+  ],
+  "mainFilePath": "/main.js",
+  "activeFilePath": "/App.svelte"
+}

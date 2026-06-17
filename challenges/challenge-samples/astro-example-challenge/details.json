@@ -1,0 +1,4 @@
+{
+  "title": "Hello world page",
+  "description": "Build an Astro page at `src/pages/index.astro` that renders an `<h1>` element containing the text `Hello, World!`.\n\nThe page must include the standard HTML scaffolding (`<html lang=\"en\">`, `<head>` with charset + title, `<body>`) and the `<h1>` must live inside `<body>`.\n\n## Expected output\n\n```astro\n---\n---\n\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <title>Astro</title>\n  </head>\n  <body>\n    <h1>Hello, World!</h1>\n  </body>\n</html>\n```\n\nThe Astro frontmatter (between the `---` fences) runs server-side and is empty for this challenge. Tests use Astro's experimental container API to render the page to a string and assert against the produced HTML."
+}

@@ -1,0 +1,13 @@
+{
+  "title": "SvelteKit TypeScript Items App",
+  "description": "A minimal but real SvelteKit + TypeScript sandbox: a typed list of items rendered from a server-side load function, plus a JSON GET API endpoint. A clean starting point for full-stack SvelteKit experiments.",
+  "template": "sveltekit_ts",
+  "tags": [
+    "sveltekit",
+    "svelte",
+    "typescript",
+    "fullstack"
+  ],
+  "mainFilePath": "/src/routes/+page.svelte",
+  "activeFilePath": "/src/routes/+page.svelte"
+}

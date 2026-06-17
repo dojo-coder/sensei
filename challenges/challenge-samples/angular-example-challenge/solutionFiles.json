@@ -1,0 +1,13 @@
+{
+  "folders": {},
+  "files": {
+    "/angular.json": { "visible": false, "readonly": true, "redacted": false },
+    "/App.component.ts": { "visible": false, "readonly": true, "redacted": false },
+    "/app.module.ts": { "visible": false, "readonly": true, "redacted": false },
+    "/ImageSlider.component.html": { "visible": true, "readonly": false, "redacted": false },
+    "/ImageSlider.component.ts": { "visible": true, "readonly": false, "redacted": false },
+    "/index.html": { "visible": false, "readonly": true, "redacted": false },
+    "/main.ts": { "visible": false, "readonly": true, "redacted": false }
+  }
+}
+

@@ -1,0 +1,11 @@
+{
+  "title": "Rust FizzBuzz",
+  "description": "A small, idiomatic Rust sandbox that prints FizzBuzz for the numbers 1 through 15 using a reusable fizzbuzz helper.",
+  "template": "rust",
+  "tags": [
+    "rust",
+    "terminal"
+  ],
+  "mainFilePath": "/main.rs",
+  "activeFilePath": "/main.rs"
+}

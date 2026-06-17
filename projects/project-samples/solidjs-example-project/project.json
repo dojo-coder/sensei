@@ -1,0 +1,11 @@
+{
+  "title": "SolidJS Image Slider",
+  "description": "A small SolidJS + Vite sandbox: a styled image slider with Previous/Next buttons that disable at the ends, plus a position counter. A clean starting point for experimenting with Solid signals and props.",
+  "template": "solidjs",
+  "tags": [
+    "solidjs",
+    "frontend"
+  ],
+  "mainFilePath": "/index.jsx",
+  "activeFilePath": "/App.jsx"
+}

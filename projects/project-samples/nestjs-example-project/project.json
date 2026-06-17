@@ -1,0 +1,12 @@
+{
+  "title": "NestJS Items API",
+  "description": "A minimal but real NestJS HTTP API sandbox: a greeting endpoint plus an in-memory items resource exposing GET /items and GET /items/:id. A clean starting point for experimenting with modules, controllers, and providers.",
+  "template": "nestjs",
+  "tags": [
+    "nestjs",
+    "typescript",
+    "backend"
+  ],
+  "mainFilePath": "/src/main.ts",
+  "activeFilePath": "/src/items/items.controller.ts"
+}

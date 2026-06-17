@@ -1,0 +1,10 @@
+{
+  "folders": {
+    "/src": { "visible": true, "readonly": false },
+    "/src/pages": { "visible": true, "readonly": false }
+  },
+  "files": {
+    "/src/pages/index.astro": { "visible": true, "readonly": false, "redacted": false }
+  },
+  "activeFilePath": "/src/pages/index.astro"
+}

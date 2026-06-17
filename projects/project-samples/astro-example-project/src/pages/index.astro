@@ -1,0 +1,47 @@
+---
+import { items } from '../data/items.js';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Astro Items Site</title>
+  </head>
+  <body>
+    <main>
+      <h1>Items</h1>
+      <p>
+        A small list rendered from frontmatter. The same data is served as JSON
+        at <a href="/api/items.json">/api/items.json</a>.
+      </p>
+
+      <ul>
+        {items.map((item) => (
+          <li>
+            <strong>{item.name}</strong>
+            <span> — ${item.price.toFixed(2)} </span>
+            <em>{item.inStock ? 'In stock' : 'Out of stock'}</em>
+          </li>
+        ))}
+      </ul>
+    </main>
+  </body>
+</html>
+
+<style>
+  main {
+    max-width: 40rem;
+    margin: 2rem auto;
+    font-family: system-ui, sans-serif;
+    line-height: 1.5;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e5e5e5;
+  }
+</style>

@@ -1,0 +1,43 @@
+**/node_modules/
+
+# Generated resources (one folder per resource type). The .gitkeep markers and
+# the committed *-example descriptors are kept; everything else authored inside
+# these folders is local to the curator and ignored.
+/challenges/*
+!/challenges/.gitkeep
+!/challenges/challenge-samples/
+/contests/*
+!/contests/.gitkeep
+!/contests/contest-example/
+/learning-paths/*
+!/learning-paths/.gitkeep
+!/learning-paths/learning-path-example/
+/projects/*
+!/projects/.gitkeep
+!/projects/project-samples/
+/assignments/*
+!/assignments/.gitkeep
+!/assignments/assignment-example/
+
+/challenges/challenge-samples/**node_modules/**
+/temp/*
+!/temp/.gitkeep
+templatesConfiguration.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*

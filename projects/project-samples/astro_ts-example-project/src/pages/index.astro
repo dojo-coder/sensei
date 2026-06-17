@@ -1,0 +1,32 @@
+---
+import { items, type Item } from '../data/items';
+
+const title: string = 'Astro TypeScript Items';
+const list: Item[] = items;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <main>
+      <h1>{title}</h1>
+      <p>
+        A typed list rendered in Astro frontmatter. The same data is served as
+        JSON from <a href="/api/items.json">/api/items.json</a>.
+      </p>
+      <ul>
+        {
+          list.map((item) => (
+            <li>
+              <strong>{item.name}</strong> — {item.description}
+            </li>
+          ))
+        }
+      </ul>
+    </main>
+  </body>
+</html>

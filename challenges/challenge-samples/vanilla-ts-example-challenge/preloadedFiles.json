@@ -1,0 +1,10 @@
+{
+  "folders": {},
+  "files": {
+    "/ImageSlider.ts": { "visible": true, "readonly": false, "redacted": false },
+    "/index.html": { "visible": true, "readonly": false, "redacted": false },
+    "/index.ts": { "visible": false, "readonly": true, "redacted": false }
+  },
+  "activeFilePath": "/ImageSlider.ts"
+}
+

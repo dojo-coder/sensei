@@ -1,0 +1,12 @@
+{
+  "title": "SolidJS TypeScript Image Slider",
+  "description": "A small SolidJS + TypeScript + Vite sandbox: a styled image slider with Previous/Next buttons that disable at the ends. A clean starting point for experimenting with Solid signals and typed props.",
+  "template": "solidjs_ts",
+  "tags": [
+    "solidjs",
+    "typescript",
+    "frontend"
+  ],
+  "mainFilePath": "/index.tsx",
+  "activeFilePath": "/App.tsx"
+}

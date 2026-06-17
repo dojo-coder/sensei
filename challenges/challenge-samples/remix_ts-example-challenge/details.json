@@ -1,0 +1,4 @@
+{
+  "title": "Hello world index route",
+  "description": "Build a Remix + TypeScript index route at `app/routes/_index.tsx` that renders an `<h1>` element containing the text `Hello, World!`.\n\nThe seed ships:\n\n- `app/routes/_index.tsx` — the `/` route component (this is the file you edit)\n- `app/root.tsx` — the root layout (readonly)\n- `vite.config.js` — already configured with the Remix Vite plugin (readonly)\n\n## Expected output\n\n```tsx\nexport default function Index() {\n  return <h1>Hello, World!</h1>;\n}\n```\n\nNo `loader` / `action` is needed for this challenge — a plain React component is enough."
+}

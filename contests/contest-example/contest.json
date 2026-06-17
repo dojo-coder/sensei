@@ -1,0 +1,24 @@
+{
+  "name": "Weekend Algorithms Sprint",
+  "description": "A timed two-hour sprint of three byte-sized algorithm challenges. Solve as many as you can to climb the leaderboard. Open to the community — no prior registration required.",
+  "visibility": "community",
+  "startDate": "2026-07-04T18:00:00.000Z",
+  "endDate": "2026-07-04T20:00:00.000Z",
+  "challenges": [
+    {
+      "challenge": "PUT-A-REAL-CHALLENGE-ID-HERE",
+      "duration": 20,
+      "description": "Warm-up: array manipulation."
+    },
+    {
+      "challenge": "PUT-A-REAL-CHALLENGE-ID-HERE",
+      "duration": 30,
+      "description": "Core round: string processing."
+    },
+    {
+      "challenge": "PUT-A-REAL-CHALLENGE-ID-HERE",
+      "duration": 40,
+      "description": "Finale: graph traversal."
+    }
+  ]
+}

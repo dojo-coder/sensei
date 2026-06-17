@@ -1,0 +1,9 @@
+{
+  "folders": {},
+  "files": {
+    "/main.c": { "visible": true, "readonly": false, "redacted": false },
+    "/main.h": { "visible": true, "readonly": false, "redacted": false },
+    "/run.c": { "visible": true, "readonly": false, "redacted": false }
+  }
+}
+

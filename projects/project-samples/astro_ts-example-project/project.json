@@ -1,0 +1,12 @@
+{
+  "title": "Astro TypeScript Items Site",
+  "description": "A minimal Astro + TypeScript sandbox: an index page that renders a typed list of items, plus a TypeScript API endpoint that returns the same items as JSON. A clean starting point for exploring Astro frontmatter typing and API routes.",
+  "template": "astro_ts",
+  "tags": [
+    "astro",
+    "typescript",
+    "fullstack"
+  ],
+  "mainFilePath": "/src/pages/index.astro",
+  "activeFilePath": "/src/pages/index.astro"
+}

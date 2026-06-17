@@ -1,0 +1,11 @@
+{
+  "title": "Vue Image Slider",
+  "description": "A small Vue 3 + Vite sandbox: a styled image slider with Previous/Next buttons that disable at the ends. A clean starting point for experimenting with component state and props.",
+  "template": "vue_jest",
+  "tags": [
+    "vue",
+    "frontend"
+  ],
+  "mainFilePath": "/main.js",
+  "activeFilePath": "/App.vue"
+}

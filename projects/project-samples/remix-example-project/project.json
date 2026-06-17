@@ -1,0 +1,12 @@
+{
+  "title": "Remix Items App",
+  "description": "A minimal but real Remix (Vite, JavaScript) sandbox: an index route that loads a list of items via a server `loader` and renders them with `useLoaderData`, plus a JSON resource route at `/api/items`. A clean starting point for experimenting with Remix data loading.",
+  "template": "remix",
+  "tags": [
+    "remix",
+    "react",
+    "fullstack"
+  ],
+  "mainFilePath": "/app/routes/_index.jsx",
+  "activeFilePath": "/app/routes/_index.jsx"
+}

@@ -1,0 +1,11 @@
+{
+  "title": "Astro Items Site",
+  "description": "A minimal Astro sandbox: an index page that renders a list of items from frontmatter, plus a JSON API endpoint serving the same items. A clean starting point for exploring Astro pages and endpoints.",
+  "template": "astro",
+  "tags": [
+    "astro",
+    "fullstack"
+  ],
+  "mainFilePath": "/src/pages/index.astro",
+  "activeFilePath": "/src/pages/index.astro"
+}

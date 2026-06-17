@@ -1,0 +1,11 @@
+{
+  "title": "C++ FizzBuzz",
+  "description": "A tiny C++ terminal sandbox that prints FizzBuzz for the numbers 1 through 15 using a std::string helper and std::cout.",
+  "template": "cpp",
+  "tags": [
+    "cpp",
+    "terminal"
+  ],
+  "mainFilePath": "/main.cpp",
+  "activeFilePath": "/main.cpp"
+}

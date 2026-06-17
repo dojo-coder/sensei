@@ -1,0 +1,16 @@
+{
+  "title": "Week 1 — Arrays",
+  "instructions": "Complete every lesson in the Arrays learning path. Aim for a passing score of 80% on the auto-graded challenges. Reach out on the class channel if you get stuck.",
+  "sourceType": "learning-path",
+  "learningPathId": "PUT-A-REAL-LEARNING-PATH-ID-HERE",
+  "challengeId": null,
+  "groupIds": ["PUT-A-REAL-GROUP-ID-HERE"],
+  "studentIds": [],
+  "dueDate": "2026-07-15T23:59:00.000Z",
+  "cutoffDate": "2026-07-18T23:59:00.000Z",
+  "status": "draft",
+  "autograding": {
+    "enabled": true,
+    "passingScore": 80
+  }
+}

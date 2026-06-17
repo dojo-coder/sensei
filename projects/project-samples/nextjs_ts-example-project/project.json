@@ -1,0 +1,13 @@
+{
+  "title": "Next.js TypeScript Items App",
+  "description": "A minimal Next.js App Router sandbox in TypeScript: a home page renders a typed list of items, and a Route Handler at /api/items serves the same items as JSON. A clean starting point for full-stack App Router experiments.",
+  "template": "nextjs_ts",
+  "tags": [
+    "nextjs",
+    "react",
+    "typescript",
+    "fullstack"
+  ],
+  "mainFilePath": "/app/page.tsx",
+  "activeFilePath": "/app/page.tsx"
+}

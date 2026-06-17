@@ -1,0 +1,12 @@
+<div>
+  <img
+    [src]="images[currentImage]"
+    width="200"
+    height="250"
+    [alt]="'Image ' + (currentImage + 1)"
+  />
+  <button [disabled]="isPrevDisabled" (click)="previousImage()">
+    Previous
+  </button>
+  <button [disabled]="isNextDisabled" (click)="nextImage()">Next</button>
+</div>

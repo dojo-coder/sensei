@@ -1,0 +1,11 @@
+{
+  "title": "Solidity Counter",
+  "description": "A small Foundry/Solidity sandbox: a clean Counter contract with increment, decrement, and setNumber, plus a forge script that deploys it and logs state changes. A clean starting point for experimenting with smart-contract state.",
+  "template": "solidity",
+  "tags": [
+    "solidity",
+    "smart-contracts"
+  ],
+  "mainFilePath": "/Main.s.sol",
+  "activeFilePath": "/src/Counter.sol"
+}

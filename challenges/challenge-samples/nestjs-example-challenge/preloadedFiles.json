@@ -1,0 +1,12 @@
+{
+  "folders": {
+    "/src": { "visible": true, "readonly": false }
+  },
+  "files": {
+    "/src/main.ts": { "visible": false, "readonly": true, "redacted": false },
+    "/src/app.module.ts": { "visible": true, "readonly": true, "redacted": false },
+    "/src/app.controller.ts": { "visible": true, "readonly": true, "redacted": false },
+    "/src/app.service.ts": { "visible": true, "readonly": false, "redacted": false }
+  },
+  "activeFilePath": "/src/app.service.ts"
+}

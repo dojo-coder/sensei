@@ -1,0 +1,11 @@
+{
+  "title": "PGlite Bookstore",
+  "description": "A PostgreSQL-in-WASM sandbox: a tiny bookstore with related authors and books tables, sample data, and a JOIN + aggregate query whose rows render in the Preview. A clean starting point for experimenting with SQL.",
+  "template": "pglite",
+  "tags": [
+    "sql",
+    "postgres",
+    "database"
+  ],
+  "activeFilePath": "/03-query.sql"
+}

@@ -1,0 +1,4 @@
+{
+  "title": "Hello world page",
+  "description": "Build a Next.js App Router page at `/` that renders an `<h1>` element containing the text `Hello, World!`.\n\nThe seed ships an App Router project structure under `src/app/`:\n\n- `src/app/page.jsx` — the route component (this is the file you edit)\n- `src/app/layout.jsx` — the root layout (already wraps `<html><body>{children}</body></html>`)\n- `next.config.js` — ESM Next config (already set)\n\nReplace the body of `Page` in `src/app/page.jsx` so the rendered output contains exactly the text `Hello, World!` inside a single `<h1>` element.\n\n## Expected output\n\n```jsx\nexport default function Page() {\n  return <h1>Hello, World!</h1>;\n}\n```\n\nNo client-side interactivity is needed — the page can be a Server Component (no `'use client'` directive)."
+}

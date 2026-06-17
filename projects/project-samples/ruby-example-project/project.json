@@ -1,0 +1,11 @@
+{
+  "title": "Ruby FizzBuzz",
+  "description": "A tiny runnable Ruby sandbox that prints FizzBuzz for the numbers 1 through 15.",
+  "template": "ruby",
+  "tags": [
+    "ruby",
+    "terminal"
+  ],
+  "mainFilePath": "/main.rb",
+  "activeFilePath": "/main.rb"
+}

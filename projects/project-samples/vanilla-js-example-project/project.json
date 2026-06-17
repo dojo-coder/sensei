@@ -1,0 +1,11 @@
+{
+  "title": "Vanilla JS Image Slider",
+  "description": "A small Vanilla JavaScript + Vite sandbox: a styled image slider with Previous/Next buttons that disable at the ends and a current/total counter. A clean starting point for experimenting with DOM state without a framework.",
+  "template": "vanillajs_jest",
+  "tags": [
+    "javascript",
+    "frontend"
+  ],
+  "mainFilePath": "/main.js",
+  "activeFilePath": "/main.js"
+}

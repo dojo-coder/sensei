@@ -1,0 +1,11 @@
+{
+  "folders": {
+    "/src": { "visible": true, "readonly": false },
+    "/src/routes": { "visible": true, "readonly": false }
+  },
+  "files": {
+    "/src/routes/+page.svelte": { "visible": true, "readonly": false, "redacted": false },
+    "/svelte.config.js": { "visible": true, "readonly": true, "redacted": false }
+  },
+  "activeFilePath": "/src/routes/+page.svelte"
+}

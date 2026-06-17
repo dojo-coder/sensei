@@ -1,0 +1,11 @@
+{
+  "title": "Python FizzBuzz",
+  "description": "A tiny Python terminal sandbox that prints FizzBuzz for the numbers 1 through 15.",
+  "template": "python",
+  "tags": [
+    "python",
+    "terminal"
+  ],
+  "mainFilePath": "/main.py",
+  "activeFilePath": "/main.py"
+}

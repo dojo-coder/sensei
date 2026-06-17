@@ -1,0 +1,12 @@
+{
+  "title": "Node.js FizzBuzz",
+  "description": "A plain Node.js sandbox that prints FizzBuzz for 1..15 using a reusable fizzbuzz(n) function.",
+  "template": "nodejs_jest",
+  "tags": [
+    "javascript",
+    "nodejs",
+    "terminal"
+  ],
+  "mainFilePath": "/main.js",
+  "activeFilePath": "/index.js"
+}

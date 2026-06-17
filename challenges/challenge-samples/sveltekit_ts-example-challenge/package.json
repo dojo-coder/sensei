@@ -1,0 +1,17 @@
+{
+  "name": "sveltekit_ts-example-challenge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/routes/+page.svelte",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@sveltejs/kit": "^2.59.1",
+    "svelte": "^5.0.0"
+  }
+}
