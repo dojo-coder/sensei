@@ -10,6 +10,8 @@ The document is organized in parts. Read the **Session start** section first (it
 - **Part 4 — Projects**: create a free-form sandbox project from a template and a file tree (`create_project`).
 - **Part 5 — Assignments**: assign a learning path or a challenge to students / groups (`create_assignment`).
 
+> **Organizations / workspace.** Business work (contests, assignments, student groups, and the content that belongs to them) is scoped to an **organization workspace**. Establish the active workspace at session start with `get_my_organizations` → `select_organization` before any org-scoped operation — see **Organization workspace** under *Session start*.
+
 Each resource type has its own top-level folder in this repo (`challenges/`, `contests/`, `learning-paths/`, `projects/`, `assignments/`) with a committed `*-example` descriptor inside it, while the full library of challenge template samples lives under `challenges/challenge-samples/`. Contests, learning paths, and assignments reference **existing** challenges (and learning paths) by their platform `_id` — always resolve those IDs first via `get_my_challenges` / `get_challenges` / `get_my_learning_paths` before calling a create tool. Parts 2–5 and their MCP workflows live at the **end of this file**, after the challenge workflows.
 
 ## Session start (mandatory first step)
@@ -27,6 +29,31 @@ Each resource type has its own top-level folder in this repo (`challenges/`, `co
    - If it already exists, replace its entire content with the built object.
 
 Use the resulting `templatesConfiguration.json` as the source of truth for template `_id` and `selectedLanguage` in all subsequent operations (creating challenges, adding variations, etc.). Do not rely on hardcoded IDs in this document; always use values from `templatesConfiguration.json` (or from the file you just wrote at session start).
+
+## Organization workspace (business / instructor work)
+
+DojoCode is **organization-scoped**. A business account belongs to one or more **organizations** (workspaces); the content it creates (challenges, projects, learning paths, contests), its student **groups**, and its **assignments** all live inside the *active* workspace. Owners/admins manage an organization; students are members.
+
+**Before any organization-scoped operation** — creating a contest or assignment, listing/creating groups or students, or managing members — make the right workspace active:
+
+1. Call `get_my_organizations` to list the workspaces the account belongs to (each with your `role` — `owner` | `admin` | `member` — and the org `_id`). If there is exactly one, use it. If there are several, ask the user which to work in.
+2. Call `select_organization` with that `organizationId` to make it active. (Omit `organizationId` to switch back to the personal workspace.) Content, group, and assignment tools then operate inside that org and stamp new resources with it.
+
+To confirm which workspace is *currently* active without changing it, call `get_current_organization` — it returns the active org (`_id`, `name`, `role`, `plan`), or `{ workspace: 'personal' }` when none is selected. Use it to answer "which organization am I in?" and to check context before creating resources.
+
+If a group/assignment/contest tool ever fails with *"Select an organization workspace"*, you skipped this step — run it and retry.
+
+**Who can do what:** only the `business` tier — a Business account, or an org **owner/admin** — can create/manage organizations, groups, students, contests, and assignments. Plain members can list their orgs and select a workspace, but not manage it.
+
+**Managing the org roster (owner/admin):**
+
+- `list_organization_members` — see everyone in the org (owners/admins/members) with `membershipId`, `user`, `role`, `status`.
+- `create_organization_user` — create a **brand-new** student (or admin) account and add them to the org in one call (`email`, `password`, `username`, `firstName`, `lastName`, optional `role`, default `member`).
+- `add_organization_member` — add an **existing** DojoCode account to the org by `email` or `userId` (with `role`).
+- `update_member_role` / `remove_member` — change a member's role or remove them (the owner can't be changed or removed).
+- `create_organization` — bootstrap a new organization (the caller becomes its owner); only needed if the account has none.
+
+> Assignment recipients are still resolved from **groups** (`get_my_groups` / `get_my_students`); a `studentId` must belong to one of your groups. Adding someone to the org roster makes them manageable, but put them in a group before assigning to them individually.
 
 ---
 
@@ -2063,7 +2090,7 @@ A reference descriptor lives at `contests/contest-example/contest.json`.
 
 ## Interactive contest creation flow
 
-This mirrors the DojoCode in-app contest flow (which uses a config form + a suggestions panel). You have no UI, so you **ask in plain text** and **present suggestions as text**. The same **Tool rules** as Part 3 apply (call `get_templates`/`get_languages`/`get_all_tags` once; Capitalized language/template names; `get_challenges` must pass `status: "pending,approved"` and returns slim objects; `search` matches title only — prefer `tags`/`difficulty`/`language`).
+This mirrors the DojoCode in-app contest flow (which uses a config form + a suggestions panel). You have no UI, so you **ask in plain text** and **present suggestions as text**. Contests are **organization-scoped** — first make the right workspace active (`get_my_organizations` → `select_organization`; see *Organization workspace* under Session start), or `create_contest` will fail with *"Select an organization workspace"*. The same **Tool rules** as Part 3 apply (call `get_templates`/`get_languages`/`get_all_tags` once; Capitalized language/template names; `get_challenges` must pass `status: "pending,approved"` and returns slim objects; `search` matches title only — prefer `tags`/`difficulty`/`language`).
 
 ### STEP 1 — Gather requirements (ask, don't assume)
 
@@ -2373,16 +2400,18 @@ A reference descriptor lives at `assignments/assignment-example/assignment.json`
 
 ## Interactive assignment creation flow
 
-This mirrors the in-app trainer assistant's `assign_existing_path` chain. The platform pops UI pickers for recipients and source; you **ask in plain text and list the options you fetch**. Work the steps in order; don't call `create_assignment` until recipients + source + due date are settled.
+This mirrors the in-app trainer assistant's `assign_existing_path` chain. The platform pops UI pickers for recipients and source; you **ask in plain text and list the options you fetch**. First make sure the right **organization workspace** is active (`get_my_organizations` → `select_organization`; see *Organization workspace* under Session start) — assignments and groups are scoped to it. Work the steps in order; don't call `create_assignment` until recipients + source + due date are settled.
 
 ### STEP 1 — Pick recipients (groups and/or individual students)
 
 If the user already named a specific group or a student that exists in their roster, use it and skip the question. Otherwise:
 
-1. Call `get_my_groups` (groups, each with its students) and/or `get_my_students` (paginated roster). Use `get_group` to expand a group's members when needed.
+1. Call `get_my_groups` (groups, each with its students) and/or `get_my_students` (paginated roster). Use `get_group` to expand a group's members when needed. These are scoped to the active organization workspace.
 2. Present the groups/students as a concise numbered list and ask **who** the assignment is for (one or more groups, one or more individual students, or a mix). Wait for the reply.
 
 Recipients become `groupIds[]` and/or `studentIds[]` — at least one entry across the two. Every `studentId` **must** belong to one of your groups (the platform rejects the call otherwise), so only offer students from your own roster.
+
+> **Empty roster?** If the org has no students yet, grow it (owner/admin): `create_organization_user` to create a brand-new student account in the org, or `add_organization_member` to bring in an existing DojoCode account. Confirm with `list_organization_members`. New members still need to be in a **group** before they can be targeted individually — assign by group, or add them to a group first.
 
 ### STEP 2 — Pick the source (a learning path OR a challenge)
 
@@ -2424,8 +2453,16 @@ The challenge MCP commands are documented in Part 1. The resource-creation comma
 | `prepare_project_upload` | Project | Get a one-time upload URL for a project's files (zip) | _(none)_ |
 | `prepare_project_download` | Project | Get a one-time download URL for a project's files (zip) | `projectId` |
 | `create_assignment` | Assignment | Assign a learning path or challenge to students/groups | `title`, `sourceType`, `dueDate` (+ source id + recipients) |
+| `get_current_organization` | Organization | Show the active workspace (`_id`/`name`/`role`/`plan`) or personal; read-only, no side effects | _(none)_ |
+| `select_organization` | Organization | Set the active workspace (omit id → personal). Run before org-scoped work | _(optional `organizationId`)_ |
+| `create_organization` | Organization | Create a new organization (caller becomes owner) | `name` |
+| `list_organization_members` | Organization | List an org's members (owner/admin) | `organizationId` |
+| `create_organization_user` | Organization | Create a new user account + add to the org | `organizationId`, `email`, `password`, `username`, `firstName`, `lastName` (+ optional `role`) |
+| `add_organization_member` | Organization | Add an existing account to the org by email/userId | `organizationId`, `role` (+ `userId` or `email`) |
+| `update_member_role` | Organization | Change a member's role (`admin`/`member`) | `organizationId`, `membershipId`, `role` |
+| `remove_member` | Organization | Remove a member from the org | `organizationId`, `membershipId` |
 
-Read-only / supporting commands you will use to resolve IDs and confirm results: `get_challenges`, `get_my_challenges`, `get_contests`, `get_upcoming_contests`, `get_contest`, `get_contest_leaderboard`, `get_contest_analytics`, `get_learning_paths`, `get_my_learning_paths`, `get_learning_path`, `open_learning_path`, `get_projects`, `get_my_projects`, `open_project`, `open_edit_project`, `get_my_groups`, `get_group`, `get_my_students`, `get_student_assignments`, `get_assignment_progress`.
+Read-only / supporting commands you will use to resolve IDs and confirm results: `get_my_organizations`, `get_current_organization`, `get_challenges`, `get_my_challenges`, `get_contests`, `get_upcoming_contests`, `get_contest`, `get_contest_leaderboard`, `get_contest_analytics`, `get_learning_paths`, `get_my_learning_paths`, `get_learning_path`, `open_learning_path`, `get_projects`, `get_my_projects`, `open_project`, `open_edit_project`, `get_my_groups`, `get_group`, `get_my_students`, `get_student_assignments`, `get_assignment_progress`.
 
 ## Resource edit links (always use these)
 
@@ -2437,8 +2474,9 @@ After **creating or editing** a learning path or contest, show the user a clicka
 
 ## Per-resource workflow summary
 
+- **Organization / workspace** (Session start): `get_my_organizations` → `select_organization` before any business work (contests, assignments, groups). Manage the roster with `list_organization_members` / `create_organization_user` / `add_organization_member` / `update_member_role` / `remove_member`.
 - **Challenge** (Part 1): author files → `create_challenge` → `add_variation` (per template) → `createExportContent.js` → `prepare_file_upload` → `uploadChallengeFiles.js` → run tests → `get_challenge_edit_url`.
-- **Contest** (Part 2): **interactive** — gather requirements (challenges-per-contest + suggestion count + AI assistant) → discover challenges → propose suggestions (with distinct invitation/final descriptions) & let the user pick → author `contest.json` → `create_contest` → save `contestCreate.json`. Edit a **draft** contest with `update_contest`.
+- **Contest** (Part 2): **interactive** — select the workspace (`get_my_organizations` → `select_organization`) → gather requirements (challenges-per-contest + suggestion count + AI assistant) → discover challenges → propose suggestions (with distinct invitation/final descriptions) & let the user pick → author `contest.json` → `create_contest` → save `contestCreate.json`. Edit a **draft** contest with `update_contest`.
 - **Learning Path** (Part 3): **interactive** — gather requirements (ask) → discover challenges (`get_challenges` with `status: "pending,approved"`) → propose an outline & get approval → author `learningPath.json` → `create_learning_path` → save `learningPathCreate.json`. Edit a **draft** path with `update_learning_path` (metadata / add / update / delete / reorder lessons).
 - **Project** (Part 4): scaffold raw files (copy a `projects/project-samples/*`) → `create_project` (title/slug/template/description/tags) → `createProjectContent.js` → `prepare_project_upload` → `uploadProjectFiles.js`. Pull live files with `prepare_project_download` → `downloadProjectFiles.js`.
-- **Assignment** (Part 5): **interactive** — pick recipients (`get_my_groups` / `get_my_students`) → pick source (`get_my_learning_paths` / `get_my_challenges`) → settle due date + student-facing instructions → author `assignment.json` → `create_assignment` (draft) → save `assignmentCreate.json`.
+- **Assignment** (Part 5): **interactive** — select the workspace (`get_my_organizations` → `select_organization`) → pick recipients (`get_my_groups` / `get_my_students`) → pick source (`get_my_learning_paths` / `get_my_challenges`) → settle due date + student-facing instructions → author `assignment.json` → `create_assignment` (draft) → save `assignmentCreate.json`.
