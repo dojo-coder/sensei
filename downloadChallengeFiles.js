@@ -136,7 +136,7 @@ async function main() {
     console.log("");
     console.log("Example:");
     console.log(
-      "  node downloadChallengeFiles.js http://localhost:8833/api/v1/mcp/download/abc123 challenges/fizz-buzz/templates"
+      "  node downloadChallengeFiles.js https://api.dojocode.io/api/v1/mcp/download/abc123 challenges/fizz-buzz/templates"
     );
     process.exit(1);
   }

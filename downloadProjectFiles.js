@@ -81,7 +81,7 @@ async function main() {
     console.log("");
     console.log("Example:");
     console.log(
-      "  node downloadProjectFiles.js http://localhost:8833/api/v1/mcp/download/abc123 projects/my-sandbox"
+      "  node downloadProjectFiles.js https://api.dojocode.io/api/v1/mcp/download/abc123 projects/my-sandbox"
     );
     process.exit(1);
   }

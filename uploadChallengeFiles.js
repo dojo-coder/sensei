@@ -98,7 +98,7 @@ if (args.length < 4) {
   console.log("");
   console.log("Example:");
   console.log(
-    "  node uploadChallengeFiles.js http://localhost:8833/api/v1/mcp/upload/abc123 64f... 64f... challenges/my-challenge/templates/nodejs-jest/exportedContent.zip"
+    "  node uploadChallengeFiles.js https://api.dojocode.io/api/v1/mcp/upload/abc123 64f... 64f... challenges/my-challenge/templates/nodejs-jest/exportedContent.zip"
   );
   process.exit(1);
 }

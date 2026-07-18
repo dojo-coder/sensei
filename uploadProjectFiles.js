@@ -90,7 +90,7 @@ if (args.length < 3) {
   console.log("");
   console.log("Example:");
   console.log(
-    "  node uploadProjectFiles.js http://localhost:8833/api/v1/mcp/upload/abc123 64f... projects/my-sandbox/exportedContent.zip"
+    "  node uploadProjectFiles.js https://api.dojocode.io/api/v1/mcp/upload/abc123 64f... projects/my-sandbox/exportedContent.zip"
   );
   process.exit(1);
 }
