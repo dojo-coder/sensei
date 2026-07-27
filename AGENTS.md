@@ -1833,6 +1833,35 @@ After thinking of fields requested by user and having them we can go to step 4
 
 If the response is an object containing challenge info then print a message and let user know that challenge was successfully updated. Call the MCP command `get_challenge_edit_url` with the `challengeId` and `variationId` (the `defaultVariation._id` from `challengeCreate.json`) to get the edit link, and display it to the user with a message like: "You can access the challenge by following this link: <editUrl>". Otherwise print the error.
 
+## Manage Dependencies Workflow with MCP Commands
+
+When instructed to add, update, or remove a dependency (package/library) on a challenge or project (e.g., "add lodash to challenge x", "bump react to 18.3.1 on my project", "remove axios from challenge y"), follow this workflow:
+
+1. **Check template support**: Dependencies only work on templates with `enableDependencies: true` — check the template in `templatesConfiguration.json` / via `get_templates`. If the template does not support dependencies, tell the user and stop. Backend (nestjs/fastify/hono) and database (pglite/sqlite) template dependencies are baked into the Docker images and cannot be managed this way.
+
+2. **Resolve the target ids**:
+   - Challenge: `challengeId` = the `_id` and `variationId` = the variation `_id` from `challengeCreate.json` (or from `get_my_challenges` for live challenges). If `variationId` is omitted, the default variation is used — but each variation has its OWN dependency list, so pass it explicitly when the user targets a specific variation.
+   - Project: `projectId` from `projectCreate.json` (or `get_my_projects`).
+
+3. **Call the MCP command** — one package per call:
+   - Challenge: `update_challenge_dependencies` with `challengeId`, `variationId` (optional), `action`, `name`, `version` (optional)
+   - Project: `update_project_dependencies` with `projectId`, `action`, `name`, `version` (optional)
+
+   Parameters:
+   - `action`: `"add"`, `"update"` (change the version of an existing entry), or `"remove"`
+   - `name`: the package name in the template's registry (npm, PyPI, Packagist, RubyGems, NuGet, Maven, crates.io, Conan — depends on the template language)
+   - `version`: exact version for add/update; **omit it to use the latest published version**. The name and version are validated against the registry — the call fails with a clear error for unknown packages/versions.
+
+4. **Printing response message**: On success the response contains `message`, `updated.dependencies` (the full new list `{ name, selectedVersion }[]`), and `installation.status` — the REAL install outcome, because the command waits for the installation (up to ~90s):
+   - `installed` — the package is ready; tell the user.
+   - `install_failed` — the install error is included; relay it. The dependency list stays saved — offer to `remove` the package if the user prefers.
+   - `installing` — the install exceeded the wait window and continues in the background; the editor notifies the author of the final result.
+   - `no_install` — saved, but no server-side installation applies to this change.
+
+   On error, print the error (e.g. unsupported template, unknown package, version not found).
+
+5. **Sync the LOCAL manifest** (edge case): hand-editing local manifests is NOT how live dependencies are managed — the MCP command above is. BUT if the local template/project folder contains a manifest file that gets zipped and uploaded (e.g. `package.json` on browser/full-stack templates), update it to match the new dependency list after a successful call — otherwise the next file upload ships a stale manifest and drifts from the platform's dependency list.
+
 ## Get info about existing templates from live
 
 **Template IDs and selectedLanguage**: For template `_id` and `selectedLanguage` (e.g. when creating challenges or adding variations), **read from `templatesConfiguration.json`**. That file is populated at session start by calling `get_templates` and saving the result in the format described in "Session start (mandatory first step)".
@@ -2450,6 +2479,7 @@ The challenge MCP commands are documented in Part 1. The resource-creation comma
 | `create_learning_path` | Learning Path | Create a guided path from existing challenges | `title` (+ optional `description`, `visibility`, `status`, `nodes[]`) |
 | `update_learning_path` | Learning Path | Edit a **draft** path (metadata / add / update / delete / reorder lessons) | `learningPathId`, `action` (+ the fields that action needs) |
 | `create_project` | Project | Create a sandbox project from a template (files uploaded separately) | `title`, `slug`, `template` (+ optional `description`, `tags`) |
+| `update_project_dependencies` | Project | Add/update/remove ONE package (validated against the template registry; waits for the install and reports `installation.status`) | `projectId`, `action`, `name` (+ optional `version`) |
 | `prepare_project_upload` | Project | Get a one-time upload URL for a project's files (zip) | _(none)_ |
 | `prepare_project_download` | Project | Get a one-time download URL for a project's files (zip) | `projectId` |
 | `create_assignment` | Assignment | Assign a learning path or challenge to students/groups | `title`, `sourceType`, `dueDate` (+ source id + recipients) |
@@ -2475,8 +2505,8 @@ After **creating or editing** a learning path or contest, show the user a clicka
 ## Per-resource workflow summary
 
 - **Organization / workspace** (Session start): `get_my_organizations` → `select_organization` before any business work (contests, assignments, groups). Manage the roster with `list_organization_members` / `create_organization_user` / `add_organization_member` / `update_member_role` / `remove_member`.
-- **Challenge** (Part 1): author files → `create_challenge` → `add_variation` (per template) → `createExportContent.js` → `prepare_file_upload` → `uploadChallengeFiles.js` → run tests → `get_challenge_edit_url`.
+- **Challenge** (Part 1): author files → `create_challenge` → `add_variation` (per template) → `createExportContent.js` → `prepare_file_upload` → `uploadChallengeFiles.js` → run tests → `get_challenge_edit_url`. Manage packages with `update_challenge_dependencies` (then sync the local manifest — see the dependency workflow).
 - **Contest** (Part 2): **interactive** — select the workspace (`get_my_organizations` → `select_organization`) → gather requirements (challenges-per-contest + suggestion count + AI assistant) → discover challenges → propose suggestions (with distinct invitation/final descriptions) & let the user pick → author `contest.json` → `create_contest` → save `contestCreate.json`. Edit a **draft** contest with `update_contest`.
 - **Learning Path** (Part 3): **interactive** — gather requirements (ask) → discover challenges (`get_challenges` with `status: "pending,approved"`) → propose an outline & get approval → author `learningPath.json` → `create_learning_path` → save `learningPathCreate.json`. Edit a **draft** path with `update_learning_path` (metadata / add / update / delete / reorder lessons).
-- **Project** (Part 4): scaffold raw files (copy a `projects/project-samples/*`) → `create_project` (title/slug/template/description/tags) → `createProjectContent.js` → `prepare_project_upload` → `uploadProjectFiles.js`. Pull live files with `prepare_project_download` → `downloadProjectFiles.js`.
+- **Project** (Part 4): scaffold raw files (copy a `projects/project-samples/*`) → `create_project` (title/slug/template/description/tags) → `createProjectContent.js` → `prepare_project_upload` → `uploadProjectFiles.js`. Pull live files with `prepare_project_download` → `downloadProjectFiles.js`. Manage packages with `update_project_dependencies` (then sync the local manifest — see the dependency workflow in Part 1).
 - **Assignment** (Part 5): **interactive** — select the workspace (`get_my_organizations` → `select_organization`) → pick recipients (`get_my_groups` / `get_my_students`) → pick source (`get_my_learning_paths` / `get_my_challenges`) → settle due date + student-facing instructions → author `assignment.json` → `create_assignment` (draft) → save `assignmentCreate.json`.
