@@ -1,6 +1,6 @@
 # DojoCode Resource Curator - Agent Guidelines
 
-This file provides comprehensive context for AI curators on how to create, structure, and manage **all DojoCode resource types** by calling the `dojocode` MCP tools: coding **challenges**, **contests**, **learning paths**, **projects**, and **assignments**.
+This file provides comprehensive context for AI curators on how to create, structure, and manage **all DojoCode resource types** by calling the `dojocode` MCP tools: coding **challenges**, **contests**, **learning paths**, **projects**, **assignments**, and **business reports**.
 
 The document is organized in parts. Read the **Session start** section first (it applies to every workflow), then jump to the part for the resource you are creating:
 
@@ -9,10 +9,11 @@ The document is organized in parts. Read the **Session start** section first (it
 - **Part 3 — Learning Paths**: assemble existing challenges into a guided, lesson-by-lesson path (`create_learning_path`).
 - **Part 4 — Projects**: create a free-form sandbox project from a template and a file tree (`create_project`).
 - **Part 5 — Assignments**: assign a learning path or a challenge to students / groups (`create_assignment`).
+- **Part 6 — Business Reports**: generate persisted snapshots — groups statistics, a contest's leaderboard, or a learning path's progress leaderboard (`generate_business_report`).
 
 > **Organizations / workspace.** Business work (contests, assignments, student groups, and the content that belongs to them) is scoped to an **organization workspace**. Establish the active workspace at session start with `get_my_organizations` → `select_organization` before any org-scoped operation — see **Organization workspace** under *Session start*.
 
-Each resource type has its own top-level folder in this repo (`challenges/`, `contests/`, `learning-paths/`, `projects/`, `assignments/`) with a committed `*-example` descriptor inside it, while the full library of challenge template samples lives under `challenges/challenge-samples/`. Contests, learning paths, and assignments reference **existing** challenges (and learning paths) by their platform `_id` — always resolve those IDs first via `get_my_challenges` / `get_challenges` / `get_my_learning_paths` before calling a create tool. Parts 2–5 and their MCP workflows live at the **end of this file**, after the challenge workflows.
+Each resource type has its own top-level folder in this repo (`challenges/`, `contests/`, `learning-paths/`, `projects/`, `assignments/`) with a committed `*-example` descriptor inside it, while the full library of challenge template samples lives under `challenges/challenge-samples/`. Contests, learning paths, and assignments reference **existing** challenges (and learning paths) by their platform `_id` — always resolve those IDs first via `get_my_challenges` / `get_challenges` / `get_my_learning_paths` before calling a create tool. Parts 2–6 and their MCP workflows live at the **end of this file**, after the challenge workflows.
 
 ## Session start (mandatory first step)
 
@@ -2468,6 +2469,48 @@ Recipients become `groupIds[]` and/or `studentIds[]` — at least one entry acro
 
 ---
 
+# Part 6 — Business Reports
+
+A **business report** is a persisted snapshot of exactly ONE kind:
+
+- **Groups report** (`type: "groups"`) — statistics over one or more of the instructor's **student groups**: overview stat cards, per-group comparison, skills radar with strengths/weaknesses, score distributions, completion timeline, and a per-student table.
+- **Contest report** (`type: "contest"`) — strictly the **contest's leaderboard** (rank, score, solved challenges, total time, AI prompts, failed submits) for every participant.
+- **Learning-path report** (`type: "learning-path"`) — the path's enrolled students ranked by **completion percent** (lessons + required challenges), with status and completion dates.
+
+Reports are generated asynchronously and stay stored — the instructor revisits, regenerates, and exports them (CSV/PDF) from the reports page.
+
+Use this whenever a business user asks for insights — "how is my class doing?", "give me the contest results", "who progressed the most on my learning path?", "compare my groups". Requires the `business` access tier and an active organization workspace.
+
+## Interactive report flow
+
+Generating a report is a short conversation — ask, then call:
+
+### STEP 1 — Workspace + report type
+
+1. Make sure the right organization workspace is active (`get_my_organizations` → `select_organization`; see *Organization workspace* under Session start).
+2. Ask **what kind of report** they want — groups statistics, a contest's leaderboard, or a learning path's progress. Skip the question if the request already makes it clear ("how did the contest go?" → contest).
+
+### STEP 2 — Pick the subject (depends on the type)
+
+- **Groups** — call `get_my_groups`, present the groups as a concise numbered list, ask **which group(s)** (one, several, or all). Capture `groupIds`.
+- **Contest** — list candidates with `get_contests` / `get_contest`, capture the `contestId`.
+- **Learning path** — list candidates with `get_my_learning_paths`, capture the `learningPathId`.
+
+If the user already named the subject, resolve the id and skip the question. Default the **title** to something descriptive ("First Business Contest results"); don't ask unless the user cares.
+
+### STEP 3 — Generate, poll, present
+
+1. Call `generate_business_report` with `{ title, type, groupIds? | contestId? | learningPathId? }`. It returns `{ reportId, status: "pending" }` — generation runs in the background and typically takes a few seconds.
+2. Poll `get_business_report` with the `reportId` until `status` is `"completed"` (or `"failed"` — report the error and offer to retry by generating again).
+3. Present the summary conversationally and per type — groups: the overview numbers, how the groups compare, top strengths/weaknesses and training priorities; contest / learning path: the top of the leaderboard and the headline stats (participants / enrolled + completed). Mention any `warnings` (empty groups, nobody participated, truncation). Don't dump the raw JSON.
+4. Always end with the report link so the user can open the full tables and export CSV/PDF: `https://dojocode.io/business/reports/<reportId>`.
+
+Use `list_business_reports` to answer "what reports do I have?" or to find an earlier report instead of generating a duplicate — offer the existing one's link first.
+
+> `get_business_report` returns a token-budgeted **summary** (groups: overview + comparison + strengths/weaknesses; contest / learning path: leaderboard top 10) — the full data, tables, and exports live on the report page.
+
+---
+
 # MCP command reference — non-challenge resources
 
 The challenge MCP commands are documented in Part 1. The resource-creation commands for the other types:
@@ -2483,6 +2526,9 @@ The challenge MCP commands are documented in Part 1. The resource-creation comma
 | `prepare_project_upload` | Project | Get a one-time upload URL for a project's files (zip) | _(none)_ |
 | `prepare_project_download` | Project | Get a one-time download URL for a project's files (zip) | `projectId` |
 | `create_assignment` | Assignment | Assign a learning path or challenge to students/groups | `title`, `sourceType`, `dueDate` (+ source id + recipients) |
+| `generate_business_report` | Business Report | Start generating a persisted report of one kind — groups statistics, contest leaderboard, or learning-path progress (async — poll with `get_business_report`) | `title`, `type` (+ `groupIds[]` / `contestId` / `learningPathId` matching the type) |
+| `get_business_report` | Business Report | Report status; once completed, a type-specific summary (groups: overview + comparison + strengths/weaknesses; contest / learning path: leaderboard top 10) + report URL | `reportId` |
+| `list_business_reports` | Business Report | List the workspace's reports (id, title, status, generatedAt) | _(optional `limit`)_ |
 | `get_current_organization` | Organization | Show the active workspace (`_id`/`name`/`role`/`plan`) or personal; read-only, no side effects | _(none)_ |
 | `select_organization` | Organization | Set the active workspace (omit id → personal). Run before org-scoped work | _(optional `organizationId`)_ |
 | `create_organization` | Organization | Create a new organization (caller becomes owner) | `name` |
@@ -2492,7 +2538,7 @@ The challenge MCP commands are documented in Part 1. The resource-creation comma
 | `update_member_role` | Organization | Change a member's role (`admin`/`member`) | `organizationId`, `membershipId`, `role` |
 | `remove_member` | Organization | Remove a member from the org | `organizationId`, `membershipId` |
 
-Read-only / supporting commands you will use to resolve IDs and confirm results: `get_my_organizations`, `get_current_organization`, `get_challenges`, `get_my_challenges`, `get_contests`, `get_upcoming_contests`, `get_contest`, `get_contest_leaderboard`, `get_contest_analytics`, `get_learning_paths`, `get_my_learning_paths`, `get_learning_path`, `open_learning_path`, `get_projects`, `get_my_projects`, `open_project`, `open_edit_project`, `get_my_groups`, `get_group`, `get_my_students`, `get_student_assignments`, `get_assignment_progress`.
+Read-only / supporting commands you will use to resolve IDs and confirm results: `get_my_organizations`, `get_current_organization`, `get_challenges`, `get_my_challenges`, `get_contests`, `get_upcoming_contests`, `get_contest`, `get_contest_leaderboard`, `get_contest_analytics`, `get_learning_paths`, `get_my_learning_paths`, `get_learning_path`, `open_learning_path`, `get_projects`, `get_my_projects`, `open_project`, `open_edit_project`, `get_my_groups`, `get_group`, `get_my_students`, `get_student_assignments`, `get_assignment_progress`, `get_business_report`, `list_business_reports`.
 
 ## Resource edit links (always use these)
 
@@ -2501,6 +2547,7 @@ After **creating or editing** a learning path or contest, show the user a clicka
 - **Learning path** → `https://dojocode.io/learning-paths/edit/<learningPathId>`
 - **Contest** → `https://dojocode.io/business/contest/edit/<contestId>`
 - **Project** → `https://dojocode.io/project/edit/<projectId>`
+- **Business report** → `https://dojocode.io/business/reports/<reportId>`
 
 ## Per-resource workflow summary
 
@@ -2510,3 +2557,4 @@ After **creating or editing** a learning path or contest, show the user a clicka
 - **Learning Path** (Part 3): **interactive** — gather requirements (ask) → discover challenges (`get_challenges` with `status: "pending,approved"`) → propose an outline & get approval → author `learningPath.json` → `create_learning_path` → save `learningPathCreate.json`. Edit a **draft** path with `update_learning_path` (metadata / add / update / delete / reorder lessons).
 - **Project** (Part 4): scaffold raw files (copy a `projects/project-samples/*`) → `create_project` (title/slug/template/description/tags) → `createProjectContent.js` → `prepare_project_upload` → `uploadProjectFiles.js`. Pull live files with `prepare_project_download` → `downloadProjectFiles.js`. Manage packages with `update_project_dependencies` (then sync the local manifest — see the dependency workflow in Part 1).
 - **Assignment** (Part 5): **interactive** — select the workspace (`get_my_organizations` → `select_organization`) → pick recipients (`get_my_groups` / `get_my_students`) → pick source (`get_my_learning_paths` / `get_my_challenges`) → settle due date + student-facing instructions → author `assignment.json` → `create_assignment` (draft) → save `assignmentCreate.json`.
+- **Business Report** (Part 6): **interactive** — select the workspace → ask what KIND of report (groups statistics / contest leaderboard / learning-path progress) → pick the subject (`get_my_groups` / `get_contests` / `get_my_learning_paths`) → `generate_business_report` → poll `get_business_report` until completed → present the summary + the report link. Reuse existing reports via `list_business_reports` before generating duplicates.
