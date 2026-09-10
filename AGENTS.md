@@ -9,11 +9,12 @@ The document is organized in parts. Read the **Session start** section first (it
 - **Part 3 — Learning Paths**: assemble existing challenges into a guided, lesson-by-lesson path (`create_learning_path`).
 - **Part 4 — Projects**: create a free-form sandbox project from a template and a file tree (`create_project`).
 - **Part 5 — Assignments**: assign a learning path or a challenge to students / groups (`create_assignment`).
-- **Part 6 — Business Reports**: generate persisted snapshots — groups statistics, a contest's leaderboard, or a learning path's progress leaderboard (`generate_business_report`).
+- **Part 6 — Business Reports**: generate persisted snapshots — groups statistics, a contest's leaderboard, a learning path's progress leaderboard, or a hackathon's ranking (`generate_business_report`).
+- **Part 7 — Hackathons**: plan a project competition judged by a jury — brief, criteria, judges — and create the draft (`create_hackathon`).
 
 > **Organizations / workspace.** Business work (contests, assignments, student groups, and the content that belongs to them) is scoped to an **organization workspace**. Establish the active workspace at session start with `get_my_organizations` → `select_organization` before any org-scoped operation — see **Organization workspace** under *Session start*.
 
-Each resource type has its own top-level folder in this repo (`challenges/`, `contests/`, `learning-paths/`, `projects/`, `assignments/`) with a committed `*-example` descriptor inside it, while the full library of challenge template samples lives under `challenges/challenge-samples/`. Contests, learning paths, and assignments reference **existing** challenges (and learning paths) by their platform `_id` — always resolve those IDs first via `get_my_challenges` / `get_challenges` / `get_my_learning_paths` before calling a create tool. Parts 2–6 and their MCP workflows live at the **end of this file**, after the challenge workflows.
+Each resource type has its own top-level folder in this repo (`challenges/`, `contests/`, `learning-paths/`, `projects/`, `assignments/`, `hackathons/`) with a committed `*-example` descriptor inside it, while the full library of challenge template samples lives under `challenges/challenge-samples/`. Contests, learning paths, and assignments reference **existing** challenges (and learning paths) by their platform `_id` — always resolve those IDs first via `get_my_challenges` / `get_challenges` / `get_my_learning_paths` before calling a create tool. Parts 2–6 and their MCP workflows live at the **end of this file**, after the challenge workflows.
 
 ## Session start (mandatory first step)
 
@@ -2476,6 +2477,7 @@ A **business report** is a persisted snapshot of exactly ONE kind:
 - **Groups report** (`type: "groups"`) — statistics over one or more of the instructor's **student groups**: overview stat cards, per-group comparison, skills radar with strengths/weaknesses, score distributions, completion timeline, and a per-student table.
 - **Contest report** (`type: "contest"`) — strictly the **contest's leaderboard** (rank, score, solved challenges, total time, AI prompts, failed submits) for every participant.
 - **Learning-path report** (`type: "learning-path"`) — the path's enrolled students ranked by **completion percent** (lessons + required challenges), with status and completion dates.
+- **Hackathon report** (`type: "hackathon"`) — the hackathon's **ranking**: every submission with its average jury score, judges scored, submission time and likes, plus judge coverage and submissions per day. Provisional before judging ends, final after.
 
 Reports are generated asynchronously and stay stored — the instructor revisits, regenerates, and exports them (CSV/PDF) from the reports page.
 
@@ -2488,26 +2490,112 @@ Generating a report is a short conversation — ask, then call:
 ### STEP 1 — Workspace + report type
 
 1. Make sure the right organization workspace is active (`get_my_organizations` → `select_organization`; see *Organization workspace* under Session start).
-2. Ask **what kind of report** they want — groups statistics, a contest's leaderboard, or a learning path's progress. Skip the question if the request already makes it clear ("how did the contest go?" → contest).
+2. Ask **what kind of report** they want — groups statistics, a contest's leaderboard, a learning path's progress, or a hackathon's ranking. Skip the question if the request already makes it clear ("how did the contest go?" → contest; "who won the hackathon?" → hackathon).
 
 ### STEP 2 — Pick the subject (depends on the type)
 
 - **Groups** — call `get_my_groups`, present the groups as a concise numbered list, ask **which group(s)** (one, several, or all). Capture `groupIds`.
 - **Contest** — list candidates with `get_contests` / `get_contest`, capture the `contestId`.
 - **Learning path** — list candidates with `get_my_learning_paths`, capture the `learningPathId`.
+- **Hackathon** — list candidates with `get_hackathons` (`mine: true`), capture the `hackathonId`.
 
 If the user already named the subject, resolve the id and skip the question. Default the **title** to something descriptive ("First Business Contest results"); don't ask unless the user cares.
 
 ### STEP 3 — Generate, poll, present
 
-1. Call `generate_business_report` with `{ title, type, groupIds? | contestId? | learningPathId? }`. It returns `{ reportId, status: "pending" }` — generation runs in the background and typically takes a few seconds.
+1. Call `generate_business_report` with `{ title, type, groupIds? | contestId? | learningPathId? | hackathonId? }`. It returns `{ reportId, status: "pending" }` — generation runs in the background and typically takes a few seconds.
 2. Poll `get_business_report` with the `reportId` until `status` is `"completed"` (or `"failed"` — report the error and offer to retry by generating again).
-3. Present the summary conversationally and per type — groups: the overview numbers, how the groups compare, top strengths/weaknesses and training priorities; contest / learning path: the top of the leaderboard and the headline stats (participants / enrolled + completed). Mention any `warnings` (empty groups, nobody participated, truncation). Don't dump the raw JSON.
+3. Present the summary conversationally and per type — groups: the overview numbers, how the groups compare, top strengths/weaknesses and training priorities; contest / learning path / hackathon: the top of the leaderboard and the headline stats (participants / enrolled + completed / submissions + judges). Mention any `warnings` (empty groups, nobody participated, truncation). Don't dump the raw JSON.
 4. Always end with the report link so the user can open the full tables and export CSV/PDF: `https://dojocode.io/business/reports/<reportId>`.
 
 Use `list_business_reports` to answer "what reports do I have?" or to find an earlier report instead of generating a duplicate — offer the existing one's link first.
 
 > `get_business_report` returns a token-budgeted **summary** (groups: overview + comparison + strengths/weaknesses; contest / learning path: leaderboard top 10) — the full data, tables, and exports live on the report page.
+
+---
+
+# Part 7 — Hackathons
+
+A **hackathon** is a **project competition**: participants register, get a **brief** when it starts, build a project in the DojoCode editor, submit it before the deadline, and a **jury of platform users** scores every submission on **criteria** during the judging window. Results and **DojoCode Token** prizes are published when judging ends. Unlike a contest, nothing is assembled from challenges — you author the brief and the criteria, and you pick the judges.
+
+The final create is a single MCP call: `create_hackathon` — but, like contests, **planning a hackathon is a conversation**. Mirror the in-app flow: settle the plan in chat, resolve the judges, then create the draft. Hackathons are **organization-scoped** — make the right workspace active first (`get_my_organizations` → `select_organization`; see *Organization workspace* under Session start).
+
+## Hackathon folder structure
+
+```
+hackathons/[hackathon-slug]/
+├── hackathon.json          # The create payload you author (see format below)
+└── hackathonCreate.json    # Platform response after creation ({ hackathonId, slug, editUrl, ... })
+```
+
+A reference descriptor lives at `hackathons/hackathon-example/hackathon.json`.
+
+## hackathon.json format
+
+```json
+{
+  "name": "Retro Arcade Jam",
+  "theme": "Small browser games with an 80s arcade feel",
+  "invitationDescription": "Two weekends, one cabinet. Build a browser game that would look at home in an 80s arcade and let a jury of makers play it.",
+  "brief": "Build a browser game in the spirit of the 80s arcades...\n\nRules:\n\n- Any web framework...\n- Ship it as a DojoCode project and submit it before the deadline.",
+  "visibility": "Community",
+  "startDate": "2026-11-06T18:00:00.000Z",
+  "endDate": "2026-11-15T22:00:00.000Z",
+  "judgingEndDate": "2026-11-20T22:00:00.000Z",
+  "criteria": [
+    { "label": "Fun", "description": "Would you play it again?", "maxScore": 10 },
+    { "label": "Execution", "description": "Completeness and technical quality of the build.", "maxScore": 10 }
+  ],
+  "juryUserIds": ["<userId>", "<userId>"]
+}
+```
+
+- `name` is **required**; everything else has a default, but a hackathon without a `brief` and a jury **cannot be published**, so author both.
+- **Three dates**, ISO 8601, in order: `startDate` (registration closes, brief revealed) < `endDate` (submission deadline) < `judgingEndDate` (results + prizes). Defaults: ~7, ~9 and ~12 days out. Use real future dates, and always include the UTC offset (`Z` or `+02:00`): a date without one is read as UTC, so a Bucharest 18:00 must be sent as `16:00:00Z` or `18:00:00+02:00`.
+- `visibility`: `Community` (listed publicly) or `Private` (link only). Free-trial plans can only create private hackathons — the create call fails on Community, so ask or default to Private on a trial.
+- `invitationDescription` — the public teaser (1–2 sentences), **distinct from the brief**. `brief` — the task: what to build, the rules, what the jury looks for (4–8 sentences, Markdown allowed). Hidden until the start.
+- `criteria[]` — `label` + `maxScore` (1–100) + optional `description`. Defaults: Innovation, Execution, Design, Presentation, 10 points each. The `key` is derived from the label.
+- `juryUserIds[]` — platform user ids. Resolve them with `search_users` (by username). The organizer is dropped automatically; a judge cannot participate.
+- **Prizes are not part of the tool.** The organizer sets up and funds the prize pool on the edit page after creation; if the user brings prizes up, say exactly that.
+- `theme` — one line used for the poster prompt. **Handled automatically by `create_hackathon` — do NOT put these in `hackathon.json`:** the URL `slug` (derived from `name`, made unique), `status` (`draft`) and the **poster + cover images** (generated best-effort).
+
+## Interactive hackathon planning flow
+
+### STEP 1 — Settle the plan (ask, don't assume)
+
+In ONE concise numbered message, ask only for what the user has not said:
+
+1. **Name and theme** — what participants build.
+2. **Schedule** — start, submission deadline, judging end. Derive dates from a duration ("two weekends") and state them.
+3. **Visibility** — Community or Private (default Community; Private on a free trial).
+4. **Scoring criteria** — offer the defaults and accept changes.
+
+Content is English regardless of the user's language (see *Content language*).
+
+### STEP 2 — Resolve the jury
+
+Ask who judges. For each name, call `search_users` with the username and confirm the match (id + username) with the user. At least one judge is needed to publish. Never invent ids.
+
+### STEP 3 — Create the draft
+
+1. Navigate to `hackathons/[hackathon-slug]/`. If `hackathonCreate.json` exists, stop unless recreating.
+2. Author `hackathon.json` from the plan: distinct `invitationDescription` / `brief`, the three dates, `visibility`, `criteria`, `juryUserIds`, `theme`.
+3. Call `create_hackathon` with the `hackathon.json` contents. The response carries `hackathonId`, `slug`, `editUrl`, `hackathonUrl`, `posterImage` and `coverImage`.
+4. Save the response to `hackathonCreate.json`.
+5. Confirm with `get_hackathon`, then report the name and the **edit link** (always on `https://dojocode.io`):
+
+   `https://dojocode.io/business/hackathon/edit/<hackathonId>`
+
+   and the three things left before publishing: review the brief, fund the prizes on the edit page, publish.
+
+> Requires the `contest_author` access tier on the DojoCode account.
+
+## Editing, publishing, results
+
+- `update_hackathon` edits a **draft** you organize — send only the changed fields; `criteria` and `juryUserIds` replace the whole list; the `slug` is immutable. Read the current values with `get_hackathon` first.
+- `publish_hackathon` publishes a draft (status `public`): registration opens, the jury is notified, and the brief/criteria/jury are locked. It fails without a brief, without a judge, with dates out of order or in the past, or — on a trial — with Community visibility. Only when the user explicitly asks. Pass `status: "draft"` to unpublish one that has not started and has no registrations.
+- `get_hackathons` lists community hackathons by phase (`upcoming` / `active` / `judging` / `finished`) or, with `mine: true`, the caller's own (drafts included). `get_hackathon` returns one, with the brief when the caller may see it.
+- `get_hackathon_results` returns the ranking, the prize winners and the top submissions of a **finished** hackathon (empty before). For the full picture — ranking, judge coverage, submissions per day, CSV/PDF — generate a **hackathon report** (Part 6, `type: "hackathon"`).
 
 ---
 
@@ -2526,8 +2614,12 @@ The challenge MCP commands are documented in Part 1. The resource-creation comma
 | `prepare_project_upload` | Project | Get a one-time upload URL for a project's files (zip) | _(none)_ |
 | `prepare_project_download` | Project | Get a one-time download URL for a project's files (zip) | `projectId` |
 | `create_assignment` | Assignment | Assign a learning path or challenge to students/groups | `title`, `sourceType`, `dueDate` (+ source id + recipients) |
-| `generate_business_report` | Business Report | Start generating a persisted report of one kind — groups statistics, contest leaderboard, or learning-path progress (async — poll with `get_business_report`) | `title`, `type` (+ `groupIds[]` / `contestId` / `learningPathId` matching the type) |
-| `get_business_report` | Business Report | Report status; once completed, a type-specific summary (groups: overview + comparison + strengths/weaknesses; contest / learning path: leaderboard top 10) + report URL | `reportId` |
+| `create_hackathon` | Hackathon | Create a hackathon **draft** (brief, criteria, jury; poster + cover generated) | `name` (+ `invitationDescription`, `brief`, `theme`, `startDate`, `endDate`, `judgingEndDate`, `visibility`, `criteria[]`, `juryUserIds[]`) |
+| `update_hackathon` | Hackathon | Edit a **draft** hackathon (send only changed fields; `criteria` / `juryUserIds` replace the list; `slug` immutable) | `hackathonId` (+ any editable fields) |
+| `publish_hackathon` | Hackathon | Publish a draft (`public`) or unpublish one that has not started (`draft`) | `hackathonId` (+ optional `status`) |
+| `search_users` | Hackathon | Find platform users by username — to resolve judge ids | `username` (+ optional `limit`) |
+| `generate_business_report` | Business Report | Start generating a persisted report of one kind — groups statistics, contest leaderboard, learning-path progress, or hackathon ranking (async — poll with `get_business_report`) | `title`, `type` (+ `groupIds[]` / `contestId` / `learningPathId` / `hackathonId` matching the type) |
+| `get_business_report` | Business Report | Report status; once completed, a type-specific summary (groups: overview + comparison + strengths/weaknesses; contest / learning path / hackathon: leaderboard top 10) + report URL | `reportId` |
 | `list_business_reports` | Business Report | List the workspace's reports (id, title, status, generatedAt) | _(optional `limit`)_ |
 | `get_current_organization` | Organization | Show the active workspace (`_id`/`name`/`role`/`plan`) or personal; read-only, no side effects | _(none)_ |
 | `select_organization` | Organization | Set the active workspace (omit id → personal). Run before org-scoped work | _(optional `organizationId`)_ |
@@ -2538,7 +2630,7 @@ The challenge MCP commands are documented in Part 1. The resource-creation comma
 | `update_member_role` | Organization | Change a member's role (`admin`/`member`) | `organizationId`, `membershipId`, `role` |
 | `remove_member` | Organization | Remove a member from the org | `organizationId`, `membershipId` |
 
-Read-only / supporting commands you will use to resolve IDs and confirm results: `get_my_organizations`, `get_current_organization`, `get_challenges`, `get_my_challenges`, `get_contests`, `get_upcoming_contests`, `get_contest`, `get_contest_leaderboard`, `get_contest_analytics`, `get_learning_paths`, `get_my_learning_paths`, `get_learning_path`, `open_learning_path`, `get_projects`, `get_my_projects`, `open_project`, `open_edit_project`, `get_my_groups`, `get_group`, `get_my_students`, `get_student_assignments`, `get_assignment_progress`, `get_business_report`, `list_business_reports`.
+Read-only / supporting commands you will use to resolve IDs and confirm results: `get_my_organizations`, `get_current_organization`, `get_challenges`, `get_my_challenges`, `get_contests`, `get_upcoming_contests`, `get_contest`, `get_contest_leaderboard`, `get_contest_analytics`, `get_hackathons`, `get_hackathon`, `get_hackathon_results`, `get_learning_paths`, `get_my_learning_paths`, `get_learning_path`, `open_learning_path`, `get_projects`, `get_my_projects`, `open_project`, `open_edit_project`, `get_my_groups`, `get_group`, `get_my_students`, `get_student_assignments`, `get_assignment_progress`, `get_business_report`, `list_business_reports`.
 
 ## Resource edit links (always use these)
 
@@ -2546,6 +2638,7 @@ After **creating or editing** a learning path or contest, show the user a clicka
 
 - **Learning path** → `https://dojocode.io/learning-paths/edit/<learningPathId>`
 - **Contest** → `https://dojocode.io/business/contest/edit/<contestId>`
+- **Hackathon** → `https://dojocode.io/business/hackathon/edit/<hackathonId>`
 - **Project** → `https://dojocode.io/project/edit/<projectId>`
 - **Business report** → `https://dojocode.io/business/reports/<reportId>`
 
@@ -2557,4 +2650,5 @@ After **creating or editing** a learning path or contest, show the user a clicka
 - **Learning Path** (Part 3): **interactive** — gather requirements (ask) → discover challenges (`get_challenges` with `status: "pending,approved"`) → propose an outline & get approval → author `learningPath.json` → `create_learning_path` → save `learningPathCreate.json`. Edit a **draft** path with `update_learning_path` (metadata / add / update / delete / reorder lessons).
 - **Project** (Part 4): scaffold raw files (copy a `projects/project-samples/*`) → `create_project` (title/slug/template/description/tags) → `createProjectContent.js` → `prepare_project_upload` → `uploadProjectFiles.js`. Pull live files with `prepare_project_download` → `downloadProjectFiles.js`. Manage packages with `update_project_dependencies` (then sync the local manifest — see the dependency workflow in Part 1).
 - **Assignment** (Part 5): **interactive** — select the workspace (`get_my_organizations` → `select_organization`) → pick recipients (`get_my_groups` / `get_my_students`) → pick source (`get_my_learning_paths` / `get_my_challenges`) → settle due date + student-facing instructions → author `assignment.json` → `create_assignment` (draft) → save `assignmentCreate.json`.
-- **Business Report** (Part 6): **interactive** — select the workspace → ask what KIND of report (groups statistics / contest leaderboard / learning-path progress) → pick the subject (`get_my_groups` / `get_contests` / `get_my_learning_paths`) → `generate_business_report` → poll `get_business_report` until completed → present the summary + the report link. Reuse existing reports via `list_business_reports` before generating duplicates.
+- **Business Report** (Part 6): **interactive** — select the workspace → ask what KIND of report (groups statistics / contest leaderboard / learning-path progress / hackathon ranking) → pick the subject (`get_my_groups` / `get_contests` / `get_my_learning_paths` / `get_hackathons`) → `generate_business_report` → poll `get_business_report` until completed → present the summary + the report link. Reuse existing reports via `list_business_reports` before generating duplicates.
+- **Hackathon** (Part 7): **interactive** — select the workspace → settle the plan in chat (name/theme, three dates, visibility, criteria) → resolve the judges with `search_users` → author `hackathon.json` → `create_hackathon` → save `hackathonCreate.json` → report the edit link and what is left (brief review, funding, publish). Edit a **draft** with `update_hackathon`; publish with `publish_hackathon` only on request.
