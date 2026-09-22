@@ -1,0 +1,41 @@
+{
+  "folders": {
+    "/negatives-bug": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/plus-one": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/type-coercion": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "files": {
+    "/mutants.json": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/negatives-bug/sum.js": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/plus-one/sum.js": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/type-coercion/sum.js": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  }
+}

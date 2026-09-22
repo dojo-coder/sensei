@@ -1,0 +1,16 @@
+{
+  "folders": {},
+  "files": {
+    "/App.spec.tsx": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/main.tsx": {
+      "visible": false,
+      "readonly": true,
+      "redacted": false
+    }
+  },
+  "activeFilePath": "/App.spec.tsx"
+}

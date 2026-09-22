@@ -1,0 +1,14 @@
+{
+  "accepts-overweight": {
+    "label": "Overweight accepted",
+    "description": "A parcel over 30 kg is quoted instead of rejected."
+  },
+  "express-ignored": {
+    "label": "Express ignored",
+    "description": "Express delivery costs the same as standard delivery."
+  },
+  "rounds-down": {
+    "label": "Weight rounded down",
+    "description": "A started kilogram is not charged in full."
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "folders": {
+    "/invalid-range": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/off-by-one": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/swapped-bounds": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "files": {
+    "/mutants.json": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/invalid-range/clamp.py": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/off-by-one/clamp.py": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/swapped-bounds/clamp.py": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "folders": {
+    "/double-step": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/negative-allowed": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/reset-guard": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "files": {
+    "/mutants.json": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/double-step/app.component.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/negative-allowed/app.component.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/reset-guard/app.component.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  }
+}
