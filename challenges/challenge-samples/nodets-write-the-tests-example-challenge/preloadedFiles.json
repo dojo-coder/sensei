@@ -1,0 +1,16 @@
+{
+  "folders": {},
+  "files": {
+    "/chunk.test.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/main.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "activeFilePath": "/chunk.test.ts"
+}

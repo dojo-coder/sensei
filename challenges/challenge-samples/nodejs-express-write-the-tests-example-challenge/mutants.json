@@ -1,0 +1,41 @@
+{
+  "folders": {
+    "/accepts-overweight": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/express-ignored": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/rounds-down": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "files": {
+    "/mutants.json": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/accepts-overweight/app.js": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/express-ignored/app.js": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/rounds-down/app.js": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  }
+}

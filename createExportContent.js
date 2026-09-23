@@ -84,6 +84,102 @@ function ensureReadme(challengePath) {
 }
 
 /**
+ * Lists every file under a directory as "/relative/path" strings, sorted.
+ * @param {string} dir - Directory to walk
+ * @returns {string[]} File paths relative to dir, each starting with "/"
+ */
+function listFiles(dir, base = dir) {
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .filter((entry) => entry.name !== "__pycache__")
+    .flatMap((entry) => {
+      const full = path.join(dir, entry.name);
+      return entry.isDirectory()
+        ? listFiles(full, base)
+        : ["/" + path.relative(base, full).split(path.sep).join("/")];
+    })
+    .sort();
+}
+
+/**
+ * Write-tests challenges (challengeMode "tests") carry a mutants/ folder: one
+ * sub-folder per mutant whose files overlay solutionFiles/, plus
+ * mutants/mutants.json with a label + description per mutant. The platform only
+ * reads the container when the root mutants.json manifest is present, so this
+ * (re)builds that manifest from the folder and refuses a zip the grader could
+ * not use. Returns false for normal challenges.
+ * @param {string} challengePath - Path to the challenge/template directory
+ * @returns {boolean} true when the template is a write-tests variation
+ */
+function prepareWriteTests(challengePath) {
+  const mutantsDir = path.join(challengePath, "mutants");
+  if (!fs.existsSync(mutantsDir)) return false;
+
+  const entry = { visible: true, readonly: false, redacted: false };
+  const mutants = fs
+    .readdirSync(mutantsDir, { withFileTypes: true })
+    .filter((item) => item.isDirectory())
+    .map((item) => item.name)
+    .sort();
+  const problems = [];
+
+  if (mutants.length === 0) problems.push("mutants/ has no mutant folders");
+
+  const labelsPath = path.join(mutantsDir, "mutants.json");
+  let labels = {};
+  if (!fs.existsSync(labelsPath)) {
+    problems.push("mutants/mutants.json is missing (label + description per mutant)");
+  } else {
+    labels = JSON.parse(fs.readFileSync(labelsPath, "utf-8"));
+    for (const key of mutants) {
+      if (!labels[key]) problems.push(`mutants/mutants.json has no entry for "${key}"`);
+    }
+    for (const key of Object.keys(labels)) {
+      if (!mutants.includes(key)) problems.push(`mutants/mutants.json names "${key}" but there is no mutants/${key}/ folder`);
+    }
+  }
+
+  const solution = new Set(listFiles(path.join(challengePath, "solutionFiles")));
+  const folders = {};
+  const files = { "/mutants.json": entry };
+  for (const key of mutants) {
+    folders["/" + key] = entry;
+    const mutantFiles = listFiles(path.join(mutantsDir, key));
+    if (mutantFiles.length === 0) problems.push(`mutants/${key}/ is empty`);
+    for (const file of mutantFiles) {
+      if (!solution.has(file)) problems.push(`mutants/${key}${file} does not overlay a file in solutionFiles/`);
+      // nested folders of a mutant (e.g. /no-rounding/src) are declared too
+      const parts = file.split("/").slice(1, -1);
+      for (let depth = 1; depth <= parts.length; depth += 1) {
+        folders["/" + key + "/" + parts.slice(0, depth).join("/")] = entry;
+      }
+      files["/" + key + file] = entry;
+    }
+  }
+
+  if (listFiles(path.join(challengePath, "allTests")).length === 0) {
+    problems.push("allTests/ needs the reference suite that catches every mutant");
+  }
+
+  if (problems.length) {
+    throw new Error("write-tests challenge is not valid:\n   - " + problems.join("\n   - "));
+  }
+
+  fs.writeFileSync(path.join(challengePath, "mutants.json"), JSON.stringify({ folders, files }, null, 2) + "\n");
+
+  // write-tests challenges have no initial tests
+  const initialManifest = path.join(challengePath, "initialTests.json");
+  if (!fs.existsSync(initialManifest)) {
+    fs.writeFileSync(initialManifest, JSON.stringify({ folders: {}, files: {} }, null, 2) + "\n");
+  }
+
+  console.log(`🧪 Write-tests challenge: ${mutants.length} mutant(s) — ${mutants.join(", ")}`);
+  console.log("   Create it with create_challenge { challengeMode: \"tests\" }; the mode cannot be changed later.");
+  return true;
+}
+
+/**
  * Creates exportedContent.zip for a challenge template
  * This includes ALL files and folders from the template directory directly in the zip
  * @param {string} challengePath - Path to the challenge/template directory
@@ -102,11 +198,14 @@ async function createExportContent(challengePath) {
     // Ensure README.md exists (auto-generate from details.json if missing)
     ensureReadme(challengePath);
 
+    // Write-tests challenges: validate mutants/ and rebuild the mutants.json manifest
+    prepareWriteTests(challengePath);
+
     // Create zip with ALL files from the template folder directly
     const zip = new JSZip();
 
     // Add all files and folders, excluding exportedContent.zip
-    addDirectoryToZip(zip, challengePath, "", ["exportedContent.zip"]);
+    addDirectoryToZip(zip, challengePath, "", ["exportedContent.zip", "__pycache__", ".pytest_cache"]);
 
     // Generate zip buffer
     const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
@@ -169,4 +268,4 @@ if (require.main === module) {
   main().catch(console.error);
 }
 
-module.exports = { createExportContent };
+module.exports = { createExportContent, prepareWriteTests };

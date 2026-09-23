@@ -1,0 +1,14 @@
+{
+  "inverted-discount": {
+    "label": "Inverted discount",
+    "description": "The discount amount is returned instead of the discounted price."
+  },
+  "no-rounding": {
+    "label": "No rounding",
+    "description": "The discounted price is not rounded to cents."
+  },
+  "percent-over-100": {
+    "label": "Percent over 100 accepted",
+    "description": "A percent above 100 is applied instead of rejected."
+  }
+}

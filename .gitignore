@@ -41,3 +41,5 @@ desktop.ini
 # Logs
 *.log
 npm-debug.log*
+
+tools

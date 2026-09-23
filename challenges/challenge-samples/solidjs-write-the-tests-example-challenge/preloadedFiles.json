@@ -1,0 +1,16 @@
+{
+  "folders": {},
+  "files": {
+    "/App.spec.jsx": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/main.jsx": {
+      "visible": false,
+      "readonly": true,
+      "redacted": false
+    }
+  },
+  "activeFilePath": "/App.spec.jsx"
+}

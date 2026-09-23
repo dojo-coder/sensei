@@ -1,0 +1,16 @@
+{
+  "folders": {},
+  "files": {
+    "/test_clamp.py": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/main.py": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "activeFilePath": "/test_clamp.py"
+}

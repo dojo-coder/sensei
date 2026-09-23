@@ -1,0 +1,41 @@
+{
+  "folders": {
+    "/accepts-blank": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/case-sensitive-duplicates": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/keeps-input": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "files": {
+    "/mutants.json": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/accepts-blank/App.vue": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/case-sensitive-duplicates/App.vue": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/keeps-input/App.vue": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "folders": {
+    "/empty-input": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/invalid-size": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/off-by-one": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "files": {
+    "/mutants.json": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/empty-input/chunk.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/invalid-size/chunk.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/off-by-one/chunk.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  }
+}

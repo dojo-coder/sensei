@@ -218,7 +218,372 @@ Each directory has a corresponding JSON configuration file:
 - **mainFilePath**: Path to entry point file for "Run" button (terminal challenges only, omit for browser)
 - **activeFilePath**: Path to file that opens first in the editor
 
+## Write-the-Tests Challenges (`challengeMode: "tests"`)
+
+A write-the-tests challenge flips the usual roles: the code is **given and correct**, and the solver writes the **tests**. The platform grades the solver's test file twice:
+
+1. against the reference code in `solutionFiles/` — every test must **pass**;
+2. against each **mutant** — a copy of the code with one deliberate bug — at least one test must **fail**, i.e. the mutant is "caught".
+
+The challenge is solved when the suite passes on the reference and catches every mutant. Use this mode when the user asks for a challenge that "tests the user's tests", "write the tests", "mutation testing" or similar.
+
+**Supported templates** (`WRITE_TESTS_TEMPLATE_KEYS` in the API): `nodejs_jest`, `nodets_jest`, `python`, `nestjs`, `fastify`, `hono`, `vanillajs_jest`, `vanillats_jest`, `react_jest`, `reactts_jest`, `vue_jest`, `vuets_jest`, `svelte`, `solidjs`, `solidjs_ts`, `angular_jest`. Any other template is rejected at creation.
+
+### Folder structure
+
+Same template folder as a normal challenge, plus a `mutants/` container:
+
+```
+[templateName]/
+├── README.md               # the spec of the GIVEN code (see "Description" below)
+├── details.json            # { title, description } — description = README.md
+├── metadata.json           # activeFilePath = the solver's test file
+├── solutionFiles/          # the reference code under test — CORRECT
+├── solutionFiles.json
+├── preloadedFiles/         # the solver's starter test file (+ main/entry scaffolding)
+├── preloadedFiles.json     # activeFilePath = the starter test file
+├── allTests/               # the author's reference suite (never shown as the answer)
+├── allTests.json
+├── initialTests.json       # { "folders": {}, "files": {} } — no initialTests/ folder
+├── mutants/
+│   ├── mutants.json        # { "<key>": { "label", "description" } } shown to the solver
+│   └── <mutant-key>/       # one folder per mutant, files at the SAME relative paths
+│       └── src/app.ts      #   as in solutionFiles/ — they overlay the reference
+└── mutants.json            # file manifest of the container (folders + files)
+```
+
+- **`solutionFiles/`** holds the correct code; the solver can read it (the README says where). It is swapped for each mutant during grading.
+- **`preloadedFiles/`** holds only the solver's test file (e.g. `sum.test.js`, `test_clamp.py`, `App.spec.js`) with **one** passing happy-path test and the comment `// Add tests until every hidden bug is caught.`, plus the same non-test scaffolding a normal variation of that template ships (`main.js` / `main.py` for terminal templates, the hidden `index.*` entry and `index.html` for browser templates).
+- **`allTests/`** is the author's reference suite, named `*.reference.test.*` / `*.reference.spec.*` / `test_*_reference.py`. It must pass on the reference and catch **every** mutant — it is the proof that the challenge is solvable.
+- **`initialTests.json`** is empty and there is **no** `initialTests/` folder; the first-N-tests rule of normal challenges does not apply here.
+- **`mutants/<key>/`** contains only the files that differ from `solutionFiles/`, at the same relative path (`mutants/rounds-down/app.js`, `mutants/no-rounding/src/discount.service.ts`). A mutant folder that contains a file with a new path is an error.
+- **`mutants/mutants.json`** gives every mutant a short `label` and a one-sentence `description` of the bug; the solver sees these after a run, so describe the symptom, not the fix.
+- **Root `mutants.json`** is the file manifest of the container, in the same shape as `solutionFiles.json`: one `folders` entry per mutant folder and one `files` entry per file, including `"/mutants.json"` itself. The zip importer only reads the container when this file is present.
+
+### Mutant design rules
+
+- **Three mutants** per challenge as a rule, **up to five** for a harder or capstone challenge (one per rule it tests). Each one is a **single, small change** (a flipped comparison, a missing guard, `Math.floor` for `Math.ceil`, a dropped `* 2`) that breaks exactly **one** rule written in the README.
+- Every mutant must be **detectable from the README alone**: if the description does not state the rule a mutant breaks, the solver cannot know it is a bug.
+- The mutants must be **different**: no two may be caught by exactly the same assertions.
+- The starter test must pass on the reference and should catch **few or none** of the mutants — otherwise there is nothing left to write.
+- Keep mutants behaviour-level, never cosmetic (no renamed variables, no reformatted code, no changed error messages the tests do not look at).
+
+### How the tests are written
+
+Three files are written per variation, all in the template's normal test style (see "Test Structure by Template"):
+
+1. **Starter test** (`preloadedFiles/<name>.test.*` / `.spec.*` / `test_<name>.py`) — what the solver opens: the imports they need, **one** passing happy-path test, and the comment `// Add tests until every hidden bug is caught.` (`# ...` in Python).
+2. **Reference suite** (`allTests/<name>.reference.test.*`) — the same imports, a `describe` named `"<Subject> (reference suite)"`, one test per README rule. It must pass on `solutionFiles/` and fail on every mutant.
+3. **Mutants** (`mutants/<key>/<same path as in solutionFiles>`) — a full copy of the code file with one change.
+
+Both test files import the code under test with a **relative path from the test file**, exactly as if the code sat next to it (`./sum`, `./src/app`, `./App.vue`, `challenge.clamp` in Python) — at grading time the reference or a mutant is laid out there.
+
+**Node.js/Jest** (`nodejs_jest`) — `require` + Jest globals:
+
+```js
+// preloadedFiles/sum.test.js — the starter
+const { sum } = require('./sum');
+
+describe('sum', () => {
+  it('adds two numbers', () => {
+    expect(sum(1, 2)).toBe(3);
+  });
+
+  // Add tests until every hidden bug is caught.
+});
+```
+
+```js
+// allTests/sum.reference.test.js — the reference suite
+const { sum } = require('./sum');
+
+describe('sum (reference suite)', () => {
+  it('adds negative numbers correctly', () => {
+    expect(sum(-2, -3)).toBe(-5);
+    expect(sum(-2, 5)).toBe(3);
+  });
+
+  it('throws a TypeError for non-number input', () => {
+    expect(() => sum('1', 2)).toThrow(TypeError);
+    expect(() => sum(1, undefined)).toThrow(TypeError);
+  });
+});
+```
+
+```js
+// mutants/type-coercion/sum.js — one mutant: the type guard is gone
+function sum(a, b) {
+  return Number(a) + Number(b);
+}
+
+module.exports = { sum };
+```
+
+**Node.js/Jest + Express** (`nodejs_jest`) — `supertest` drives the exported app, no `listen()`:
+
+```js
+const request = require('supertest');
+const { app } = require('./app');
+
+describe('POST /shipping/quote', () => {
+  it('charges the base cost for a 1 kg parcel', async () => {
+    const response = await request(app).post('/shipping/quote').send({ weightKg: 1 });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ cost: 5 });
+  });
+});
+```
+
+**NodeTS/Jest** (`nodets_jest`) — ES imports, Jest globals, typed code under test:
+
+```ts
+import { chunk } from './chunk';
+
+describe('chunk (reference suite)', () => {
+  it('keeps a shorter trailing chunk', () => {
+    expect(chunk([1, 2, 3, 4, 5], 2)).toEqual([[1, 2], [3, 4], [5]]);
+  });
+
+  it('throws a RangeError for non-positive sizes', () => {
+    expect(() => chunk([1], 0)).toThrow(RangeError);
+  });
+});
+```
+
+**Python/pytest** (`python`) — import from `challenge.<module>`, `@m.describe` / `@m.it`, `pytest.raises` for errors:
+
+```python
+import pytest
+from pytest import mark as m
+from challenge.clamp import clamp
+
+
+@m.describe("clamp (reference suite)")
+class TestClampReference:
+    @m.it("Clamps values below the lower bound up to low")
+    def test_below_low(self):
+        assert clamp(-5, 0, 10) == 0
+
+    @m.it("Raises ValueError when low is greater than high")
+    def test_invalid_range(self):
+        with pytest.raises(ValueError):
+            clamp(5, 10, 0)
+```
+
+**NestJS** (`nestjs`) — Vitest imports, `reflect-metadata` first, a `TestingModule` per test, call the controller directly:
+
+```ts
+import 'reflect-metadata';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { BadRequestException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { DiscountController } from './src/discount.controller';
+import { DiscountService } from './src/discount.service';
+
+describe('DiscountController (reference suite)', () => {
+  let controller: DiscountController;
+
+  beforeEach(async () => {
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      controllers: [DiscountController],
+      providers: [DiscountService]
+    }).compile();
+    controller = moduleRef.get<DiscountController>(DiscountController);
+  });
+
+  it('rejects a percent above 100', () => {
+    expect(() => controller.apply('100', '150')).toThrow(BadRequestException);
+  });
+});
+```
+
+**Fastify** (`fastify`) — Vitest, a fresh `buildApp()` per test, `app.inject()`, close it afterwards:
+
+```ts
+import { describe, it, expect, afterEach } from 'vitest';
+import type { FastifyInstance } from 'fastify';
+import { buildApp } from './src/app';
+
+describe('POST /cart/total (reference suite)', () => {
+  let app: FastifyInstance;
+
+  afterEach(async () => {
+    await app?.close();
+  });
+
+  it('rejects an empty cart with 400', async () => {
+    app = buildApp();
+    const response = await app.inject({ method: 'POST', url: '/cart/total', payload: { items: [] } });
+    expect(response.statusCode).toBe(400);
+  });
+});
+```
+
+**Hono** (`hono`) — Vitest, `app.request()` with an encoded query:
+
+```ts
+import { describe, it, expect } from 'vitest';
+import { app } from './src/app';
+
+describe('GET /slug (reference suite)', () => {
+  it('lowercases the text', async () => {
+    const response = await app.request(`/slug?text=${encodeURIComponent('DojoCode')}`);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ slug: 'dojocode' });
+  });
+});
+```
+
+**Browser templates** — Testing Library, queries by text and role, interactions through `fireEvent`:
+
+```js
+// vue_jest — allTests/App.reference.spec.js
+import '@testing-library/jest-dom/jest-globals';
+import { render, fireEvent } from "@testing-library/vue";
+import { describe, expect, it } from '@jest/globals';
+import { screen } from "@testing-library/dom";
+
+import Counter from "./App.vue";
+
+const button = (name) => screen.getByRole("button", { name });
+
+describe('Counter (reference suite)', () => {
+  it("never goes below zero", async () => {
+    render(Counter);
+    expect(button("Decrement")).toBeDisabled();
+    await fireEvent.click(button("Decrement"));
+    expect(screen.getByText("Count: 0")).toBeInTheDocument();
+  });
+});
+```
+
+The other browser templates change only the render call and the imports:
+
+- **react_jest**: `import { cleanup, render, screen, fireEvent } from '@testing-library/react';`, `afterEach(cleanup);`, `render(<App />)`. **reactts_jest** tests are `.ts`, so they render with `render(React.createElement(App))` and cast inputs: `screen.getByPlaceholderText("...") as HTMLInputElement`.
+- **vuets_jest**: same as `vue_jest`, typed helpers (`const input = (): HTMLInputElement => ...`).
+- **svelte**: `import { render, screen, fireEvent, cleanup } from "@testing-library/svelte";`, `afterEach(() => cleanup());`, `render(App)`.
+- **solidjs / solidjs_ts**: Vitest globals, `import { render, screen, fireEvent } from '@solidjs/testing-library';`, `render(() => <App />)`.
+- **angular_jest**: `import { render, screen, fireEvent } from '@testing-library/angular';`, `await render(AppComponent)`, and `toBeTruthy()` instead of the jest-dom matchers.
+- **vanillajs_jest / vanillats_jest**: no Testing Library — rebuild the page and mount before each test, then use plain DOM queries:
+
+  ```js
+  import { createCounter } from './counter';
+
+  describe('counter.js (reference suite)', () => {
+    beforeEach(() => {
+      document.documentElement.innerHTML = globalThis.htmlContent;
+      createCounter(document.getElementById('app'));
+    });
+
+    test('increments by one', () => {
+      const [, increment] = document.querySelectorAll('button');
+      increment.click();
+      expect(document.querySelector('p').textContent).toEqual('Count: 1');
+    });
+  });
+  ```
+
+The full, verified files for every template are in the samples listed below.
+
+### Description (README.md)
+
+Same backbone as every challenge — an **intro**, `### Rules & clarifications`, `### Examples` and no other `###` heading — but it specifies the **given code**, not a task to implement:
+
+- **Intro**: name the file with the correct code and the solver's test file, the test tools (Jest, Vitest, pytest, `supertest`, `app.inject()`, `app.request()`, `@nestjs/testing`, Testing Library, ...), then one sentence explaining the grading: "Your tests run against the real `sum.js` and against several hidden **buggy copies** of it (mutants). A strong test suite passes on the real one and fails on every buggy one." Browser challenges may show the rendered HTML in a fenced block, like `vuejs-example-challenge`.
+- **Rules & clarifications**: one bullet per behaviour of the reference code (every rule a mutant breaks must be here), then the grading rules (pass on the reference, fail on every mutant), template-specific test hints, and a last hint naming the areas to probe without naming the bugs: "A single assertion on `sum(1, 2)` catches almost nothing: cover **negative numbers** and **invalid input** too."
+- **Examples**: the reference behaviour as ``Input: `...` → Output: `...` `` bullets — function calls, HTTP requests with status + body, or UI interactions ("click **Increment** twice, then **Decrement**"). Verify every example against the reference with a script.
+
+Example — `challenge-samples/nodejs-write-the-tests-example-challenge/README.md`:
+
+```markdown
+The function `sum(a, b)` in `sum.js` is already written and **correct**. Your task is the reverse of a usual challenge: write the **Jest tests** in `sum.test.js` that prove it works.
+
+Your tests run against the real `sum.js` and against several hidden **buggy copies** of it (mutants). A strong test suite passes on the real one and fails on every buggy one.
+
+### Rules & clarifications
+
+- `sum(a, b)` returns `a + b` when **both** arguments are numbers.
+- It throws a **`TypeError`** when either argument is not a number, including numeric strings such as `"1"` and `undefined`.
+- Your tests must **pass** against the reference `sum.js`.
+- Your tests must **fail** against **every** hidden mutant; each one breaks one rule above.
+- Only your test file is graded: `sum.js` is swapped for each mutant when your tests run.
+- A single assertion on `sum(1, 2)` catches almost nothing: cover **negative numbers** and **invalid input** too.
+
+### Examples
+
+- Input: `sum(1, 2)` → Output: `3`
+- Input: `sum(-2, -3)` → Output: `-5`
+- Input: `sum("1", 2)` → Output: throws `TypeError`
+```
+
+A browser example with the rendered HTML block is `challenge-samples/vuejs-write-the-tests-example-challenge/README.md`.
+
+### Samples (one per supported template)
+
+| Template | Sample folder (`challenges/challenge-samples/…`) | Code under test |
+|---|---|---|
+| `nodejs_jest` | `nodejs-write-the-tests-example-challenge` | `sum(a, b)` |
+| `nodejs_jest` + Express | `nodejs-express-write-the-tests-example-challenge` | Express `POST /shipping/quote`, tested with `supertest` |
+| `nodets_jest` | `nodets-write-the-tests-example-challenge` | `chunk(list, size)` |
+| `python` | `python-write-the-tests-example-challenge` | `clamp(value, low, high)`, pytest |
+| `nestjs` | `nestjs-write-the-tests-example-challenge` | discount controller + service, `@nestjs/testing` |
+| `fastify` | `fastify-write-the-tests-example-challenge` | `POST /cart/total`, `app.inject()` |
+| `hono` | `hono-write-the-tests-example-challenge` | `GET /slug`, `app.request()` |
+| `vanillajs_jest` | `vanilla-js-write-the-tests-example-challenge` | counter widget, plain DOM + jsdom |
+| `vanillats_jest` | `vanilla-ts-write-the-tests-example-challenge` | todo list widget, plain DOM + jsdom |
+| `react_jest` / `reactts_jest` | `reactjs-…` / `reactts-write-the-tests-example-challenge` | counter / todo list |
+| `vue_jest` / `vuets_jest` | `vuejs-…` / `vuets-write-the-tests-example-challenge` | counter / todo list |
+| `svelte` | `svelte-write-the-tests-example-challenge` | counter |
+| `solidjs` / `solidjs_ts` | `solidjs-…` / `solidjs_ts-write-the-tests-example-challenge` | counter / todo list (Vitest) |
+| `angular_jest` | `angular-write-the-tests-example-challenge` | counter component |
+
+Template notes:
+
+- **Express** is not preinstalled in `nodejs_jest`/`nodets_jest` (`supertest` is — it ships in the `nodejs-jest` image): add `express` (and `@types/express` on `nodets_jest`) with `update_challenge_dependencies` **before the final upload** — installing a dependency afterwards can reset the variation to the template's default files. Export the `app` from `app.js` without calling `listen()`, so tests drive it through `request(app)`.
+- **`index.*` is the preview entry** on `nodejs_jest`/`nodets_jest`: the editor runs `node --watch index.js` / `tsx watch index.ts`, so a variation without one fails with "Cannot find module index.js" and the preview and the API tester stay dead. Ship `index.*` that calls `listen(3000)` and keep `main.*` (the `mainFilePath`) as the **Run** button's demo.
+- **`nodets_jest` imports CommonJS with `import x = require('express')`.** The platform tsconfig has `allowSyntheticDefaultImports` but no `esModuleInterop`, so `import express from 'express'` compiles and then crashes at runtime; `import * as express` works under ts-jest but breaks the `tsx` preview. The same goes for `supertest`.
+- **In `nodejs_jest` tests `jest` is a global**: destructure only `describe`/`it`/`expect` from `@jest/globals`, or the file dies with `Identifier 'jest' has already been declared`. In `nodets_jest` import `jest` from `@jest/globals` as usual.
+- **A TypeScript mutant must still type-check.** ts-jest type-checks the test run, so a mutant with a type error fails the whole run and counts as killed whatever the solver wrote — add the cast the mutant needs (e.g. `return { email } as User;`).
+- **Browser** samples ship the same `package.json` as their normal sample (rule 5 below). The vanilla templates have no Testing Library: tests reset the page from `globalThis.htmlContent` in `beforeEach` and use plain DOM queries.
+- **Backend** templates (`nestjs`, `fastify`, `hono`) test with Vitest and need no `package.json`.
+
+### Verify before uploading
+
+Run the checker on every variation — it lays the files out the way the grader does and fails loudly if the challenge is not solvable or a mutant slips through:
+
+```bash
+WTT_ENV=<folder with node_modules> node tools/write-the-tests/verify.mjs challenges/<slug>/templates/<template>
+```
+
+It checks that the reference suite passes on `solutionFiles/`, that the starter test passes on it too, and that the reference suite fails on every `mutants/<key>/` overlay; it also prints which mutants the starter test already catches. `WTT_ENV` needs `vitest`, `supertest`, `express`, `fastify`, `hono`, `@nestjs/common|core|testing|platform-express`, `reflect-metadata`, `unplugin-swc` and `@swc/core`; Python runs with the local `pytest`. The browser templates are not covered by the checker — verify those on the platform.
+
+### Creating it on the platform
+
+Follow the normal "Challenge Creation Workflow with MCP Commands", with these differences:
+
+1. **Ask first** (Challenge Creation Rules, rule 0): confirm the user wants a write-the-tests challenge and pick a supported template.
+2. `create_challenge` with **`challengeMode: "tests"`** in addition to the usual fields. The mode is **create-only** — `update_challenge_info` cannot switch it — so a challenge created without it must be deleted and recreated. The API rejects the mode on a template outside the supported list.
+3. `add_variation` for the other templates — each new variation **inherits** the challenge's mode, nothing extra to pass.
+4. `node createExportContent.js <template-dir>` — for a folder with `mutants/` it checks the container (a label for every mutant, every mutant file overlays a file in `solutionFiles/`, a non-empty `allTests/`), **rebuilds the root `mutants.json` manifest** from the folder and writes an empty `initialTests.json` when missing; it refuses to zip a broken container. Then `prepare_file_upload` + `uploadChallengeFiles.js` as usual, default variation last. The importer reads the container because the root `mutants.json` is in the zip.
+5. Validate with `run_all_tests_preloaded` (the starter test) and, once per new language or test feature, the reference suite swapped into the starter slot — see the write-the-tests note under step 13 of the workflow. `run_all_tests` on the author's solution answers "No tests were found" by design.
+
+Downloading works the same way too: `downloadChallengeFiles.js` extracts `mutants/` and `mutants.json` with the rest and flags the variation as write-tests.
+
 ## Challenge Creation Rules
+
+### 0. Ask Which Kind of Challenge First
+
+Every new challenge is one of two kinds, and the kind is **fixed at creation** — it cannot be changed later. Unless the user already said which one, **ask before generating anything**:
+
+- **Write the code** (default, `challengeMode: "code"`): the solver implements the solution, the author's tests check it. Every template supports it.
+- **Write the tests** (`challengeMode: "tests"`): the code is given and correct, the solver writes the tests, and they are graded against hidden buggy copies (mutants). See "Write-the-Tests Challenges" above.
+
+Words like "write the tests", "test the user's tests", "mutation testing" or "the solver writes Jest/pytest tests" mean write-the-tests — confirm instead of asking an open question. When the answer is write-the-tests:
+
+- offer **only** the supported templates: `nodejs_jest`, `nodets_jest`, `python`, `nestjs`, `fastify`, `hono`, `vanillajs_jest`, `vanillats_jest`, `react_jest`, `reactts_jest`, `vue_jest`, `vuets_jest`, `svelte`, `solidjs`, `solidjs_ts`, `angular_jest`. If the user names another one, say it does not support write-the-tests and suggest the closest supported template;
+- generate from the matching `*-write-the-tests-example-challenge` sample, not from the normal sample;
+- remember the mode: it is sent as `challengeMode: "tests"` in the `create_challenge` call (step 8 of "Challenge Creation Workflow with MCP Commands").
 
 ### 1. Template-Specific Generation
 
@@ -1204,6 +1569,7 @@ When instructed to create an existing generated challenge, follow this workflow:
    - `estimate`: Integer number representing minutes that would take a person to solve the challenge
    - `tags`: Array of tag objects (3-5 tags) selected from `get_all_tags` response, each containing `_id` and `name`
    - `defaultDifficulty`: Integer (1, 2, or 3) representing the difficulty level
+   - `challengeMode` _(only for write-the-tests challenges)_: `"tests"`. Omit it for a normal challenge (the default is `"code"`). A challenge folder is a write-the-tests one when its template folders contain `mutants/` and a root `mutants.json`. The mode is create-only: a challenge created without it has to be deleted and recreated, and the API rejects `"tests"` on a template that does not support it.
    - `runtimeOptions` _(only for `nodejs-jest` or `nodets-jest` templates that expose an HTTP server)_: An object with:
      - `browserPreviewVisibility`: Set to `true` if Live Preview should be enabled
      - `enableApiTester`: Set to `true` if API Tester should be enabled
@@ -1267,6 +1633,14 @@ These values are then used in the `create_challenge` request.
   5. **Run challenge code** (terminal challenges only) — verify main file executes correctly with expected output. Skip for browser challenges.
   6. **Run challenge code with preloaded files** (terminal challenges only) — verify starter code runs without errors. Skip for browser challenges.
 
+- **Write-the-tests challenges** answer the test tools with a validation result instead — `{ success, referencePassed, referenceRun, mutants: [{ key, label, killed }] }` — and have no initial tests. The test tools treat the submitted files as the **solver's tests** and run them against the reference solution and then every mutant:
+  1. **Run all tests with preloaded files** — runs the starter test: expect `referencePassed: true` and most mutants `killed: false` (that is what the solver has to fix). This also proves the variation and its `mutants/` arrived intact.
+  2. **Run all tests** (with the author's solution files) answers `"No tests were found in your files"` — expected, because the solution files contain no test. It does **not** validate the reference suite.
+  3. **To validate the reference suite on the platform**, copy `allTests/<reference file>` over the starter test in `preloadedFiles/`, upload, run **all tests with preloaded files** — expect `success: true`, every mutant `killed: true` — then rebuild the real starter and upload again. Do this at least once per new language or per new test feature (e.g. `@pytest.mark.parametrize` under `@m.it`, typed `it.each`); `tools/write-the-tests/verify.mjs` covers the rest locally with the same runners.
+  4. Skip both **initial tests** runs. Run the code runs as for any challenge of that template.
+
+  A `referenceRun.errors` entry such as "no hidden bug variants configured" or a structural error means the `mutants/` container did not arrive — rebuild the zip with `createExportContent.js` (it validates the container and writes the manifest) and upload again. The editor's Python language server may flag `from challenge.<module> import ...` as an unknown import symbol; that is an editor warning only, the tests run.
+
 14. **Display challenge edit link**: After all validation passes, call the MCP command `get_challenge_edit_url` with:
     - `challengeId`: The `_id` from `challengeCreate.json`
     - `variationId`: The `defaultVariation._id` from `challengeCreate.json`
@@ -1276,6 +1650,8 @@ These values are then used in the `create_challenge` request.
 ## Adding Variation Workflow with MCP Commands
 
 When instructed to add a variation for a specific challenge (e.g., "add variation for python"), follow this workflow:
+
+> **Write-the-tests challenges**: the new variation inherits `challengeMode: "tests"` from the challenge — `add_variation` needs nothing extra — but only a supported template can be added (see "Write-the-Tests Challenges"). Generate it from the matching `*-write-the-tests-example-challenge` sample, with the same three mutants ported to that language.
 
 1. **Navigate to Challenge Folder**: Go to the challenge folder (`challenges/[challenge-name]/`)
 
@@ -1756,6 +2132,7 @@ When instructed to get a challenge from the live DojoCode platform (e.g., "Get t
      - `solutionFiles.json` + `solutionFiles/` - Solution configuration and files
      - `initialTests.json` + `initialTests/` - Initial tests configuration and files
      - `allTests.json` + `allTests/` - All tests configuration and files
+     - _Write-the-tests challenges only:_ `mutants.json` + `mutants/` - the mutant container (one folder per mutant plus `mutants/mutants.json` with the labels). The script prints `🧪 <template> is a write-tests variation` for these, and `initialTests.json` is empty with no `initialTests/` folder. Keep editing them as write-the-tests variations (see "Write-the-Tests Challenges").
 
 9. **Create details.json for Each Template**: After extraction, create a `details.json` file in each template folder:
    - Read the `README.md` content from the extracted files

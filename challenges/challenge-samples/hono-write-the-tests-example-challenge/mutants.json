@@ -1,0 +1,56 @@
+{
+  "folders": {
+    "/accepts-empty": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/accepts-empty/src": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/edge-dashes": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/edge-dashes/src": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/keeps-case": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/keeps-case/src": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "files": {
+    "/mutants.json": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/accepts-empty/src/app.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/edge-dashes/src/app.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/keeps-case/src/app.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  }
+}
