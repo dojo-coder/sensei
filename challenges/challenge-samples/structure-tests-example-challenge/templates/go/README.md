@@ -1,0 +1,3 @@
+Write a program that prints the numbers from **1 to 5**, one per line, using a **for loop**. Inside the loop, use an **if** to add the even numbers to a variable named `total`.
+
+No function needed: the tests run your program and compare what it prints, and they also check how the program is written — that it uses a for loop (not while), an if inside the loop, and that `total` is declared and updated.
