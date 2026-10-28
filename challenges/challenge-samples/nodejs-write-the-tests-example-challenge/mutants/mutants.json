@@ -1,0 +1,14 @@
+{
+  "negatives-bug": {
+    "label": "Negatives handling",
+    "description": "Negative numbers are summed incorrectly."
+  },
+  "plus-one": {
+    "label": "Off-by-one",
+    "description": "The result is off by one."
+  },
+  "type-coercion": {
+    "label": "Invalid input handling",
+    "description": "Non-number inputs are coerced instead of rejected."
+  }
+}

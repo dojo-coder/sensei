@@ -1,0 +1,14 @@
+{
+  "accepts-empty-cart": {
+    "label": "Empty cart accepted",
+    "description": "An empty cart answers with a total instead of being rejected."
+  },
+  "ignores-quantity": {
+    "label": "Quantity ignored",
+    "description": "Each item is counted once regardless of its quantity."
+  },
+  "skips-first-item": {
+    "label": "First item skipped",
+    "description": "The first item of the cart is left out of the total."
+  }
+}

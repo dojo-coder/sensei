@@ -1,0 +1,56 @@
+{
+  "folders": {
+    "/inverted-discount": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/inverted-discount/src": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/no-rounding": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/no-rounding/src": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/percent-over-100": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/percent-over-100/src": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "files": {
+    "/mutants.json": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/inverted-discount/src/discount.service.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/no-rounding/src/discount.service.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/percent-over-100/src/discount.service.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  }
+}

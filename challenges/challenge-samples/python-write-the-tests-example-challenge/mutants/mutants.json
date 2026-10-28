@@ -1,0 +1,14 @@
+{
+  "invalid-range": {
+    "label": "Invalid range handling",
+    "description": "A lower bound above the upper bound is accepted instead of rejected."
+  },
+  "off-by-one": {
+    "label": "Off-by-one",
+    "description": "One of the boundaries is clamped to the wrong value."
+  },
+  "swapped-bounds": {
+    "label": "Swapped bounds",
+    "description": "Out-of-range values are clamped to the wrong end of the range."
+  }
+}

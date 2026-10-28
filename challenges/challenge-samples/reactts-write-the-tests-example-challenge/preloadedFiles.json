@@ -1,0 +1,16 @@
+{
+  "folders": {},
+  "files": {
+    "/App.spec.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/index.tsx": {
+      "visible": false,
+      "readonly": true,
+      "redacted": false
+    }
+  },
+  "activeFilePath": "/App.spec.ts"
+}

@@ -1,0 +1,16 @@
+{
+  "folders": {},
+  "files": {
+    "/sum.test.js": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/main.js": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "activeFilePath": "/sum.test.js"
+}

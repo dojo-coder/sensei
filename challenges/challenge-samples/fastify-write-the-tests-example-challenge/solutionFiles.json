@@ -1,0 +1,21 @@
+{
+  "folders": {
+    "/src": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "files": {
+    "/src/main.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/src/app.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "folders": {},
+  "files": {
+    "/todoList.spec.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/index.ts": {
+      "visible": false,
+      "readonly": true,
+      "redacted": false
+    },
+    "/index.html": {
+      "visible": true,
+      "readonly": true,
+      "redacted": false
+    }
+  },
+  "activeFilePath": "/todoList.spec.ts"
+}

@@ -1,0 +1,31 @@
+{
+  "folders": {
+    "/src": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "files": {
+    "/src/main.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/src/app.module.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/src/discount.controller.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/src/discount.service.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  }
+}

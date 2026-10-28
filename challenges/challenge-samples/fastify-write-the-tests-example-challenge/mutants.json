@@ -1,0 +1,56 @@
+{
+  "folders": {
+    "/accepts-empty-cart": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/accepts-empty-cart/src": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/ignores-quantity": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/ignores-quantity/src": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/skips-first-item": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/skips-first-item/src": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "files": {
+    "/mutants.json": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/accepts-empty-cart/src/app.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/ignores-quantity/src/app.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/skips-first-item/src/app.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  }
+}

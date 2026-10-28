@@ -1,0 +1,14 @@
+{
+  "accepts-blank": {
+    "label": "Blank todos accepted",
+    "description": "An empty or whitespace-only todo is added to the list."
+  },
+  "case-sensitive-duplicates": {
+    "label": "Case-sensitive duplicates",
+    "description": "A todo that differs from an existing one only by letter case is added again."
+  },
+  "keeps-input": {
+    "label": "Input not cleared",
+    "description": "The input keeps its text after a todo is added."
+  }
+}

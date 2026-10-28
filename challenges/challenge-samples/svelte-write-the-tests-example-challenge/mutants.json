@@ -1,0 +1,41 @@
+{
+  "folders": {
+    "/double-step": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/negative-allowed": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/reset-guard": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "files": {
+    "/mutants.json": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/double-step/App.svelte": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/negative-allowed/App.svelte": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/reset-guard/App.svelte": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  }
+}

@@ -120,9 +120,35 @@ async function extractTemplates(zipBuffer, targetDir) {
     });
 
     await Promise.all(extractPromises);
+    reportWriteTests(templateDir, templateName);
   }
 
   return templateZips.map((t) => t.templateName);
+}
+
+/**
+ * A write-tests variation (challengeMode "tests") comes with a mutants/ folder and
+ * its mutants.json manifest. Say so, so the local copy is edited as one: the
+ * solver's test file lives in preloadedFiles/, the correct code in solutionFiles/.
+ */
+function reportWriteTests(templateDir, templateName) {
+  if (!fs.existsSync(path.join(templateDir, "mutants.json"))) {
+    return;
+  }
+
+  const mutantsDir = path.join(templateDir, "mutants");
+  const mutants = fs.existsSync(mutantsDir)
+    ? fs
+        .readdirSync(mutantsDir, { withFileTypes: true })
+        .filter((item) => item.isDirectory())
+        .map((item) => item.name)
+        .sort()
+    : [];
+
+  console.log(
+    `   🧪 ${templateName} is a write-tests variation (challengeMode "tests"): ${mutants.length} mutant(s)` +
+      (mutants.length ? ` — ${mutants.join(", ")}` : "")
+  );
 }
 
 async function main() {

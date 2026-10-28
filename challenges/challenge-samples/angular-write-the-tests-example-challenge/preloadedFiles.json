@@ -1,0 +1,36 @@
+{
+  "folders": {},
+  "files": {
+    "/app.component.spec.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/angular.json": {
+      "visible": false,
+      "readonly": true,
+      "redacted": false
+    },
+    "/app.module.ts": {
+      "visible": true,
+      "readonly": true,
+      "redacted": false
+    },
+    "/index.html": {
+      "visible": false,
+      "readonly": true,
+      "redacted": false
+    },
+    "/index.ts": {
+      "visible": false,
+      "readonly": true,
+      "redacted": false
+    },
+    "/style.css": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  },
+  "activeFilePath": "/app.component.spec.ts"
+}

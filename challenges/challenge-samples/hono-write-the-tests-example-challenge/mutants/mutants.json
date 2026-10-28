@@ -1,0 +1,14 @@
+{
+  "accepts-empty": {
+    "label": "Empty text accepted",
+    "description": "An empty text parameter answers with an empty slug instead of being rejected."
+  },
+  "edge-dashes": {
+    "label": "Edge dashes kept",
+    "description": "Leading and trailing dashes are not stripped from the slug."
+  },
+  "keeps-case": {
+    "label": "Case kept",
+    "description": "The slug keeps the original casing instead of being lowercased."
+  }
+}

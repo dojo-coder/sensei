@@ -1,0 +1,14 @@
+{
+  "double-step": {
+    "label": "Double step",
+    "description": "Increment adds 2 instead of 1."
+  },
+  "negative-allowed": {
+    "label": "Negative count allowed",
+    "description": "Decrement keeps working below zero."
+  },
+  "reset-guard": {
+    "label": "Reset guard",
+    "description": "Reset does nothing when the count is 1."
+  }
+}

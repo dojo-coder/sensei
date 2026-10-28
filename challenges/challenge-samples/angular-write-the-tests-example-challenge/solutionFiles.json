@@ -1,0 +1,15 @@
+{
+  "folders": {},
+  "files": {
+    "/app.component.ts": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    },
+    "/app.component.html": {
+      "visible": true,
+      "readonly": false,
+      "redacted": false
+    }
+  }
+}
