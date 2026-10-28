@@ -1,0 +1,11 @@
+{
+  "learningPathId": "PUT-A-REAL-LEARNING-PATH-ID-HERE",
+  "firstDueDate": "2026-07-15T23:59:00.000Z",
+  "daysBetween": 7,
+  "groupIds": [
+    "PUT-A-REAL-GROUP-ID-HERE"
+  ],
+  "studentIds": [],
+  "instructions": "Work through the courses in order; each one has its own due date.",
+  "status": "draft"
+}

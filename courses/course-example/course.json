@@ -1,0 +1,135 @@
+{
+  "title": "Arrays from Zero to Hero",
+  "description": "A guided course that takes a learner from basic array indexing to common interview-grade array techniques, one chapter at a time.",
+  "category": "6a1c0e5f1b2a3c4d5e6f7a01",
+  "visibility": "community",
+  "status": "draft",
+  "nodes": [
+    {
+      "chapter": "Working with Arrays",
+      "conceptKey": "array-basics",
+      "concepts": [
+        "arrays",
+        "indexing"
+      ],
+      "title": "Array Basics",
+      "description": "Reading, writing and iterating over arrays.",
+      "theory": "## Arrays\n\nAn array stores elements contiguously, so indexing is O(1). In this lesson you'll practice reading and writing elements and iterating with a simple loop.\n\n```python\nnums = [4, 8, 15]\nfor n in nums:\n    print(n)\n```\n\n**Key takeaways**\n- Indexes start at 0.\n- Reading by index costs the same for any position.",
+      "difficulty": 1,
+      "challenges": [],
+      "requiredChallenges": [],
+      "lessonEstimate": 15
+    },
+    {
+      "chapter": "Working with Arrays",
+      "conceptKey": "array-iteration",
+      "concepts": [
+        "arrays",
+        "loops"
+      ],
+      "title": "Walking Through an Array",
+      "description": "Visit every element once to count, sum or search.",
+      "theory": "## Iteration\n\nMost array work is a single pass: keep a running value and update it for each element.\n\n```python\ntotal = 0\nfor n in nums:\n    total += n\n```",
+      "difficulty": 1,
+      "quiz": {
+        "title": "Array basics check",
+        "questions": [
+          {
+            "type": "multiple_choice",
+            "prompt": "What does this print?",
+            "code": "nums = [4, 8, 15]\nprint(nums[1])",
+            "language": "python",
+            "template": "python",
+            "options": [
+              { "text": "8", "correct": true },
+              { "text": "4", "correct": false },
+              { "text": "15", "correct": false }
+            ],
+            "explanation": "Indexes start at 0, so nums[1] is the second element."
+          },
+          {
+            "type": "true_false",
+            "prompt": "Reading an element by its index takes the same time for any index.",
+            "answer": true,
+            "explanation": "Indexing is O(1): the position is computed directly."
+          },
+          {
+            "type": "fill_blocks",
+            "prompt": "Complete the loop so it adds up every number.",
+            "code": "total = 0\nfor n ___ nums:\n    total ___ n",
+            "language": "python",
+            "template": "python",
+            "blanks": ["in", "+="],
+            "distractors": ["of", "=+", "-="],
+            "explanation": "`for n in nums` visits each element and `+=` adds it to the total."
+          },
+          {
+            "type": "spot_error",
+            "prompt": "This code should print the last element. Which line is wrong?",
+            "code": "nums = [4, 8, 15]\nlast = nums[len(nums)]\nprint(last)",
+            "language": "python",
+            "template": "python",
+            "errorLineIndex": 1,
+            "explanation": "The last index is len(nums) - 1; nums[len(nums)] is out of range."
+          }
+        ]
+      },
+      "challenges": [
+        "PUT-A-REAL-CHALLENGE-ID-HERE"
+      ],
+      "requiredChallenges": [
+        "PUT-A-REAL-CHALLENGE-ID-HERE"
+      ],
+      "lessonEstimate": 15
+    },
+    {
+      "chapter": "Smarter Passes",
+      "conceptKey": "two-pointers",
+      "concepts": [
+        "arrays",
+        "two-pointers"
+      ],
+      "title": "The Two-Pointer Technique",
+      "description": "Solve array problems in a single pass using two indices.",
+      "theory": "## Two pointers\n\nMany array problems that look like they need O(n^2) can be solved in O(n) by walking two indices toward each other or in the same direction.",
+      "difficulty": 2,
+      "quiz": {
+        "title": "Two-pointer check",
+        "questions": [
+          {
+            "type": "reorder",
+            "prompt": "Put the lines in order so the function reverses the list in place.",
+            "code": "def reverse(items):\n    left, right = 0, len(items) - 1\n    while left < right:\n        items[left], items[right] = items[right], items[left]\n        left, right = left + 1, right - 1",
+            "language": "python",
+            "template": "python",
+            "explanation": "Start with both pointers at the ends, then swap and move them toward each other until they meet."
+          },
+          {
+            "type": "true_false",
+            "prompt": "The two-pointer technique always needs the array to be sorted.",
+            "answer": false,
+            "explanation": "Reversing or partitioning works on any array; only pair-sum style searches rely on sorting."
+          },
+          {
+            "type": "multiple_choice",
+            "prompt": "What is the time complexity of reversing a list with two pointers?",
+            "options": [
+              { "text": "O(n)", "correct": true },
+              { "text": "O(n^2)", "correct": false },
+              { "text": "O(log n)", "correct": false }
+            ],
+            "explanation": "Each element is swapped at most once, so the pass is linear."
+          }
+        ]
+      },
+      "challenges": [
+        "PUT-A-REAL-CHALLENGE-ID-HERE",
+        "PUT-A-REAL-CHALLENGE-ID-HERE"
+      ],
+      "requiredChallenges": [
+        "PUT-A-REAL-CHALLENGE-ID-HERE"
+      ],
+      "lessonEstimate": 25
+    }
+  ]
+}
