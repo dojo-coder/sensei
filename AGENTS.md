@@ -96,6 +96,8 @@ A variation may enable only Live Preview, only the API Tester, or both. When aut
 
 Note: A reference sample demonstrating both Live Preview and API Tester is included at `challenges/challenge-samples/nodejs_jest_with_preview_and_apiTester-example-challenge`. Use it as a template when creating `nodejs-jest` or `nodets-jest` variations that expose a web server.
 
+Note: Every terminal template except `solidity` also supports **output tests** — tests that run the learner's whole program and compare what it prints, for beginner challenges where the learner does not know functions yet. See [Output Tests (Programs Without Functions)](#output-tests-programs-without-functions).
+
 #### Browser Challenges
 
 - **vuejs-jest**: Vue.js with Jest testing framework using @testing-library/vue
@@ -369,6 +371,8 @@ Avoid lengthy implementation details or extensive code examples that can be foun
 - Use appropriate naming conventions for each language
 - Don't add comments or hints inside preloaded files
 
+**Exception — output-test challenges**: there is no function. The only preloaded file is the main file, holding the bare minimum the language needs to compile (`int main()`, `class Main`, ...) and a one-line comment with the task (e.g. `# Print Hello World`). See [Output Tests (Programs Without Functions)](#output-tests-programs-without-functions).
+
 ### Main Files (Terminal Challenges Only)
 
 **Important**: All terminal challenges (nodejs-jest, python, php, java, ruby, rust, c, cpp, csharp, go, solidity) **must include a main file** in both `preloadedFiles/` and `solutionFiles/` directories. The main file enables users to run and debug their code directly using the Run button without executing the full test suite.
@@ -385,6 +389,8 @@ Avoid lengthy implementation details or extensive code examples that can be foun
 - Should import/require the solution file and call the main function(s) with example inputs
 - Should print/output the results using appropriate language-specific output methods
 - Use descriptive output messages to show what is being tested
+
+**Exception — output-test challenges**: the main file IS the solution (no separate solution file, no import), and it must print exactly the expected output — no descriptive labels. See [Output Tests (Programs Without Functions)](#output-tests-programs-without-functions).
 
 **Main File Naming by Template**:
 
@@ -993,6 +999,90 @@ import "../solutionFiles/src/HelloWorld.sol"; // ❌ Wrong for Solidity — use 
 ```
 
 This applies to all test files in both `initialTests/` and `allTests/` directories across all templates.
+
+### Output Tests (Programs Without Functions)
+
+For beginner challenges where the learner does not know functions yet ("print Hello World", "print the numbers from 1 to 10"), the tests run the learner's **whole program** and compare what it prints, instead of calling a function.
+
+**When to use**: only for these beginner, program-style challenges, or when the user asks for them. Every other challenge keeps the regular function tests described above.
+
+**Supported templates**: `python`, `nodejs_jest`, `nodets_jest`, `php`, `ruby`, `java`, `csharp`, `go`, `rust`, `c`, `cpp`.
+**Not supported**: `solidity`, and all browser / full-stack / backend / database / mobile templates (they have no main program to run).
+
+**How it works**: a test calls a small helper that starts the main file (the variation's `mainFilePath`), optionally feeds it stdin, and returns its stdout with trailing spaces and trailing newlines trimmed. The platform injects the helper when the tests run — **never create, upload or import a file for it** beyond what the table below shows. Compiled programs are built once before the tests; a build error makes every test fail with the compiler output.
+
+| Template | Test file (example name) | Run the program |
+| --- | --- | --- |
+| `python` | `test_main.py` | `from challenge.dojo_io import run` → `run()` |
+| `nodejs_jest` | `main.test.js` | `const { run } = require('dojo-io');` → `run()` |
+| `nodets_jest` | `main.test.ts` | `import { run } from 'dojo-io';` → `run()` |
+| `php` | `HelloWorldTest.php` | `DojoIO::run()` (no require needed) |
+| `ruby` | `hello_world_spec.rb` | `DojoIO.run` (no require needed) |
+| `java` | `HelloWorldTest.java` (`package challenge;`) | `DojoIO.run()` (no import needed) |
+| `csharp` | `HelloWorldTest.cs` (`namespace Challenge`) | `DojoIO.Run()` (no using needed) |
+| `go` | `main_test.go` (`package main`) | `DojoRun(t, "")` |
+| `rust` | `hello_world_test.rs` | `use crate::dojo_io::run;` → `run("")` |
+| `c` | `hello_world.test.c` | `#include "dojo_io.h"` → `dojo_run("")` |
+| `cpp` | `hello_world.test.cpp` | `#include "dojo_io.hpp"` → `dojo_run()` |
+
+To give the program input, pass it as the argument: `run("3\n4\n")`, `DojoIO.run("3\n4\n")`, `DojoRun(t, "3\n4\n")`, ...
+
+**Example (python)**:
+
+```python
+from pytest import mark as m
+from challenge.dojo_io import run
+
+
+@m.describe("Hello World")
+class TestHelloWorld:
+    @m.it("prints Hello World")
+    def test_prints_hello_world(self):
+        assert run() == "Hello World"
+```
+
+**Challenge layout rules**:
+
+- The main file is the only file: put it in both `preloadedFiles/` (stub: the minimum needed to compile plus a one-line comment with the task) and `solutionFiles/` (the full program). No separate solution file.
+- `metadata.json`: `mainFilePath` and `activeFilePath` both point to the main file (`/main.py`, `/Main.java`, `/Main.cs`, ...).
+- The solution prints **exactly** the expected text — no labels like `Result:`.
+- Prefer programs **without input**: the Run button cannot type into the program, so a program waiting for input hangs until the run times out. Use stdin only when the user explicitly asks for an input-reading challenge.
+- If the program does read input, it must not print a prompt (`System.out.print("Number: ")`, `print "Number: "`, ...): the prompt is part of stdout and breaks the comparison. Only Python is exempt — `input("Number: ")` prompts are hidden.
+- The 5–7 / 8–12 test counts do not apply: a print-only program needs 1–3 tests. For programs with input, use several different inputs (and extra ones in `allTests`) so hard-coding the answer cannot pass.
+- Each run is limited to 5 seconds; an infinite loop fails the test with a clear timeout message.
+
+**Structure checks (how the program is written)**: the same helper also checks that the learner used a construct, for tasks that prescribe one ("use a for loop", "put an if inside the loop", "do not use while", "keep a running total in `total`"). The platform parses the learner's source files (never the test files) into a report, and the helper answers from it — structure checks never run the program.
+
+| Template | Structure functions |
+| --- | --- |
+| `python` | `from challenge.dojo_io import run, uses, count, defines, calls, declares` → `uses("for")`, `count("if@for")`, `uses("if", scope="main")` |
+| `nodejs_jest` / `nodets_jest` | `const { run, uses, count, defines, calls, declares } = require('dojo-io')` / `import { ... } from 'dojo-io'` → `uses('for')`, `uses('if', 'main')` |
+| `php` | `DojoIO::uses('for')`, `DojoIO::count('if@for')`, `DojoIO::declares('$total')` (PHP names keep the `$`) |
+| `ruby` | `DojoIO.uses('for')`, `DojoIO.count('if@for')`, `DojoIO.calls('puts')` |
+| `java` | `DojoIO.uses("for")`, `DojoIO.count("if@for", "main")`, `DojoIO.calls("System.out.println")` |
+| `csharp` | `DojoIO.Uses("for")`, `DojoIO.Count("if@for", "Main")`, `DojoIO.Calls("Console.WriteLine")` |
+| `go` | `DojoUses(t, "for")`, `DojoCount(t, "if@for", "main")`, `DojoCalls(t, "fmt.Println")`, `DojoDeclares(t, "total")` |
+| `rust` | `use crate::dojo_io::{run, uses, count, calls, declares};` → `uses("for")`, `count_in("if@for", "main")`, `calls("println!")` |
+| `c` | `dojo_uses("for")`, `dojo_count_in("if@for", "main")`, `dojo_calls("printf")`, `dojo_declares("total")` |
+| `cpp` | `dojo_uses("for")`, `dojo_count("if@for", "main")`, `dojo_calls("cout")`, `dojo_declares("total")` |
+
+Every language has the same five checks: `uses(kind)` (true if it occurs), `count(kind)` (how many times), `defines(name)` (a function named `name` exists), `calls(name)` (a call, written as in the code: `print`, `console.log`, `System.out.println`, `cout`, `println!`), `declares(name)` (a variable named `name` is declared). The optional extra argument narrows a check to one function (`uses("if", "main")`); code outside functions is under `<file>`.
+
+Vocabulary (identical in all languages):
+
+- Constructs: `if`, `else-if`, `else`, `switch`, `ternary`, `for`, `for-each`, `while`, `do-while`, `loop` (any loop), `break`, `continue`, `return`, `try`, `function`, `class`, `comprehension` (Python only), `string`, `number`, `array`, `dict`, `comment`, `syntax-error`.
+- Named rows: `function:<name>`, `class:<name>`, `call:<name>`, `variable:<name>` (declared — loop variables too: `for i in ...`, `for (const x of xs)`, `foreach ($xs as $x)`, `for x in ...` in Rust/Ruby, and Python `with ... as f`), `update:<name>` (assigned again, including `+=` and `++`), `parameter:<name>`, `operator:<op>` (`operator:%`, `operator:==`), `import:<module>`, `recursion:<name>`.
+- Nesting: `<kind>@<container>` is a row inside a construct — `if@for` (an if inside a for loop), `update:total@loop`, `return@if`, `call:print@function`. Containers: every branch, loop, `switch`, `try`, `function` and `class`.
+- `for` covers every for loop (Python `for in`, Go `for range`, PHP `foreach`, Ruby `each`/`times` blocks); `for-each` is the collection form only; Go's condition-only `for cond {}` counts as `while`.
+
+Rules for structure checks:
+
+- Use them only for what the task actually asks for, and always next to output tests: they say that a construct **exists**, not that it does the right thing.
+- Give each one a clear message — it is what the learner sees: `assert uses("for"), "Use a for loop to count"`.
+- Negative checks are fine: `assert not uses("while")`.
+- Name the checked things in the task description (`total`, `for`, `if`), so the learner knows what is expected.
+
+**Reference samples**: `challenges/challenge-samples/output-tests-example-challenge/templates/<template>/` contains "Print Hello World" (output only) and `challenges/challenge-samples/structure-tests-example-challenge/templates/<template>/` contains "Count to Five" (output + structure checks), both for all 11 templates. Copy their structure when creating such a challenge.
 
 ### Browser Challenge Styling
 
