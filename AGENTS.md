@@ -2580,6 +2580,7 @@ A reference descriptor lives at `learning-paths/learning-path-example/learningPa
 {
   "title": "Arrays from Zero to Hero",
   "description": "From basic indexing to interview-grade array techniques.",
+  "category": "<categoryId>",
   "visibility": "community",
   "status": "draft",
   "nodes": [
@@ -2601,6 +2602,7 @@ A reference descriptor lives at `learning-paths/learning-path-example/learningPa
 
 Top-level fields:
 - `title` is **required** (3–120 chars). `description` is optional (≤ 500 chars).
+- `category`: optional, the `_id` of a catalog category from `get_learning_path_categories` (the Explore filter and the badge on the path card). Never invent or guess an id — an unknown one is rejected (422).
 - `visibility`: `private` (default) or `community`.
 - `status`: `draft` (default) or `published`.
 - `nodes[]`: the lessons, in order. The path's `averageDifficulty` and `estimatedMinutes` are computed by the platform from the referenced challenges — do not send them.
@@ -2619,7 +2621,7 @@ Creating a learning path is a **multi-turn conversation**. The platform's own AI
 
 ### Tool rules (read before searching)
 
-- Call `get_templates`, `get_languages`, and `get_all_tags` **once** per conversation and reuse the results — never re-call them on later turns.
+- Call `get_templates`, `get_languages`, `get_all_tags` and `get_learning_path_categories` **once** per conversation and reuse the results — never re-call them on later turns.
 - **Template and language names are case-sensitive and Capitalized.** The `language` and `template` filters on `get_challenges` expect the exact capitalized name — `"Python"`, `"JavaScript"`, `"React"` — **not** `"python"`/`"javascript"`. A lowercase value silently returns zero results. **Always resolve the exact spelling from `get_languages` (for languages) and `get_templates` (for templates) before filtering — never guess the casing.**
 - Difficulty is **1–3** (1 = beginner, 2 = intermediate, 3 = advanced). Never pass `0`.
 - **Every** `get_challenges` call must include `status: "pending,approved"`. Draft challenges are broken and must never be added to a path.
@@ -2643,7 +2645,7 @@ If the user already stated some of these in their request, **do not re-ask them*
 
 Once requirements are known:
 
-1. Call `get_templates`, `get_languages`, and `get_all_tags` (once — see Tool rules). Use `get_languages`/`get_templates` to get the exact **Capitalized** names you will pass as filters.
+1. Call `get_templates`, `get_languages`, `get_all_tags` and `get_learning_path_categories` (once — see Tool rules). Use `get_languages`/`get_templates` to get the exact **Capitalized** names you will pass as filters.
 2. From the `get_all_tags` results, pick up to ~5 tags that best match the topic. Use only tags that **actually exist** in the results.
 3. Find candidate challenges:
    - The user's own: `get_my_challenges`.
@@ -2656,6 +2658,7 @@ Once requirements are known:
 Present a concise outline the user can react to — do **not** write files yet:
 
 - Proposed path **title** + one-line description.
+- Proposed **category** — the best fit from `get_learning_path_categories`, shown by name.
 - For **each node**: the concept title, the specific challenges chosen (by **title + `_id`**), which are **required** vs **bonus**, the node difficulty, and the estimate.
 
 Ask the user to confirm or adjust (swap a challenge, rename a node, change counts, reorder). Iterate until they approve. Only when they approve do you proceed to Step 4.
@@ -2666,6 +2669,7 @@ Ask the user to confirm or adjust (swap a challenge, rename a node, change count
 2. Author `learning-paths/[path-slug]/learningPath.json` from the approved outline:
    - Order nodes easiest → hardest. **Node titles name a transferable concept** ("Array Transformation Techniques"), not a specific challenge ("Reverse a String").
    - Use only the real challenge `_id`s resolved in Step 2.
+   - Set `category` to the `_id` of the approved category (from `get_learning_path_categories`).
    - Each node declares a **non-empty `requiredChallenges`** subset of its `challenges` (the rest are bonus).
    - Write `theory` as rich markdown (a code example + a short "key takeaways" list) and exactly **2** reflection questions per node.
 3. Call `create_learning_path` with the `learningPath.json` contents. (You are auto-enrolled as a learner of your own path — no extra step.)
@@ -2686,7 +2690,7 @@ A path can be edited with `update_learning_path` **only while its `status` is `d
 
 | `action` | What it does | Required fields |
 |----------|--------------|-----------------|
-| `metadata` | Update path title / description / visibility / status | at least one of `title`, `description`, `visibility`, `status` |
+| `metadata` | Update path title / description / category / visibility / status | at least one of `title`, `description`, `category` (a category `_id`, or `null` to clear it), `visibility`, `status` |
 | `add_lesson` | Append a new lesson (node) | `lesson` (a node object; `lesson.title` required) |
 | `update_lesson` | Replace a lesson's fields / challenge list | `lessonId` + `lesson` |
 | `delete_lesson` | Remove a lesson | `lessonId` |
@@ -2984,7 +2988,8 @@ The challenge MCP commands are documented in Part 1. The resource-creation comma
 |---------|----------|---------|-----------------|
 | `create_contest` | Contest | Create a timed contest from existing challenges | `name`, `description`, `startDate`, `endDate` (+ optional `invitationDescription`, `finalDescription`, `visibility`, `aiEnabled`, `aiMaxPromptsPerChallenge`, `challenges[]`) |
 | `update_contest` | Contest | Edit a **draft** contest (send only changed fields; `slug` immutable) | `contestId` (+ any editable fields) |
-| `create_learning_path` | Learning Path | Create a guided path from existing challenges | `title` (+ optional `description`, `visibility`, `status`, `nodes[]`) |
+| `get_learning_path_categories` | Learning Path | List the catalog categories (`_id`, name, translations) to pick a path's `category` from | _(none)_ |
+| `create_learning_path` | Learning Path | Create a guided path from existing challenges | `title` (+ optional `description`, `category`, `visibility`, `status`, `nodes[]`) |
 | `update_learning_path` | Learning Path | Edit a **draft** path (metadata / add / update / delete / reorder lessons) | `learningPathId`, `action` (+ the fields that action needs) |
 | `create_project` | Project | Create a sandbox project from a template (files uploaded separately) | `title`, `slug`, `template` (+ optional `description`, `tags`) |
 | `update_project_dependencies` | Project | Add/update/remove ONE package (validated against the template registry; waits for the install and reports `installation.status`) | `projectId`, `action`, `name` (+ optional `version`) |
