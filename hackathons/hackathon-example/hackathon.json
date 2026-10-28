@@ -1,0 +1,17 @@
+{
+  "name": "Retro Arcade Jam",
+  "theme": "Small browser games with an 80s arcade feel",
+  "invitationDescription": "Two weekends, one cabinet. Build a browser game that would look at home in an 80s arcade and let a jury of makers play it.",
+  "brief": "Build a browser game in the spirit of the 80s arcades: one screen, instant to understand, hard to put down.\n\nRules:\n\n- Any web framework, any assets you have the right to use.\n- The game has to be playable with the keyboard alone.\n- Ship it as a DojoCode project and submit it before the deadline. The copy taken at submit time is what the jury plays.\n\nThe jury scores every project on the criteria below. Ties go to the earlier submission.",
+  "visibility": "Community",
+  "startDate": "2026-11-06T18:00:00.000Z",
+  "endDate": "2026-11-15T22:00:00.000Z",
+  "judgingEndDate": "2026-11-20T22:00:00.000Z",
+  "criteria": [
+    { "label": "Fun", "description": "Would you play it again?", "maxScore": 10 },
+    { "label": "Execution", "description": "Completeness and technical quality of the build.", "maxScore": 10 },
+    { "label": "Arcade feel", "description": "How well it channels the 80s cabinet.", "maxScore": 10 },
+    { "label": "Presentation", "description": "Clarity of the description and the walkthrough video.", "maxScore": 5 }
+  ],
+  "juryUserIds": ["PUT-A-REAL-USER-ID-HERE", "PUT-ANOTHER-REAL-USER-ID-HERE"]
+}

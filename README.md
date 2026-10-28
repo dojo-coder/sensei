@@ -101,8 +101,8 @@ See [`AGENTS.md`](AGENTS.md) for the full set of workflows and MCP commands for 
 ## How It Works
 
 1. **Describe** — Tell the AI what resource you want to create
-2. **Resolve** — For contests / learning paths / assignments, the AI looks up the existing challenges (or learning paths) by `_id` via the MCP read tools
-3. **Generate** — The AI authors the files (challenges/projects) or the descriptor JSON (contests/learning-paths/assignments) following `AGENTS.md`
+2. **Resolve** — For contests / learning paths / assignments, the AI looks up the existing challenges (or learning paths) by `_id` via the MCP read tools; for hackathons it resolves the judges by username
+3. **Generate** — The AI authors the files (challenges/projects) or the descriptor JSON (contests/learning-paths/assignments/hackathons) following `AGENTS.md`
 4. **Publish** — The AI calls the matching `create_*` MCP command (and, for challenges, packages + uploads a zip)
 5. **Confirm** — Results are validated via the read/test MCP tools and a record is saved alongside the source files
 
@@ -141,6 +141,8 @@ sensei/
 │       └── reactjs-example-project/
 ├── assignments/                 # Assignment descriptors (assignment.json + ...Create.json)
 │   └── assignment-example/      # Committed reference descriptor
+├── hackathons/                  # Hackathon descriptors (hackathon.json + hackathonCreate.json)
+│   └── hackathon-example/       # Committed reference descriptor
 └── temp/                        # Temporary working directory
 ```
 

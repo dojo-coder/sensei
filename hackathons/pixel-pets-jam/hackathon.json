@@ -1,0 +1,17 @@
+{
+  "name": "Pixel Pets Jam",
+  "theme": "Pixel-art virtual pets that live in the browser",
+  "invitationDescription": "Nine days to hatch something adorable. Build a pixel-art virtual pet in the browser and let a jury of makers raise it, feed it and fall for it.",
+  "brief": "Build a virtual pet that lives in a browser tab: a small pixel-art creature the player looks after over time. It should hatch, react to care (or neglect), and have at least one way to grow or change. Think Tamagotchi, not an MMO.\n\nRules:\n\n- Any web framework, any pixel art you drew or have the right to use.\n- The pet must be fully usable with mouse or keyboard alone, on a single screen.\n- State must survive a page reload (localStorage is fine) so the jury can come back to their pet.\n- Ship it as a DojoCode project and submit it before the deadline. The copy taken at submit time is what the jury plays.\n\nThe jury scores every project on the criteria below. Ties go to the earlier submission.",
+  "visibility": "Community",
+  "startDate": "2026-11-20T18:00:00+02:00",
+  "endDate": "2026-11-29T22:00:00+02:00",
+  "judgingEndDate": "2026-12-04T22:00:00+02:00",
+  "criteria": [
+    { "label": "Personality", "description": "Does the pet feel alive? Do you want to come back and check on it?", "maxScore": 10 },
+    { "label": "Execution", "description": "Completeness and technical quality of the build, including state that survives a reload.", "maxScore": 10 },
+    { "label": "Pixel Art", "description": "Quality and consistency of the sprites, animation and overall look.", "maxScore": 10 },
+    { "label": "Presentation", "description": "Clarity of the project description and how easy it is to pick up without instructions.", "maxScore": 10 }
+  ],
+  "juryUserIds": ["61d307657971d73d04c6cf91", "61dda17d6b8a239890d89293"]
+}
