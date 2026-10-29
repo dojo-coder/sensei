@@ -1,6 +1,6 @@
 # Sensei
 
-> Create DojoCode resources — challenges, contests, learning paths, projects, and assignments — using AI-powered tools and MCP.
+> Create DojoCode resources — challenges, contests, courses, learning paths, projects, and assignments — using AI-powered tools and MCP.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js >=18](https://img.shields.io/badge/Node.js-%3E%3D18-green.svg)](https://nodejs.org/)
@@ -12,17 +12,20 @@
 
 **Sensei** is the starter repo for creating content on the [DojoCode](https://dojocode.io) platform. It uses AI-powered tools via the **Model Context Protocol (MCP)** to generate and publish every DojoCode resource type from natural language — connect your preferred AI coding tool, describe what you want, and the agent calls the `dojocode` MCP tools to build it.
 
-Sensei generalizes the original challenge-creator into a single repo and a single `AGENTS.md` covering **five** resource types:
+Sensei generalizes the original challenge-creator into a single repo and a single `AGENTS.md` covering these resource types:
 
 | Resource | What it is | Created via |
 |----------|------------|-------------|
 | **Challenge** | A coding exercise: starter code, solution, test suites, per language/framework | file-based authoring + `create_challenge` / `add_variation` + zip upload |
 | **Contest** | A timed competition assembled from existing challenges | `create_contest` |
-| **Learning Path** | A guided, lesson-by-lesson sequence built from existing challenges | `create_learning_path` |
+| **Course** | Chapters of lessons, quizzes and existing challenges, in order | `create_course` |
+| **Learning Path** | An ordered list of existing courses (organization owners/admins, super admins) | `create_learning_path` |
 | **Project** | A free-form runnable sandbox from a template + file tree | `create_project` |
-| **Assignment** | A learning path or challenge handed to students/groups (instructor) | `create_assignment` |
+| **Assignment** | A course, a challenge or a whole learning path handed to students/groups (instructor) | `create_assignment` / `assign_learning_path` |
+| **Business Report** | A persisted snapshot: groups statistics, a contest leaderboard, a course's progress or a hackathon ranking | `generate_business_report` |
+| **Hackathon** | A project competition judged by a jury (brief, criteria, judges) | `create_hackathon` |
 
-Challenges are full file-based authoring (the bulk of `AGENTS.md`). Contests, learning paths, and assignments reference **existing** challenges by their platform `_id`; projects are created from a template and an inline file tree.
+Challenges are full file-based authoring (the bulk of `AGENTS.md`). Contests, courses, and assignments reference **existing** challenges (and courses), and learning paths reference existing courses, by their platform `_id`; projects are created from a template and an inline file tree.
 
 ## Features
 
@@ -37,7 +40,8 @@ Challenges are full file-based authoring (the bulk of `AGENTS.md`). Contests, le
 
 - [Node.js](https://nodejs.org/) 18+ and npm
 - A [DojoCode](https://dojocode.io) account with the appropriate access tier for what you are creating:
-  - **Challenges / Learning Paths / Projects** — challenge-author access (Premium subscription, Business account, or a sufficient learner level)
+  - **Challenges / Courses / Projects** — challenge-author access (Premium subscription, Business account, or a sufficient learner level)
+  - **Learning Paths** — owner or admin of the selected organization (or super admin)
   - **Contests** — contest-author access
   - **Assignments** — a Business (instructor) account with student groups
 - An AI coding tool: [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [Codex](https://openai.com/index/codex/), [Cursor](https://www.cursor.com/), [VS Code + Copilot](https://code.visualstudio.com/docs/copilot/overview), [Gemini CLI](https://github.com/google-gemini/gemini-cli), or any MCP-compatible client
@@ -85,7 +89,11 @@ create a contest from my three array challenges, 30 minutes each, this weekend
 ```
 
 ```
-create a learning path on arrays from my existing challenges, easiest to hardest
+create a course on arrays from my existing challenges, easiest to hardest
+```
+
+```
+create a web development learning path from our HTML, JavaScript and DOM courses
 ```
 
 ```
@@ -93,7 +101,7 @@ create a vanilla js sandbox project with an index.html and main.js
 ```
 
 ```
-assign the arrays learning path to my Group A, due in two weeks
+assign the arrays course to my Group A, due in two weeks
 ```
 
 See [`AGENTS.md`](AGENTS.md) for the full set of workflows and MCP commands for every resource type.
@@ -101,8 +109,8 @@ See [`AGENTS.md`](AGENTS.md) for the full set of workflows and MCP commands for 
 ## How It Works
 
 1. **Describe** — Tell the AI what resource you want to create
-2. **Resolve** — For contests / learning paths / assignments, the AI looks up the existing challenges (or learning paths) by `_id` via the MCP read tools; for hackathons it resolves the judges by username
-3. **Generate** — The AI authors the files (challenges/projects) or the descriptor JSON (contests/learning-paths/assignments/hackathons) following `AGENTS.md`
+2. **Resolve** — For contests / courses / learning paths / assignments, the AI looks up the existing challenges (or courses) by `_id` via the MCP read tools; for hackathons it resolves the judges by username
+3. **Generate** — The AI authors the files (challenges/projects) or the descriptor JSON (contests/courses/learning-paths/assignments/hackathons) following `AGENTS.md`
 4. **Publish** — The AI calls the matching `create_*` MCP command (and, for challenges, packages + uploads a zip)
 5. **Confirm** — Results are validated via the read/test MCP tools and a record is saved alongside the source files
 
@@ -134,7 +142,9 @@ sensei/
 │       └── ...                  # one per terminal / browser / full-stack / backend / database / mobile template
 ├── contests/                    # Contest descriptors (contest.json + contestCreate.json)
 │   └── contest-example/         # Committed reference descriptor
-├── learning-paths/              # Learning path descriptors (learningPath.json + ...Create.json)
+├── courses/                     # Course descriptors (course.json + courseCreate.json)
+│   └── course-example/          # Committed reference descriptor
+├── learning-paths/              # Learning path descriptors: ordered course lists (learningPath.json + ...Create.json)
 │   └── learning-path-example/   # Committed reference descriptor
 ├── projects/                    # Generated projects (raw runnable files + project.json)
 │   └── project-samples/         # Reference project per template (image slider, etc.)
@@ -150,14 +160,14 @@ Each non-challenge resource folder holds a descriptor JSON you author (the creat
 
 ## About DojoCode
 
-[DojoCode](https://dojocode.io) is a free online coding platform where you can solve challenges, follow learning paths, compete in contests, and collaborate with other developers — all in the browser.
+[DojoCode](https://dojocode.io) is a free online coding platform where you can solve challenges, follow courses and learning paths, compete in contests, and collaborate with other developers — all in the browser.
 
 - **No setup required** — code and test directly in the browser
 - **12+ languages** — JavaScript, Python, Java, Go, Rust, C++, C#, PHP, Ruby, TypeScript, Solidity, and more
 - **AI Assistant** — get hints and explanations powered by AI
 - **Automated testing** — every challenge has built-in test suites
 - **Live collaboration** — pair program with others in real-time
-- **Contests & learning paths** — compete and learn with structured content
+- **Contests, courses & learning paths** — compete and learn with structured content
 - **Gamification** — earn XP, [level up](https://docs.dojocode.io/gamification/levels), and unlock achievements
 
 [Browse Challenges](https://dojocode.io/explore-challenges) · [Read the Docs](https://docs.dojocode.io) · [Join Discord](https://discord.com/invite/7vVMx9nSpX)
