@@ -9,6 +9,9 @@
 /contests/*
 !/contests/.gitkeep
 !/contests/contest-example/
+/courses/*
+!/courses/.gitkeep
+!/courses/course-example/
 /learning-paths/*
 !/learning-paths/.gitkeep
 !/learning-paths/learning-path-example/

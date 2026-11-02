@@ -1,24 +1,25 @@
 # DojoCode Resource Curator - Agent Guidelines
 
-This file provides comprehensive context for AI curators on how to create, structure, and manage **all DojoCode resource types** by calling the `dojocode` MCP tools: coding **challenges**, **contests**, **learning paths**, **projects**, **assignments**, and **business reports**.
+This file provides comprehensive context for AI curators on how to create, structure, and manage **all DojoCode resource types** by calling the `dojocode` MCP tools: coding **challenges**, **contests**, **courses**, **learning paths**, **projects**, **assignments**, **business reports**, and **hackathons**.
 
 The document is organized in parts. Read the **Session start** section first (it applies to every workflow), then jump to the part for the resource you are creating:
 
 - **Part 1 — Challenges**: full file-based authoring (starter code, solutions, tests), packaging, upload, and test execution. This is the largest part and the foundation the other resources build on. Starts at "Challenge Creation Process" below.
 - **Part 2 — Contests**: assemble existing challenges into a timed competition (`create_contest`).
-- **Part 3 — Learning Paths**: assemble existing challenges into a guided, lesson-by-lesson path (`create_learning_path`).
+- **Part 3 — Courses**: assemble existing challenges into a guided, lesson-by-lesson course grouped in chapters (`create_course`).
+- **Part 3B — Learning Paths**: string existing courses into an ordered learning path (`create_learning_path`).
 - **Part 4 — Projects**: create a free-form sandbox project from a template and a file tree (`create_project`).
-- **Part 5 — Assignments**: assign a learning path or a challenge to students / groups (`create_assignment`).
-- **Part 6 — Business Reports**: generate persisted snapshots — groups statistics, a contest's leaderboard, a learning path's progress leaderboard, or a hackathon's ranking (`generate_business_report`).
+- **Part 5 — Assignments**: assign a course or a challenge (`create_assignment`), or a whole learning path (`assign_learning_path`), to students / groups.
+- **Part 6 — Business Reports**: generate persisted snapshots — groups statistics, a contest's leaderboard, a course's progress leaderboard, or a hackathon's ranking (`generate_business_report`).
 - **Part 7 — Hackathons**: plan a project competition judged by a jury — brief, criteria, judges — and create the draft (`create_hackathon`).
 
 > **Organizations / workspace.** Business work (contests, assignments, student groups, and the content that belongs to them) is scoped to an **organization workspace**. Establish the active workspace at session start with `get_my_organizations` → `select_organization` before any org-scoped operation — see **Organization workspace** under *Session start*.
 
-Each resource type has its own top-level folder in this repo (`challenges/`, `contests/`, `learning-paths/`, `projects/`, `assignments/`, `hackathons/`) with a committed `*-example` descriptor inside it, while the full library of challenge template samples lives under `challenges/challenge-samples/`. Contests, learning paths, and assignments reference **existing** challenges (and learning paths) by their platform `_id` — always resolve those IDs first via `get_my_challenges` / `get_challenges` / `get_my_learning_paths` before calling a create tool. Parts 2–6 and their MCP workflows live at the **end of this file**, after the challenge workflows.
+Each resource type has its own top-level folder in this repo (`challenges/`, `contests/`, `courses/`, `learning-paths/`, `projects/`, `assignments/`, `hackathons/`) with a committed `*-example` descriptor inside it, while the full library of challenge template samples lives under `challenges/challenge-samples/`. Contests, courses, and assignments reference **existing** challenges (and courses), and learning paths reference existing courses, by their platform `_id` — always resolve those IDs first via `get_my_challenges` / `get_challenges` / `get_my_courses` / `get_courses` / `get_my_learning_paths` before calling a create tool. Parts 2–6 and their MCP workflows live at the **end of this file**, after the challenge workflows.
 
 ## Session start (mandatory first step)
 
-> Applies to any workflow that needs template IDs (challenges, projects). Contests, learning paths, and assignments do not need `templatesConfiguration.json`, but running this step at session start is harmless and recommended.
+> Applies to any workflow that needs template IDs (challenges, projects). Contests, courses, learning paths, and assignments do not need `templatesConfiguration.json`, but running this step at session start is harmless and recommended.
 
 **Before doing any other operation**, at the start of the chat/session:
 
@@ -34,7 +35,7 @@ Use the resulting `templatesConfiguration.json` as the source of truth for templ
 
 ## Organization workspace (business / instructor work)
 
-DojoCode is **organization-scoped**. A business account belongs to one or more **organizations** (workspaces); the content it creates (challenges, projects, learning paths, contests), its student **groups**, and its **assignments** all live inside the *active* workspace. Owners/admins manage an organization; students are members.
+DojoCode is **organization-scoped**. A business account belongs to one or more **organizations** (workspaces); the content it creates (challenges, projects, courses, learning paths, contests), its student **groups**, and its **assignments** all live inside the *active* workspace. Owners/admins manage an organization; students are members.
 
 **Before any organization-scoped operation** — creating a contest or assignment, listing/creating groups or students, or managing members — make the right workspace active:
 
@@ -45,7 +46,7 @@ To confirm which workspace is *currently* active without changing it, call `get_
 
 If a group/assignment/contest tool ever fails with *"Select an organization workspace"*, you skipped this step — run it and retry.
 
-**Who can do what:** only the `business` tier — a Business account, or an org **owner/admin** — can create/manage organizations, groups, students, contests, and assignments. Plain members can list their orgs and select a workspace, but not manage it.
+**Who can do what:** only the `business` tier — a Business account, or an org **owner/admin** — can create/manage organizations, groups, students, contests, learning paths, and assignments. Plain members can list their orgs and select a workspace, but not manage it.
 
 **Managing the org roster (owner/admin):**
 
@@ -2284,7 +2285,7 @@ When instructed to update a challenge info for a specific challenge id (e.g., "u
 
 3. **Check what fields the user wants to update**: Check the requested updated fields that user wants to update for specific challenge
 
-We can update the next fields: title, estimate, defaultDifficulty any other requested fields are not possible to edit:
+With `update_challenge_info` we can update the next fields: title, estimate, defaultDifficulty (for the description, tags or visibility use `update_challenge_metadata` — see the next section):
 
 - `title`: The challenge title (from `details.json`)
 - `estimate`: Integer number representing minutes that would take a person to solve the challenge
@@ -2301,6 +2302,14 @@ After thinking of fields requested by user and having them we can go to step 4
 5. **Printing response message**: Print what the response returned:
 
 If the response is an object containing challenge info then print a message and let user know that challenge was successfully updated. Call the MCP command `get_challenge_edit_url` with the `challengeId` and `variationId` (the `defaultVariation._id` from `challengeCreate.json`) to get the edit link, and display it to the user with a message like: "You can access the challenge by following this link: <editUrl>". Otherwise print the error.
+
+## Update Challenge Metadata and Status with MCP Commands
+
+- **`update_challenge_metadata`** — edit a challenge's `title` (3–50 chars), `description` (markdown, stored per variation), `estimate` (minutes), `tags` (tag **names** from `get_all_tags`; the list is **replaced**), `defaultDifficulty` (1–3) and `visibility` (`Community` / `Private`). Send `challengeId` and only the fields to change; `variationId` is optional (defaults to the default variation, which matters for `description`). Use real line breaks in the description, never literal `\n` sequences. Keep `details.json` / `description.md` in sync after the call.
+- **`update_challenge_status`** — move a challenge between `draft`, `pending` and `retired` (`approved` is super admin only). Run the author solution tests (`run_all_tests`) first and only set `pending` once they pass — courses and contests only pick `pending` / `approved` challenges.
+- **`get_challenge_edit_data`** — read the editor payload of one variation (files, tests, solution) when you need the live state rather than the local folder.
+
+Both edit tools require you to be the challenge author (or to manage the organization that owns it). Show the edit link from `get_challenge_edit_url` afterwards.
 
 ## Manage Dependencies Workflow with MCP Commands
 
@@ -2547,7 +2556,7 @@ Returns a paginated response with challenge objects. Print the response as a tab
 
 # Part 2 — Contests
 
-A **contest** is a timed competition assembled from **existing** challenges. You do not author challenge files here — you reference challenges that already exist on the platform by their `_id` and arrange them with per-challenge time limits. The final create is a single MCP call: `create_contest` — but like learning paths, **building a contest is a conversation**. Mirror the platform's flow: ask how many challenges per contest and how many contest options ("suggestions") to propose, search the catalog, present the suggestions, let the user pick one, then create it. Never invent challenges or dates silently.
+A **contest** is a timed competition assembled from **existing** challenges. You do not author challenge files here — you reference challenges that already exist on the platform by their `_id` and arrange them with per-challenge time limits. The final create is a single MCP call: `create_contest` — but like courses, **building a contest is a conversation**. Mirror the platform's flow: ask how many challenges per contest and how many contest options ("suggestions") to propose, search the catalog, present the suggestions, let the user pick one, then create it. Never invent challenges or dates silently.
 
 ## Contest folder structure
 
@@ -2650,21 +2659,23 @@ Edit workflow: `get_contest` (confirm it's draft) → `update_contest` with the 
 
 ---
 
-# Part 3 — Learning Paths
+# Part 3 — Courses
 
-A **learning path** is a guided, lesson-by-lesson sequence built from **existing** challenges. Each lesson ("node") bundles theory, optional reflection questions, and a set of challenges (some required to complete the path, some bonus). The final create is a single MCP call: `create_learning_path` — but **creating a good path is a conversation, not a one-shot generation**. Follow the interactive flow below: gather what the user wants, search the catalog for real challenges, propose a structure, let the user steer, then create. Never invent a path's structure or its challenges silently.
+> **Naming.** The platform renamed its content in 2026: what used to be called a "learning path" (lessons built from challenges) is now a **course**, and a **learning path** is now an ordered list of courses (Part 3B). The MCP tools follow the new names: `create_course` / `update_course` / `get_course*` for courses, `*_learning_path*` for learning paths. Older local folders under `learning-paths/` that hold a `nodes[]` payload are **courses** — treat them with this part.
 
-## Learning path folder structure
+A **course** is made of **chapters**, and each chapter is an ordered run of **lessons**, **quizzes** and **challenges** (like Mimo): the learner studies a lesson with the AI tutor, takes a short quiz on it, then practices with coding challenges. A lesson ("node") holds the theory; a quiz (3–5 auto-graded questions) can follow a lesson; challenges are **existing** DojoCode challenges (some required to complete the course, some bonus). The final create is a single MCP call: `create_course` — but **creating a good course is a conversation, not a one-shot generation**. Follow the interactive flow below: gather what the user wants (including how many chapters, lessons, quizzes and challenges), search the catalog for real challenges, propose a structure, let the user steer, then create. Never invent a course's structure or its challenges silently.
+
+## Course folder structure
 
 ```
-learning-paths/[path-slug]/
-├── learningPath.json          # The create payload you author (see format below)
-└── learningPathCreate.json    # Platform response after creation ({ _id, ... })
+courses/[course-slug]/
+├── course.json          # The create payload you author (see format below)
+└── courseCreate.json    # Platform response after creation ({ _id, ... })
 ```
 
-A reference descriptor lives at `learning-paths/learning-path-example/learningPath.json`.
+A reference descriptor lives at `courses/course-example/course.json`.
 
-## learningPath.json format
+## course.json format
 
 ```json
 {
@@ -2675,13 +2686,37 @@ A reference descriptor lives at `learning-paths/learning-path-example/learningPa
   "status": "draft",
   "nodes": [
     {
+      "chapter": "Working with Arrays",
       "conceptKey": "array-basics",
       "concepts": ["arrays", "indexing"],
       "title": "Array Basics",
       "description": "Reading, writing and iterating over arrays.",
       "theory": "## Arrays\n\nAn array stores elements contiguously, so indexing is O(1)...",
-      "questions": ["What is the time complexity of indexing into an array?"],
       "difficulty": 1,
+      "quiz": {
+        "title": "Array basics check",
+        "questions": [
+          {
+            "type": "multiple_choice",
+            "prompt": "What does this print?",
+            "code": "nums = [4, 8, 15]\nprint(nums[1])",
+            "language": "python",
+            "template": "python",
+            "options": [
+              { "text": "8", "correct": true },
+              { "text": "4", "correct": false },
+              { "text": "15", "correct": false }
+            ],
+            "explanation": "Indexes start at 0, so nums[1] is the second element."
+          },
+          {
+            "type": "true_false",
+            "prompt": "Reading an element by its index takes the same time for any index.",
+            "answer": true,
+            "explanation": "Indexing is O(1): the position is computed directly."
+          }
+        ]
+      },
       "challenges": ["<challengeId>"],
       "requiredChallenges": ["<challengeId>"],
       "lessonEstimate": 15
@@ -2690,110 +2725,205 @@ A reference descriptor lives at `learning-paths/learning-path-example/learningPa
 }
 ```
 
+In the chapter "Working with Arrays" this node becomes three items in order: the lesson, its quiz, then its challenge.
+
 Top-level fields:
 - `title` is **required** (3–120 chars). `description` is optional (≤ 500 chars).
-- `category`: optional, the `_id` of a catalog category from `get_learning_path_categories` (the Explore filter and the badge on the path card). Never invent or guess an id — an unknown one is rejected (422).
+- `slug`: optional (lowercase letters/digits and single dashes); generated from the title when omitted. It must not be used by another course **or a learning path** — a taken slug fails with a suggested free one.
+- `category`: optional, the `_id` of a catalog category from `get_course_categories` (the Explore filter and the badge on the course card). Never invent or guess an id — an unknown one is rejected (422).
 - `visibility`: `private` (default) or `community`.
 - `status`: `draft` (default) or `published`.
-- `nodes[]`: the lessons, in order. The path's `averageDifficulty` and `estimatedMinutes` are computed by the platform from the referenced challenges — do not send them.
+- `nodes[]`: the lessons, in order. The course's `averageDifficulty` and `estimatedMinutes` are computed by the platform from the referenced challenges — do not send them.
 
-Each node:
+Each node is **one lesson**, and inside its chapter it becomes, in order: the **lesson**, its **quiz** (when it has one), then its **challenges**.
+- `chapter` (string, optional) — the title of the chapter the lesson goes in. **Consecutive** lessons with the same `chapter` share one chapter; a lesson without one gets a chapter of its own, titled like the lesson. Give neighbouring chapters different titles.
 - `conceptKey` (string) and `concepts` (string[]) — the skill/concept the lesson teaches.
-- `title`, `description`, `theory` (markdown, the lesson's learning content), `questions` (string[], optional reflection prompts).
+- `title`, `description`, `theory` (markdown, the lesson's learning content — the AI tutor teaches from it).
 - `difficulty`: integer 1–3.
-- `challenges`: array of real challenge `_id`s taught/practiced in this lesson.
-- `requiredChallenges`: subset of `challenges` that gates path completion. If omitted, **every** challenge in the node is treated as required (safe default). Challenges in `challenges` but not in `requiredChallenges` are bonus (award XP, don't gate completion).
+- `quiz` (object, optional) — the quiz that follows the lesson. A chapter with *N* quizzes puts them on *N* of its lessons, usually spread out with the last lesson always having one. Fields: `title` (≤ 120 chars; always give one — an empty title shows as "Quiz: <chapter>"), `quizXp` (optional, 0–500, default 25), `questions` (1–20; aim for **3–5**, mixing at least three types). Every question has `type`, `prompt` (≤ 1000 chars, markdown), optional `code` (≤ 5000 chars), `language` (highlight.js name: `python`, `javascript`…), `template` (platform template key the code targets: `python`, `react`, `vue`…), `explanation` (shown after answering, right or wrong) and the fields of its type:
+  - `multiple_choice` → `options: [{ "text", "correct" }]` (2–6, at least one correct; several correct = multi-select).
+  - `true_false` → `answer: true | false`.
+  - `fill_blocks` → `code` with one `___` per gap, `blanks` (the right block of each gap, in order, same count as the `___`), `distractors` (≤ 8 wrong blocks).
+  - `reorder` → `code` holds 2–12 non-empty lines in the **correct** order (the learner gets them shuffled).
+  - `spot_error` → `code` holds 2–40 lines and `errorLineIndex` is the 0-based index of the broken line.
+  The server grades every answer; the learner retries until right, and the score is the first-try answers. An invalid quiz rejects the whole create (400) with the lesson, the question and the reason; `add_quiz` / `update_quiz` reject an invalid quiz with 422.
+- `challenges`: array of real challenge `_id`s practiced after this lesson (may be empty).
+- `requiredChallenges`: subset of `challenges` that gates course completion. If omitted **or empty**, **every** challenge in the node is treated as required (safe default) — there is no "all bonus" node; list at least one required challenge. Challenges in `challenges` but not in `requiredChallenges` are bonus (award XP, don't gate completion).
 - `lessonEstimate`: minutes (optional, defaults to 15).
+- `questions` is **deprecated**: still stored, but no longer shown or asked by the tutor (lessons check understanding with a quiz now) — don't send it.
 
-## Interactive learning path creation flow
+## Interactive course creation flow
 
-Creating a learning path is a **multi-turn conversation**. The platform's own AI uses on-screen forms for this; you have no forms, so you **ask the questions in plain text** instead. Work through the four steps in order. Do not skip ahead to authoring files or calling `create_learning_path` until the user has approved a proposal (Step 3).
+Creating a course is a **multi-turn conversation**. The platform's own AI uses on-screen forms for this; you have no forms, so you **ask the questions in plain text** instead. Work through the four steps in order. Do not skip ahead to authoring files or calling `create_course` until the user has approved a proposal (Step 3).
 
 ### Tool rules (read before searching)
 
-- Call `get_templates`, `get_languages`, `get_all_tags` and `get_learning_path_categories` **once** per conversation and reuse the results — never re-call them on later turns.
+- Call `get_templates`, `get_languages`, `get_all_tags` and `get_course_categories` **once** per conversation and reuse the results — never re-call them on later turns.
 - **Template and language names are case-sensitive and Capitalized.** The `language` and `template` filters on `get_challenges` expect the exact capitalized name — `"Python"`, `"JavaScript"`, `"React"` — **not** `"python"`/`"javascript"`. A lowercase value silently returns zero results. **Always resolve the exact spelling from `get_languages` (for languages) and `get_templates` (for templates) before filtering — never guess the casing.**
 - Difficulty is **1–3** (1 = beginner, 2 = intermediate, 3 = advanced). Never pass `0`.
-- **Every** `get_challenges` call must include `status: "pending,approved"`. Draft challenges are broken and must never be added to a path.
+- **Every** `get_challenges` call must include `status: "pending,approved"`. Draft challenges are broken and must never be added to a course.
 - `get_challenges` and `get_my_challenges` return **slim** challenge objects (`_id`, `title`, `slug`, `difficulty`, `estimate`, `tags`, variations) plus `page`/`limit`. Narrow with `tags` / `difficulty` / `language` and pass `limit` (e.g. `20`) — request the next `page` if you need more rather than asking for a huge page. The `search` field matches the **title only**, so a topic like "arrays" may not appear in titles (Python uses "list"); prefer `tags` + `difficulty` + `language` over `search` for topic discovery.
 - Only ever reference DojoCode challenges. Never invent challenge IDs — the platform silently drops invalid ones, leaving lessons emptier than intended.
 
 ### STEP 1 — Gather requirements (ask, don't assume)
 
-When the user asks to create a learning path, before authoring anything make sure you know:
+When the user asks to create a course, before authoring anything make sure you know:
 
 - **Topic / skill focus** (e.g. "arrays", "async JavaScript", "SQL joins").
 - **Target language(s) / framework(s) / template(s)** the challenges should use.
 - **Difficulty range / audience level** (beginner → advanced).
-- **Number of nodes (lessons)** and **challenges per node**.
+- **The structure** — four numbers:
+  - how many **chapters** (1–6),
+  - how many **lessons per chapter** (1–4; at most 12 lessons in total),
+  - how many **quizzes per chapter** (0 = none, at most one per lesson),
+  - how many **challenges per chapter** (0 = a course without challenges, up to 8); each one goes after the lesson of its chapter it practices.
 - **Visibility** (`private` / `community`) and **status** (`draft` / `published`).
-- **Source of challenges**: the user's own (`get_my_challenges`) or the whole catalog (`get_challenges`).
+- **Source of challenges**: the user's own (`get_my_challenges`) or the whole catalog (`get_challenges`) — skip when they want no challenges.
 
-If the user already stated some of these in their request, **do not re-ask them** — only ask for the missing essentials, in ONE concise numbered message, then wait for the reply. In particular, if the message already gives both the **node count** and **challenges-per-node** (e.g. "a path with 4 lessons, 3 challenges each"), skip the questions and go straight to Step 2. Asking again for numbers the user already gave is a bug.
+If the user already stated some of these in their request, **do not re-ask them** — only ask for the missing essentials, in ONE concise numbered message, then wait for the reply. If they gave all four structure numbers (e.g. "3 chapters, 2 lessons each, one quiz per chapter, 3 challenges per chapter"), don't ask for them again; if they say "you decide", use 3 chapters × 2 lessons, 1 quiz per chapter, 3 challenges per chapter. Asking again for numbers the user already gave is a bug.
 
 ### STEP 2 — Discover (search before proposing)
 
 Once requirements are known:
 
-1. Call `get_templates`, `get_languages`, `get_all_tags` and `get_learning_path_categories` (once — see Tool rules). Use `get_languages`/`get_templates` to get the exact **Capitalized** names you will pass as filters.
+1. Call `get_templates`, `get_languages`, `get_all_tags` and `get_course_categories` (once — see Tool rules). Use `get_languages`/`get_templates` to get the exact **Capitalized** names you will pass as filters.
 2. From the `get_all_tags` results, pick up to ~5 tags that best match the topic. Use only tags that **actually exist** in the results.
 3. Find candidate challenges:
    - The user's own: `get_my_challenges`.
    - The catalog: `get_challenges` with `status: "pending,approved"` plus the chosen tags, `difficulty` (1–3), and the **capitalized** `language`/`template` filters (e.g. `language: "Python"`).
    - Optionally seed ideas with `get_suggested_challenges`.
-4. Aim to collect enough candidates for `nodes × challenges-per-node`. If a search returns too few, broaden **one** filter (drop a tag, widen the difficulty range) and tell the user you did.
+4. Aim to collect enough candidates for `chapters × challenges-per-chapter`. If a search returns too few, broaden **one** filter (drop a tag, widen the difficulty range) and tell the user you did. With 0 challenges per chapter, skip the challenge search entirely.
 
 ### STEP 3 — Propose (let the user steer)
 
 Present a concise outline the user can react to — do **not** write files yet:
 
-- Proposed path **title** + one-line description.
-- Proposed **category** — the best fit from `get_learning_path_categories`, shown by name.
-- For **each node**: the concept title, the specific challenges chosen (by **title + `_id`**), which are **required** vs **bonus**, the node difficulty, and the estimate.
+- Proposed course **title** + one-line description.
+- Proposed **category** — the best fit from `get_course_categories`, shown by name.
+- The **chapters**, and in each chapter its items **in order**: every lesson (concept title, difficulty, estimate), the **quiz** after it when it has one (its question types, e.g. "4 questions: multiple choice, fill in the blocks, spot the error"), then the challenges that practice it (by **title + `_id`**, marked **required** vs **bonus**) — the chapter's challenges spread over its lessons, a lesson may have several or none.
 
 Ask the user to confirm or adjust (swap a challenge, rename a node, change counts, reorder). Iterate until they approve. Only when they approve do you proceed to Step 4.
 
 ### STEP 4 — Create (only after approval)
 
-1. Navigate to `learning-paths/[path-slug]/`. If `learningPathCreate.json` already exists, stop unless the user asks to recreate.
-2. Author `learning-paths/[path-slug]/learningPath.json` from the approved outline:
+1. Navigate to `courses/[course-slug]/`. If `courseCreate.json` already exists, stop unless the user asks to recreate.
+2. Author `courses/[course-slug]/course.json` from the approved outline:
    - Order nodes easiest → hardest. **Node titles name a transferable concept** ("Array Transformation Techniques"), not a specific challenge ("Reverse a String").
+   - Give every node its `chapter` title (consecutive nodes of one chapter share the exact same string).
    - Use only the real challenge `_id`s resolved in Step 2.
-   - Set `category` to the `_id` of the approved category (from `get_learning_path_categories`).
-   - Each node declares a **non-empty `requiredChallenges`** subset of its `challenges` (the rest are bonus).
-   - Write `theory` as rich markdown (a code example + a short "key takeaways" list) and exactly **2** reflection questions per node.
-3. Call `create_learning_path` with the `learningPath.json` contents. (You are auto-enrolled as a learner of your own path — no extra step.)
-4. Save the response to `learning-paths/[path-slug]/learningPathCreate.json` (keep at least `_id` and `title`).
-5. Confirm with `get_learning_path`, then report the path and its **edit link** (always built on `https://dojocode.io`, never the local API host):
+   - Set `category` to the `_id` of the approved category (from `get_course_categories`).
+   - Each node with challenges declares a **non-empty `requiredChallenges`** subset of its `challenges` (the rest are bonus); a node without challenges has empty lists.
+   - Write `theory` as rich markdown (a code example + a short "key takeaways" list). Do not write reflection `questions`.
+   - Put a `quiz` on the approved lessons: 3–5 questions that check the **concept** (not trivia about a challenge), mixing at least three types, every snippet in the course's language with its `language` and `template` set, every question with a one-sentence `explanation`. Check each one against the type rules above (`___` count = `blanks` count, `reorder` lines in the right order, `errorLineIndex` in range) — one invalid question rejects the whole create.
+3. Call `create_course` with the `course.json` contents. (You are auto-enrolled as a learner of your own course — no extra step.)
+4. Save the response to `courses/[course-slug]/courseCreate.json` (keep at least `_id`, `slug` and `title`).
+5. Confirm with `get_course`, then report the course and its **edit link** (always built on `https://dojocode.io`, never the local API host):
 
-   `https://dojocode.io/learning-paths/edit/<learningPathId>`
+   `https://dojocode.io/courses/edit/<courseId>`
 
-   You can also use `open_learning_path` to surface it in the UI.
+   You can also use `open_course` to surface it in the UI.
 
-> Requires the `challenge_author` access tier (any authenticated DojoCode user with author access).
+> Requires the `challenge_author` access tier (any authenticated DojoCode user with author access). In an organization workspace the course belongs to the organization: its owners and admins see and manage it.
 
-## Editing a learning path (draft only)
+## Editing a course (draft only)
 
-A path can be edited with `update_learning_path` **only while its `status` is `draft`**. Once published, the platform rejects lesson edits (add/update/delete/reorder) — only metadata can change after that (including flipping it back is not possible; you can still publish a draft by setting `status: "published"`). Always call `get_learning_path` first to read the current lessons and their `_id`s before editing.
+A course can be edited with `update_course` **only while its `status` is `draft`**. Once published, the platform rejects lesson edits (add/update/delete/reorder) — only metadata can change after that (flipping it back to draft is not possible; you can still publish a draft by setting `status: "published"`). Always call `get_course` first to read the current chapters, lessons and their `_id`s before editing.
 
-`update_learning_path` takes a `learningPathId`, an `action`, and the fields that action needs:
+`update_course` takes a `courseId`, an `action`, and the fields that action needs:
 
 | `action` | What it does | Required fields |
 |----------|--------------|-----------------|
-| `metadata` | Update path title / description / category / visibility / status | at least one of `title`, `description`, `category` (a category `_id`, or `null` to clear it), `visibility`, `status` |
-| `add_lesson` | Append a new lesson (node) | `lesson` (a node object; `lesson.title` required) |
+| `metadata` | Update course title / description / category / visibility / status | at least one of `title`, `description`, `category` (a category `_id`, or `null` to clear it), `visibility`, `status` |
+| `add_lesson` | Append a new lesson (node) | `lesson` (a node object; `lesson.title` required; `lesson.chapter` = the `_id` of the chapter it goes in, the last chapter when omitted) |
 | `update_lesson` | Replace a lesson's fields / challenge list | `lessonId` + `lesson` |
 | `delete_lesson` | Remove a lesson | `lessonId` |
 | `reorder_lessons` | Set lesson order | `lessonIds` (every lesson `_id`, in the new order) |
+| `add_quiz` | Append a quiz to a chapter | `chapterId` + `quiz` (same shape as a node's `quiz`) |
+| `update_quiz` | Replace a quiz's title, XP and questions | `quizId` + `quiz` |
+| `delete_quiz` | Remove a quiz (and its chapter item) | `quizId` |
+| `add_challenge` | Append a challenge to a chapter | `chapterId` + `challengeId` (+ `required`, default `true`) |
+| `remove_challenge` | Remove a challenge item from a chapter | `chapterId` + `itemId` (the item `_id` from `get_course`'s `chapters[].items`) |
 
-The `lesson` object uses the same node fields as creation (`conceptKey`, `concepts`, `title`, `description`, `theory`, `questions`, `difficulty`, `challenges`, `requiredChallenges`, `lessonEstimate`). Edit workflow:
+The `lesson` object uses the same node fields as creation (`conceptKey`, `concepts`, `title`, `description`, `theory`, `difficulty`, `lessonEstimate`); a lesson's quiz and challenges are separate chapter items, edited with the quiz and challenge actions. `add_quiz` and `add_challenge` **append** to the chapter — the course editor at the edit link reorders items. Note that on `add_lesson` the `chapter` is a chapter **`_id`** (from `get_course`), not a title. Edit workflow:
 
-1. `get_learning_path` → confirm `status: "draft"` and note each lesson's `_id`. If it is published, tell the user it can't be edited and stop (offer to clone into a new draft instead).
-2. Make the change with `update_learning_path` (one `action` per call; resolve any new challenge `_id`s via `get_challenges`/`get_my_challenges` first, same Tool rules as above).
-3. Re-read with `get_learning_path` to confirm, update `learning-paths/<slug>/learningPath.json` so the local descriptor stays in sync, and report the **edit link** `https://dojocode.io/learning-paths/edit/<learningPathId>`.
-4. To publish when the user is happy: `update_learning_path` with `action: "metadata"`, `status: "published"`.
+1. `get_course` → confirm `status: "draft"` and note each chapter's `_id`, its `items` (lessons, quizzes, challenges, in order) and the lessons' `_id`s. If it is published, tell the user it can't be edited and stop (offer to clone into a new draft instead).
+2. Make the change with `update_course` (one `action` per call; resolve any new challenge `_id`s via `get_challenges`/`get_my_challenges` first, same Tool rules as above).
+3. Re-read with `get_course` to confirm, update `courses/<slug>/course.json` so the local descriptor stays in sync, and report the **edit link** `https://dojocode.io/courses/edit/<courseId>`.
+4. To publish when the user is happy: `update_course` with `action: "metadata"`, `status: "published"`.
 
-> Requires the `challenge_author` access tier (you must own the path).
+> Requires the `challenge_author` access tier (you must own the course, or manage the organization that owns it).
+
+---
+
+# Part 3B — Learning Paths
+
+A **learning path** is an **ordered list of existing courses** that a learner takes one after the other (e.g. "Web Development Foundations" = HTML & CSS → JavaScript Basics → DOM & Events). It holds no lessons of its own: progress, "Continue" and completion all come from its courses. Build the courses first (Part 3), then string them together here.
+
+Who can create one: **super admins** (official learning paths, shown to everyone) and the **owners / admins of an organization** (the organization's own learning paths — visible to its members, assignable to its classes, never official). Select the organization first (`get_my_organizations` → `select_organization`); the learning path is stamped with the **active** organization, and the call fails with *"Select an organization you own or administer"* otherwise.
+
+## Learning path folder structure
+
+```
+learning-paths/[learning-path-slug]/
+├── learningPath.json          # The create payload you author (see format below)
+└── learningPathCreate.json    # Platform response after creation ({ _id, slug, ... })
+```
+
+A reference descriptor lives at `learning-paths/learning-path-example/learningPath.json`.
+
+## learningPath.json format
+
+```json
+{
+  "title": "Web Development Foundations",
+  "description": "Go from your first HTML page to an interactive front end.",
+  "levels": ["beginner", "intermediate"],
+  "icon": "globe",
+  "status": "draft",
+  "courses": ["<courseId>", "<courseId>", "<courseId>"]
+}
+```
+
+- `title` is **required** (3–120 chars); `description` optional (≤ 2000 chars).
+- `courses` (**required**): course `_id`s in the order learners take them, each **once**. Allowed courses: your organization's own (`get_my_courses`), and official or community courses once **published** (`get_courses`). Another organization's private course is rejected (422).
+- `levels`: any of `beginner` / `intermediate` / `advanced` — the card shows the first and the last ("Beginner–Intermediate").
+- `icon`: one of `terminal`, `desktop`, `sliders`, `shield`, `code`, `globe` (default `code`).
+- `status`: `draft` (default) or `published`. **Publishing needs at least one course and every course published.**
+- `slug`: optional — generated from the title. It must not be used by another learning path **or a course**.
+- `order` and `isOfficial`: super admins only (Explore order, official flag); ignored for everyone else.
+
+## Interactive learning path creation flow
+
+### STEP 1 — Gather requirements
+
+Make sure you know the **goal** (what the learner can do at the end), the **audience level(s)**, and whether the user has **specific courses** in mind. Ask only for what is missing, in one message.
+
+### STEP 2 — Find the courses
+
+- Organization workspace active (see above), then list candidates: `get_my_courses` (the organization's courses, drafts included) and `get_courses` (published community/official courses; filter with `search`, `templates`, `languages`, `category`). Use `get_course` to read one in detail.
+- Pick **3–6** courses that build on each other, fundamentals first. If a needed course does not exist, say so and offer to create it first (Part 3) — never pad the path with unrelated courses.
+- Check existing paths with `get_learning_paths` / `get_my_learning_paths` so you don't create a duplicate.
+
+### STEP 3 — Propose
+
+Show the title, one-line description, levels, icon, and the **numbered course list** (title + `_id` + status). Flag any **draft** course: the path can be created as a draft now but cannot be published until those courses are. Iterate until the user approves.
+
+### STEP 4 — Create
+
+1. Navigate to `learning-paths/[learning-path-slug]/`. If `learningPathCreate.json` already exists, stop unless the user asks to recreate.
+2. Author `learningPath.json` from the approved proposal (`status: "draft"` unless the user asked to publish and every course is published).
+3. Call `create_learning_path` with its contents.
+4. Save the response to `learningPathCreate.json` (keep at least `_id`, `slug`, `title`).
+5. Confirm with `get_learning_path` (it returns the courses in order and `canEdit`), then report the **page** `https://dojocode.io/learning-paths/<slug>` and that it is managed at `https://dojocode.io/manage-learning-paths`.
+
+## Editing, publishing, deleting, assigning
+
+- `update_learning_path` — `learningPathId` + only the fields to change. **`courses` replaces the whole list**: send every course `_id` in the new order (read the current list with `get_learning_path` first). Publish with `status: "published"`. The slug never changes. Allowed while published too (unlike courses).
+- `delete_learning_path` — removes the path only; its courses, the assignments made from it and everyone's progress stay. Confirm with the user first.
+- `assign_learning_path` — hands a **published** learning path to a class: one ordinary assignment per course, in order (see Part 5).
+- You can edit only your organization's learning paths (super admins: every one); someone else's fails with 403.
+
+> Requires the `business` access tier **and** the owner/admin role in the active organization (or super admin).
 
 ---
 
@@ -2801,7 +2931,7 @@ The `lesson` object uses the same node fields as creation (`conceptKey`, `concep
 
 A **project** is a free-form, runnable sandbox (no tests, no solution, no variations) built from a template. Authoring a project works **like a challenge**: you keep the real source files on disk, package them into a zip, and upload them — except a project has only a handful of metadata fields (`title`, `description`, `tags`, `template`) and a single flat file tree.
 
-> **Why not inline files?** `create_project` seeds the project from its template's default files; it does **not** accept your files inline. Custom files are uploaded separately (zip → `prepare_project_upload` → `uploadProjectFiles.js`), exactly like challenge file upload — so the file contents never pass through the AI context.
+> **Why not inline files?** `create_project` can take an inline `files` tree and `dependencies`, but every byte of an inline file passes through the AI context. Create the project with metadata only (it is seeded from the template's default files) and upload your files separately (zip → `prepare_project_upload` → `uploadProjectFiles.js`), exactly like challenge file upload. Inline `files` is fine only for a couple of tiny files.
 
 ## Project sample / folder structure
 
@@ -2855,6 +2985,7 @@ Reference samples live under `projects/project-samples/` — one per template, m
 ## Updating / downloading a project's files
 
 - **Update files:** re-package (`createProjectContent.js`) and re-run `prepare_project_upload` → `uploadProjectFiles.js`. A fresh upload replaces the project's file tree.
+- **Update metadata:** `update_project_metadata` with `projectId` and only the fields to change — `title`, `description` (markdown, real line breaks), `tags` (tag **names** from `get_all_tags`; the list is replaced). Keep `project.json` in sync.
 - **Download files (pull from live):** call `prepare_project_download` with the `projectId` → get `downloadUrl`, then `node downloadProjectFiles.js <downloadUrl> projects/[project-slug]` to extract the live files to disk (edit, then re-upload).
 
 > Requires the `challenge_author` access tier.
@@ -2863,7 +2994,7 @@ Reference samples live under `projects/project-samples/` — one per template, m
 
 # Part 5 — Assignments
 
-An **assignment** hands an existing **learning path** or a single **challenge** to your students — individually and/or by group — with a due date. It is an instructor action: it requires the `business` access tier and that every targeted student belongs to one of your groups. The final create is a single MCP call: `create_assignment` — but **assigning is a conversation**, the same shape the DojoCode in-app trainer assistant uses (it shows pickers; you have none, so you ask in plain text). Follow the interactive flow below: pick recipients, pick the source, set a due date, then create as a draft.
+An **assignment** hands an existing **course** or a single **challenge** to your students — individually and/or by group — with a due date. It is an instructor action: it requires the `business` access tier and that every targeted student belongs to one of your groups. The final create is a single MCP call: `create_assignment` — but **assigning is a conversation**, the same shape the DojoCode in-app trainer assistant uses (it shows pickers; you have none, so you ask in plain text). Follow the interactive flow below: pick recipients, pick the source, set a due date, then create as a draft.
 
 ## Assignment folder structure
 
@@ -2880,10 +3011,9 @@ A reference descriptor lives at `assignments/assignment-example/assignment.json`
 ```json
 {
   "title": "Week 1 — Arrays",
-  "instructions": "Complete every lesson in the Arrays learning path.",
-  "sourceType": "learning-path",
-  "learningPathId": "<learningPathId>",
-  "challengeId": null,
+  "instructions": "Complete every lesson in the Arrays course.",
+  "sourceType": "course",
+  "courseId": "<courseId>",
   "groupIds": ["<groupId>"],
   "studentIds": [],
   "dueDate": "2026-07-15T23:59:00.000Z",
@@ -2894,7 +3024,7 @@ A reference descriptor lives at `assignments/assignment-example/assignment.json`
 ```
 
 - `title` (3–120 chars), `sourceType`, and `dueDate` are **required**.
-- `sourceType`: `learning-path` → set `learningPathId`; `challenge` → set `challengeId`. Provide exactly the one matching the source type.
+- `sourceType`: `course` → set `courseId`; `challenge` → set `challengeId`. Send only the one matching the source type (leave the other key out rather than sending `null`).
 - Recipients: at least one entry across `groupIds` and `studentIds`. Use empty arrays for the side you are not targeting. Each `studentId` must belong to one of your groups.
 - `dueDate` / `cutoffDate`: ISO 8601, real future dates. The platform replaces missing/past/invalid dates with a safe fallback, so always send a real future `dueDate`.
 - `status`: `draft` (default — instructor publishes manually) or `published` (fan out immediately; only when explicitly asked).
@@ -2902,7 +3032,7 @@ A reference descriptor lives at `assignments/assignment-example/assignment.json`
 
 ## Interactive assignment creation flow
 
-This mirrors the in-app trainer assistant's `assign_existing_path` chain. The platform pops UI pickers for recipients and source; you **ask in plain text and list the options you fetch**. First make sure the right **organization workspace** is active (`get_my_organizations` → `select_organization`; see *Organization workspace* under Session start) — assignments and groups are scoped to it. Work the steps in order; don't call `create_assignment` until recipients + source + due date are settled.
+This mirrors the in-app trainer assistant's `assign_existing_course` chain. The platform pops UI pickers for recipients and source; you **ask in plain text and list the options you fetch**. First make sure the right **organization workspace** is active (`get_my_organizations` → `select_organization`; see *Organization workspace* under Session start) — assignments and groups are scoped to it. Work the steps in order; don't call `create_assignment` until recipients + source + due date are settled.
 
 ### STEP 1 — Pick recipients (groups and/or individual students)
 
@@ -2915,17 +3045,18 @@ Recipients become `groupIds[]` and/or `studentIds[]` — at least one entry acro
 
 > **Empty roster?** If the org has no students yet, grow it (owner/admin): `create_organization_user` to create a brand-new student account in the org, or `add_organization_member` to bring in an existing DojoCode account. Confirm with `list_organization_members`. New members still need to be in a **group** before they can be targeted individually — assign by group, or add them to a group first.
 
-### STEP 2 — Pick the source (a learning path OR a challenge)
+### STEP 2 — Pick the source (a course, a challenge, or a whole learning path)
 
-1. Determine `sourceType`. If the user's wording is clear ("assign the arrays path" → `learning-path`; "give them the FizzBuzz challenge" → `challenge`), use it. If ambiguous, ask which they want.
-2. List candidates: `get_my_learning_paths` for paths, or `get_my_challenges` / `get_challenges` (`status: "pending,approved"`) for challenges. Ask the user to pick one. Capture its `_id`.
-   - **Shortcut:** if you just created a learning path in this session (you have its id in `learning-paths/<slug>/learningPathCreate.json`), offer to assign *that* directly instead of re-listing.
+1. Determine the source. If the user's wording is clear ("assign the arrays course" → `course`; "give them the FizzBuzz challenge" → `challenge`; "assign the Web Development learning path" → a learning path), use it. If ambiguous, ask which they want.
+2. List candidates: `get_my_courses` / `get_courses` for courses (only **published** courses can be assigned), `get_my_challenges` / `get_challenges` (`status: "pending,approved"`) for challenges, `get_learning_paths` / `get_my_learning_paths` for learning paths (published ones only). Ask the user to pick one. Capture its `_id`.
+   - **Shortcut:** if you just created a course in this session (you have its id in `courses/<slug>/courseCreate.json`), offer to assign *that* directly instead of re-listing.
+3. **A whole learning path** is not a `create_assignment` source: call `assign_learning_path` instead (`learningPathId`, recipients, and either `courses: [{ courseId, dueDate }]` for a subset with their own deadlines, or `firstDueDate` + `daysBetween` to assign every course a fixed number of days apart — default a week). It creates one ordinary assignment per course, in the path's order. Reference payload: `assignments/assignment-example/assignLearningPath.json`.
 
 ### STEP 3 — Settle the details (you fill most of these)
 
 - **`dueDate`** — ask for it if not given (e.g. "in two weeks", a date). Always send a real future ISO date; the platform normalizes missing/past/invalid values to ~1 month out. `cutoffDate` is optional.
-- **`title`** — default to the source's own title (look it up with `get_learning_path` / `get_challenge` by id). Don't ask.
-- **`instructions`** — write a short, friendly, **student-facing** line yourself (e.g. "Please complete this learning path by the due date — reach out if anything's unclear."). Never put internal metadata here; students read it.
+- **`title`** — default to the source's own title (look it up with `get_course` / `get_challenge` by id). Don't ask. (`assign_learning_path` names every assignment after its course.)
+- **`instructions`** — write a short, friendly, **student-facing** line yourself (e.g. "Please complete this course by the due date — reach out if anything's unclear."). Never put internal metadata here; students read it.
 - **`autograding`** — optional `{ enabled, passingScore }`; only set if the user wants it.
 - **`status`** — **always `draft`** unless the user explicitly says to publish/send now. The instructor publishes from the assignments page.
 
@@ -2947,12 +3078,12 @@ A **business report** is a persisted snapshot of exactly ONE kind:
 
 - **Groups report** (`type: "groups"`) — statistics over one or more of the instructor's **student groups**: overview stat cards, per-group comparison, skills radar with strengths/weaknesses, score distributions, completion timeline, and a per-student table.
 - **Contest report** (`type: "contest"`) — strictly the **contest's leaderboard** (rank, score, solved challenges, total time, AI prompts, failed submits) for every participant.
-- **Learning-path report** (`type: "learning-path"`) — the path's enrolled students ranked by **completion percent** (lessons + required challenges), with status and completion dates.
+- **Course report** (`type: "course"`) — the course's enrolled students ranked by **completion percent** (lessons + required challenges), with status and completion dates.
 - **Hackathon report** (`type: "hackathon"`) — the hackathon's **ranking**: every submission with its average jury score, judges scored, submission time and likes, plus judge coverage and submissions per day. Provisional before judging ends, final after.
 
 Reports are generated asynchronously and stay stored — the instructor revisits, regenerates, and exports them (CSV/PDF) from the reports page.
 
-Use this whenever a business user asks for insights — "how is my class doing?", "give me the contest results", "who progressed the most on my learning path?", "compare my groups". Requires the `business` access tier and an active organization workspace.
+Use this whenever a business user asks for insights — "how is my class doing?", "give me the contest results", "who progressed the most on my course?", "compare my groups". Requires the `business` access tier and an active organization workspace.
 
 ## Interactive report flow
 
@@ -2961,27 +3092,27 @@ Generating a report is a short conversation — ask, then call:
 ### STEP 1 — Workspace + report type
 
 1. Make sure the right organization workspace is active (`get_my_organizations` → `select_organization`; see *Organization workspace* under Session start).
-2. Ask **what kind of report** they want — groups statistics, a contest's leaderboard, a learning path's progress, or a hackathon's ranking. Skip the question if the request already makes it clear ("how did the contest go?" → contest; "who won the hackathon?" → hackathon).
+2. Ask **what kind of report** they want — groups statistics, a contest's leaderboard, a course's progress, or a hackathon's ranking. Skip the question if the request already makes it clear ("how did the contest go?" → contest; "who won the hackathon?" → hackathon).
 
 ### STEP 2 — Pick the subject (depends on the type)
 
 - **Groups** — call `get_my_groups`, present the groups as a concise numbered list, ask **which group(s)** (one, several, or all). Capture `groupIds`.
 - **Contest** — list candidates with `get_contests` / `get_contest`, capture the `contestId`.
-- **Learning path** — list candidates with `get_my_learning_paths`, capture the `learningPathId`.
+- **Course** — list candidates with `get_my_courses`, capture the `courseId`.
 - **Hackathon** — list candidates with `get_hackathons` (`mine: true`), capture the `hackathonId`.
 
 If the user already named the subject, resolve the id and skip the question. Default the **title** to something descriptive ("First Business Contest results"); don't ask unless the user cares.
 
 ### STEP 3 — Generate, poll, present
 
-1. Call `generate_business_report` with `{ title, type, groupIds? | contestId? | learningPathId? | hackathonId? }`. It returns `{ reportId, status: "pending" }` — generation runs in the background and typically takes a few seconds.
+1. Call `generate_business_report` with `{ title, type, groupIds? | contestId? | courseId? | hackathonId? }`. It returns `{ reportId, status: "pending" }` — generation runs in the background and typically takes a few seconds.
 2. Poll `get_business_report` with the `reportId` until `status` is `"completed"` (or `"failed"` — report the error and offer to retry by generating again).
-3. Present the summary conversationally and per type — groups: the overview numbers, how the groups compare, top strengths/weaknesses and training priorities; contest / learning path / hackathon: the top of the leaderboard and the headline stats (participants / enrolled + completed / submissions + judges). Mention any `warnings` (empty groups, nobody participated, truncation). Don't dump the raw JSON.
+3. Present the summary conversationally and per type — groups: the overview numbers, how the groups compare, top strengths/weaknesses and training priorities; contest / course / hackathon: the top of the leaderboard and the headline stats (participants / enrolled + completed / submissions + judges). Mention any `warnings` (empty groups, nobody participated, truncation). Don't dump the raw JSON.
 4. Always end with the report link so the user can open the full tables and export CSV/PDF: `https://dojocode.io/business/reports/<reportId>`.
 
 Use `list_business_reports` to answer "what reports do I have?" or to find an earlier report instead of generating a duplicate — offer the existing one's link first.
 
-> `get_business_report` returns a token-budgeted **summary** (groups: overview + comparison + strengths/weaknesses; contest / learning path: leaderboard top 10) — the full data, tables, and exports live on the report page.
+> `get_business_report` returns a token-budgeted **summary** (groups: overview + comparison + strengths/weaknesses; contest / course / hackathon: leaderboard top 10) — the full data, tables, and exports live on the report page.
 
 ---
 
@@ -3078,20 +3209,25 @@ The challenge MCP commands are documented in Part 1. The resource-creation comma
 |---------|----------|---------|-----------------|
 | `create_contest` | Contest | Create a timed contest from existing challenges | `name`, `description`, `startDate`, `endDate` (+ optional `invitationDescription`, `finalDescription`, `visibility`, `aiEnabled`, `aiMaxPromptsPerChallenge`, `challenges[]`) |
 | `update_contest` | Contest | Edit a **draft** contest (send only changed fields; `slug` immutable) | `contestId` (+ any editable fields) |
-| `get_learning_path_categories` | Learning Path | List the catalog categories (`_id`, name, translations) to pick a path's `category` from | _(none)_ |
-| `create_learning_path` | Learning Path | Create a guided path from existing challenges | `title` (+ optional `description`, `category`, `visibility`, `status`, `nodes[]`) |
-| `update_learning_path` | Learning Path | Edit a **draft** path (metadata / add / update / delete / reorder lessons) | `learningPathId`, `action` (+ the fields that action needs) |
-| `create_project` | Project | Create a sandbox project from a template (files uploaded separately) | `title`, `slug`, `template` (+ optional `description`, `tags`) |
+| `get_course_categories` | Course | List the catalog categories (`_id`, name, translations) to pick a course's `category` from | _(none)_ |
+| `create_course` | Course | Create a guided course (chapters → lessons) from existing challenges | `title` (+ optional `slug`, `description`, `category`, `visibility`, `status`, `nodes[]`) |
+| `update_course` | Course | Edit a **draft** course (metadata / add / update / delete / reorder lessons) | `courseId`, `action` (+ the fields that action needs) |
+| `create_learning_path` | Learning Path | Create an ordered learning path from existing courses (active organization's, or official for super admins) | `title`, `courses[]` (+ optional `slug`, `description`, `levels`, `icon`, `status`) |
+| `update_learning_path` | Learning Path | Edit a learning path (send only changed fields; `courses` replaces the list; slug immutable) | `learningPathId` (+ any editable fields) |
+| `delete_learning_path` | Learning Path | Delete a learning path (its courses, assignments and progress stay) | `learningPathId` |
+| `assign_learning_path` | Learning Path | Assign a published learning path: one assignment per course, in order | `learningPathId` (+ recipients, `courses[]` or `firstDueDate`/`daysBetween`, `instructions`, `status`) |
+| `create_project` | Project | Create a sandbox project from a template (files uploaded separately) | `title`, `slug`, `template` (+ optional `description`, `tags`, `dependencies[]`, `files`) |
+| `update_project_metadata` | Project | Edit a project's title / description / tags | `projectId` (+ fields to change) |
 | `update_project_dependencies` | Project | Add/update/remove ONE package (validated against the template registry; waits for the install and reports `installation.status`) | `projectId`, `action`, `name` (+ optional `version`) |
 | `prepare_project_upload` | Project | Get a one-time upload URL for a project's files (zip) | _(none)_ |
 | `prepare_project_download` | Project | Get a one-time download URL for a project's files (zip) | `projectId` |
-| `create_assignment` | Assignment | Assign a learning path or challenge to students/groups | `title`, `sourceType`, `dueDate` (+ source id + recipients) |
+| `create_assignment` | Assignment | Assign a course or a challenge to students/groups | `title`, `sourceType` (`course` / `challenge`), `dueDate` (+ `courseId` / `challengeId` + recipients) |
 | `create_hackathon` | Hackathon | Create a hackathon **draft** (brief, criteria, jury; poster + cover generated) | `name` (+ `invitationDescription`, `brief`, `theme`, `startDate`, `endDate`, `judgingEndDate`, `visibility`, `criteria[]`, `juryUserIds[]`) |
 | `update_hackathon` | Hackathon | Edit a **draft** hackathon (send only changed fields; `criteria` / `juryUserIds` replace the list; `slug` immutable) | `hackathonId` (+ any editable fields) |
 | `publish_hackathon` | Hackathon | Publish a draft (`public`) or unpublish one that has not started (`draft`) | `hackathonId` (+ optional `status`) |
 | `search_users` | Hackathon | Find platform users by username — to resolve judge ids | `username` (+ optional `limit`) |
-| `generate_business_report` | Business Report | Start generating a persisted report of one kind — groups statistics, contest leaderboard, learning-path progress, or hackathon ranking (async — poll with `get_business_report`) | `title`, `type` (+ `groupIds[]` / `contestId` / `learningPathId` / `hackathonId` matching the type) |
-| `get_business_report` | Business Report | Report status; once completed, a type-specific summary (groups: overview + comparison + strengths/weaknesses; contest / learning path / hackathon: leaderboard top 10) + report URL | `reportId` |
+| `generate_business_report` | Business Report | Start generating a persisted report of one kind — groups statistics, contest leaderboard, course progress, or hackathon ranking (async — poll with `get_business_report`) | `title`, `type` (`groups` / `contest` / `course` / `hackathon`) (+ `groupIds[]` / `contestId` / `courseId` / `hackathonId` matching the type) |
+| `get_business_report` | Business Report | Report status; once completed, a type-specific summary (groups: overview + comparison + strengths/weaknesses; contest / course / hackathon: leaderboard top 10) + report URL | `reportId` |
 | `list_business_reports` | Business Report | List the workspace's reports (id, title, status, generatedAt) | _(optional `limit`)_ |
 | `get_current_organization` | Organization | Show the active workspace (`_id`/`name`/`role`/`plan`) or personal; read-only, no side effects | _(none)_ |
 | `select_organization` | Organization | Set the active workspace (omit id → personal). Run before org-scoped work | _(optional `organizationId`)_ |
@@ -3102,13 +3238,14 @@ The challenge MCP commands are documented in Part 1. The resource-creation comma
 | `update_member_role` | Organization | Change a member's role (`admin`/`member`) | `organizationId`, `membershipId`, `role` |
 | `remove_member` | Organization | Remove a member from the org | `organizationId`, `membershipId` |
 
-Read-only / supporting commands you will use to resolve IDs and confirm results: `get_my_organizations`, `get_current_organization`, `get_challenges`, `get_my_challenges`, `get_contests`, `get_upcoming_contests`, `get_contest`, `get_contest_leaderboard`, `get_contest_analytics`, `get_hackathons`, `get_hackathon`, `get_hackathon_results`, `get_learning_paths`, `get_my_learning_paths`, `get_learning_path`, `open_learning_path`, `get_projects`, `get_my_projects`, `open_project`, `open_edit_project`, `get_my_groups`, `get_group`, `get_my_students`, `get_student_assignments`, `get_assignment_progress`, `get_business_report`, `list_business_reports`.
+Read-only / supporting commands you will use to resolve IDs and confirm results: `get_my_organizations`, `get_current_organization`, `get_challenges`, `get_my_challenges`, `get_contests`, `get_upcoming_contests`, `get_contest`, `get_contest_leaderboard`, `get_contest_analytics`, `get_hackathons`, `get_hackathon`, `get_hackathon_results`, `get_courses`, `get_my_courses`, `get_course`, `open_course`, `get_learning_paths`, `get_my_learning_paths`, `get_learning_path`, `get_projects`, `get_my_projects`, `open_project`, `open_edit_project`, `get_my_groups`, `get_group`, `get_my_students`, `get_student_assignments`, `get_assignment_progress`, `get_business_report`, `list_business_reports`.
 
 ## Resource edit links (always use these)
 
-After **creating or editing** a learning path or contest, show the user a clickable edit link. Always build it on the public site `https://dojocode.io` — **never** the local API host (e.g. `localhost:8833`) or the configured frontend host. Substitute the `_id` returned by the create/update tool:
+After **creating or editing** a course, learning path or contest, show the user a clickable edit link. Always build it on the public site `https://dojocode.io` — **never** the local API host (e.g. `localhost:8833`) or the configured frontend host. Substitute the `_id` returned by the create/update tool:
 
-- **Learning path** → `https://dojocode.io/learning-paths/edit/<learningPathId>`
+- **Course** → `https://dojocode.io/courses/edit/<courseId>`
+- **Learning path** → page `https://dojocode.io/learning-paths/<slug>`; edited at `https://dojocode.io/manage-learning-paths`
 - **Contest** → `https://dojocode.io/business/contest/edit/<contestId>`
 - **Hackathon** → `https://dojocode.io/business/hackathon/edit/<hackathonId>`
 - **Project** → `https://dojocode.io/project/edit/<projectId>`
@@ -3119,8 +3256,9 @@ After **creating or editing** a learning path or contest, show the user a clicka
 - **Organization / workspace** (Session start): `get_my_organizations` → `select_organization` before any business work (contests, assignments, groups). Manage the roster with `list_organization_members` / `create_organization_user` / `add_organization_member` / `update_member_role` / `remove_member`.
 - **Challenge** (Part 1): author files → `create_challenge` → `add_variation` (per template) → `createExportContent.js` → `prepare_file_upload` → `uploadChallengeFiles.js` → run tests → `get_challenge_edit_url`. Manage packages with `update_challenge_dependencies` (then sync the local manifest — see the dependency workflow).
 - **Contest** (Part 2): **interactive** — select the workspace (`get_my_organizations` → `select_organization`) → gather requirements (challenges-per-contest + suggestion count + AI assistant) → discover challenges → propose suggestions (with distinct invitation/final descriptions) & let the user pick → author `contest.json` → `create_contest` → save `contestCreate.json`. Edit a **draft** contest with `update_contest`.
-- **Learning Path** (Part 3): **interactive** — gather requirements (ask) → discover challenges (`get_challenges` with `status: "pending,approved"`) → propose an outline & get approval → author `learningPath.json` → `create_learning_path` → save `learningPathCreate.json`. Edit a **draft** path with `update_learning_path` (metadata / add / update / delete / reorder lessons).
+- **Course** (Part 3): **interactive** — gather requirements (ask) → discover challenges (`get_challenges` with `status: "pending,approved"`) → propose an outline with chapters & get approval → author `course.json` → `create_course` → save `courseCreate.json`. Edit a **draft** course with `update_course` (metadata / add / update / delete / reorder lessons).
+- **Learning Path** (Part 3B): **interactive** — select the workspace (owner/admin) → gather the goal + levels → find courses (`get_my_courses` / `get_courses`) → propose the ordered list & get approval → author `learningPath.json` → `create_learning_path` → save `learningPathCreate.json`. Edit with `update_learning_path`, publish with `status: "published"` once every course is published, assign with `assign_learning_path`.
 - **Project** (Part 4): scaffold raw files (copy a `projects/project-samples/*`) → `create_project` (title/slug/template/description/tags) → `createProjectContent.js` → `prepare_project_upload` → `uploadProjectFiles.js`. Pull live files with `prepare_project_download` → `downloadProjectFiles.js`. Manage packages with `update_project_dependencies` (then sync the local manifest — see the dependency workflow in Part 1).
-- **Assignment** (Part 5): **interactive** — select the workspace (`get_my_organizations` → `select_organization`) → pick recipients (`get_my_groups` / `get_my_students`) → pick source (`get_my_learning_paths` / `get_my_challenges`) → settle due date + student-facing instructions → author `assignment.json` → `create_assignment` (draft) → save `assignmentCreate.json`.
-- **Business Report** (Part 6): **interactive** — select the workspace → ask what KIND of report (groups statistics / contest leaderboard / learning-path progress / hackathon ranking) → pick the subject (`get_my_groups` / `get_contests` / `get_my_learning_paths` / `get_hackathons`) → `generate_business_report` → poll `get_business_report` until completed → present the summary + the report link. Reuse existing reports via `list_business_reports` before generating duplicates.
+- **Assignment** (Part 5): **interactive** — select the workspace (`get_my_organizations` → `select_organization`) → pick recipients (`get_my_groups` / `get_my_students`) → pick source (`get_my_courses` / `get_my_challenges`, or a learning path via `assign_learning_path`) → settle due date + student-facing instructions → author `assignment.json` → `create_assignment` (draft) → save `assignmentCreate.json`.
+- **Business Report** (Part 6): **interactive** — select the workspace → ask what KIND of report (groups statistics / contest leaderboard / course progress / hackathon ranking) → pick the subject (`get_my_groups` / `get_contests` / `get_my_courses` / `get_hackathons`) → `generate_business_report` → poll `get_business_report` until completed → present the summary + the report link. Reuse existing reports via `list_business_reports` before generating duplicates.
 - **Hackathon** (Part 7): **interactive** — select the workspace → settle the plan in chat (name/theme, three dates, visibility, criteria) → resolve the judges with `search_users` → author `hackathon.json` → `create_hackathon` → save `hackathonCreate.json` → report the edit link and what is left (brief review, funding, publish). Edit a **draft** with `update_hackathon`; publish with `publish_hackathon` only on request.
