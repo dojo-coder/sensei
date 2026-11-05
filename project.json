@@ -1,0 +1,8 @@
+{
+  "title": "Evaluator de Fototografii",
+  "description": "# Photo Rater\n\nO aplicație mobilă în care încarci fotografii, iar AI-ul acordă fiecăreia o notă de la 1 la 10 pentru compoziție, iluminare și focalizare, alături de un titlu, ce funcționează bine și un sfat. Utilizează DojoCode AI SDK (image-to-text) și clasifică fotografiile în funcție de scor.\n\n## Rulare locală\n\n```bash\nnpm install\nnpm run dev\n```\n",
+  "template": "react-native",
+  "tags": ["react-native", "ai"],
+  "mainFilePath": "/index.jsx",
+  "activeFilePath": "/App.jsx"
+}

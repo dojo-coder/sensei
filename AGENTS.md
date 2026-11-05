@@ -1634,7 +1634,7 @@ When instructed to create an existing generated challenge, follow this workflow:
 
 5. **Handle Uniqueness Response**:
    - **If `isUnique` is `true`**: Continue to step 6
-   - **If `isUnique` is `false`**: Generate a new slug (append a number or modify the name) and repeat step 4 (call `check_slug_uniqueness` again)
+   - **If `isUnique` is `false`**: the slug is already used by one of **your own** challenges (slugs are unique per author) — the response says which one (`existingChallenge`: `_id`, `title`, `status`) and offers a free `suggestedSlug`. If that is the challenge you meant to recreate, tell the user instead of making a duplicate; otherwise take the suggested slug (or modify the name) and repeat step 4 (call `check_slug_uniqueness` again)
 
 6. **Get Available Tags**: Call the MCP command `get_all_tags` to retrieve all available tags. This returns an array of tag objects:
 
@@ -1666,7 +1666,7 @@ When instructed to create an existing generated challenge, follow this workflow:
      - `browserPreviewVisibility`: Set to `true` if Live Preview should be enabled
      - `enableApiTester`: Set to `true` if API Tester should be enabled
 
-9. **Save Challenge Response**: After successfully creating the challenge, save the response from the `create_challenge` MCP command to `challengeCreate.json` file in the challenge folder (`challenges/[challenge-name]/challengeCreate.json`)
+9. **Save Challenge Response**: After successfully creating the challenge, save the response from the `create_challenge` MCP command to `challengeCreate.json` file in the challenge folder (`challenges/[challenge-name]/challengeCreate.json`). The response already carries `_id`, `title`, `slug` and `defaultVariation` (the `_id` of the variation created for the given template/language) — no extra `get_challenge` call is needed to learn the variation id.
 
 We only need a json like this. Two fields \_id which is the \_id of the challenge and the defaultVariation object containing the \_id of the default variation (first variation in what was the challenge created):
 
@@ -1798,6 +1798,11 @@ When instructed to add a variation for a specific challenge (e.g., "add variatio
 - Look up `python` in **`templatesConfiguration.json`** for `_id` and `selectedLanguage`
 - Use these values in the `add_variation` request
 - Update the `variationId` in `challenges/[challenge-name]/templates/python/metadata.json` with the `_id` from response
+
+**Managing variations after creation**:
+
+- `set_default_variation` (`challengeId` + `variationId`) makes a variation the challenge's default — the one opened when no template is picked and the `defaultVariation` in `challengeCreate.json` (update the file). The variation must belong to the challenge.
+- `delete_variation` (`challengeId` + `variationId`) removes a variation with its files, tests and solution; the response lists the remaining variations and the (possibly new) default. The last variation of a challenge cannot be deleted. Delete the matching `templates/<template>/` folder locally too.
 - Call `prepare_file_upload` MCP tool to get `uploadUrl`
 - Run `node uploadChallengeFiles.js <uploadUrl> <challengeId> <variationId> challenges/[challenge-name]/templates/python/exportedContent.zip`
 
@@ -2762,7 +2767,8 @@ Creating a course is a **multi-turn conversation**. The platform's own AI uses o
 - **Template and language names are case-sensitive and Capitalized.** The `language` and `template` filters on `get_challenges` expect the exact capitalized name — `"Python"`, `"JavaScript"`, `"React"` — **not** `"python"`/`"javascript"`. A lowercase value silently returns zero results. **Always resolve the exact spelling from `get_languages` (for languages) and `get_templates` (for templates) before filtering — never guess the casing.**
 - Difficulty is **1–3** (1 = beginner, 2 = intermediate, 3 = advanced). Never pass `0`.
 - **Every** `get_challenges` call must include `status: "pending,approved"`. Draft challenges are broken and must never be added to a course.
-- `get_challenges` and `get_my_challenges` return **slim** challenge objects (`_id`, `title`, `slug`, `difficulty`, `estimate`, `tags`, variations) plus `page`/`limit`. Narrow with `tags` / `difficulty` / `language` and pass `limit` (e.g. `20`) — request the next `page` if you need more rather than asking for a huge page. The `search` field matches the **title only**, so a topic like "arrays" may not appear in titles (Python uses "list"); prefer `tags` + `difficulty` + `language` over `search` for topic discovery.
+- `create_challenge` rejects a tag that does not exist on the platform (by `_id` or name) and lists the valid ones — pick tags only from `get_all_tags`.
+- `get_challenges` and `get_my_challenges` return **slim** challenge objects (`_id`, `title`, `slug`, `difficulty`, `estimate`, `tags`, variations) plus `page`/`limit`. The variations are the bulk of it — a page of 30–40 challenges can run past 100k characters — so pass **`compact: true`** whenever you only need ids and titles (picking challenges for a course, contest or assignment): each challenge is then just `_id`, `title`, `slug`, `status`, `difficulty` and `templates` (the template keys of its variations, e.g. `["python", "c"]`), 20–30x smaller. Narrow with `tags` / `difficulty` / `language` and pass `limit` (e.g. `20`) — request the next `page` if you need more rather than asking for a huge page. The `search` field matches the **title only**, so a topic like "arrays" may not appear in titles (Python uses "list"); prefer `tags` + `difficulty` + `language` over `search` for topic discovery.
 - Only ever reference DojoCode challenges. Never invent challenge IDs — the platform silently drops invalid ones, leaving lessons emptier than intended.
 
 ### STEP 1 — Gather requirements (ask, don't assume)
@@ -2817,7 +2823,7 @@ Ask the user to confirm or adjust (swap a challenge, rename a node, change count
    - Put a `quiz` on the approved lessons: 3–5 questions that check the **concept** (not trivia about a challenge), mixing at least three types, every snippet in the course's language with its `language` and `template` set, every question with a one-sentence `explanation`. Check each one against the type rules above (`___` count = `blanks` count, `reorder` lines in the right order, `errorLineIndex` in range) — one invalid question rejects the whole create.
 3. Call `create_course` with the `course.json` contents. (You are auto-enrolled as a learner of your own course — no extra step.)
 4. Save the response to `courses/[course-slug]/courseCreate.json` (keep at least `_id`, `slug` and `title`).
-5. Confirm with `get_course`, then report the course and its **edit link** (always built on `https://dojocode.io`, never the local API host):
+5. Confirm with `get_course` (`compact: true` — ids, titles and the items of each chapter, no lesson text), then report the course and its **edit link** (always built on `https://dojocode.io`, never the local API host):
 
    `https://dojocode.io/courses/edit/<courseId>`
 
@@ -2827,28 +2833,35 @@ Ask the user to confirm or adjust (swap a challenge, rename a node, change count
 
 ## Editing a course (draft only)
 
-A course can be edited with `update_course` **only while its `status` is `draft`**. Once published, the platform rejects lesson edits (add/update/delete/reorder) — only metadata can change after that (flipping it back to draft is not possible; you can still publish a draft by setting `status: "published"`). Always call `get_course` first to read the current chapters, lessons and their `_id`s before editing.
+A course can be edited with `update_course` **only while its `status` is `draft`**. Once published, the platform rejects content edits (chapters, lessons, quizzes, challenges, their order) — only metadata can change after that (flipping it back to draft is not possible; you can still publish a draft by setting `status: "published"`). Always call `get_course` first to read the current chapters, their items and the ids before editing.
+
+**Reading a course.** `get_course` always returns the stored **English source** — never a translation — so the titles you read are the ones you edit (a renamed chapter shows its new title right away). Pass **`compact: true`** before editing: you get the course (`_id`, `slug`, `title`, `status`, `visibility`, `category`, `url`, `editUrl`) and its `chapters[]`, each with `_id`, `title` and `items[]` in order — every item has its own `_id` (the chapter item id), a `kind` and the thing it points at: `lesson: { _id, title }`, `quiz: { _id, title, questionCount }` or `challenge: { _id, title, slug, status }` + `required`. No lesson text, no challenge variations — a few KB even for a large course. Without `compact` you also get `lessons[]` with their full `theory` (tens of KB); use that only when you need the text of every lesson, otherwise read one lesson at a time with **`get_lesson`** (`courseId` + `lessonId` → `title`, `description`, `theory`, `conceptKey`, `concepts`, `difficulty`, `lessonEstimate`).
 
 `update_course` takes a `courseId`, an `action`, and the fields that action needs:
 
 | `action` | What it does | Required fields |
 |----------|--------------|-----------------|
 | `metadata` | Update course title / description / category / visibility / status | at least one of `title`, `description`, `category` (a category `_id`, or `null` to clear it), `visibility`, `status` |
-| `add_lesson` | Append a new lesson (node) | `lesson` (a node object; `lesson.title` required; `lesson.chapter` = the `_id` of the chapter it goes in, the last chapter when omitted) |
-| `update_lesson` | Replace a lesson's fields / challenge list | `lessonId` + `lesson` |
+| `add_chapter` | Add a chapter (at the end, or at `position`) | `chapterTitle` (+ optional `position`, 0-based index among the chapters) |
+| `update_chapter` | Rename a chapter | `chapterId` + `chapterTitle` |
+| `delete_chapter` | Remove an **empty** chapter | `chapterId` |
+| `reorder_chapters` | Set the chapter order | `chapterIds` (every chapter `_id`, in the new order) |
+| `add_lesson` | Add a new lesson (node) to a chapter | `lesson` (a node object; `lesson.title` required; `lesson.chapter` = the `_id` of the chapter it goes in, the last chapter when omitted) + optional `position` |
+| `update_lesson` | Partial update of a lesson's fields — what you leave out keeps its stored value | `lessonId` + `lesson` (any of `title`, `description`, `theory`, `conceptKey`, `concepts`, `difficulty`, `lessonEstimate`) |
 | `delete_lesson` | Remove a lesson | `lessonId` |
-| `reorder_lessons` | Set lesson order | `lessonIds` (every lesson `_id`, in the new order) |
-| `add_quiz` | Append a quiz to a chapter | `chapterId` + `quiz` (same shape as a node's `quiz`) |
+| `reorder_lessons` | Set lesson order (quizzes and challenges keep their places between the lessons) | `lessonIds` (every lesson `_id`, in the new order) |
+| `add_quiz` | Add a quiz to a chapter | `chapterId` + `quiz` (same shape as a node's `quiz`) + optional `position` |
 | `update_quiz` | Replace a quiz's title, XP and questions | `quizId` + `quiz` |
 | `delete_quiz` | Remove a quiz (and its chapter item) | `quizId` |
-| `add_challenge` | Append a challenge to a chapter | `chapterId` + `challengeId` (+ `required`, default `true`) |
+| `add_challenge` | Add a challenge to a chapter | `chapterId` + `challengeId` (+ `required`, default `true`) + optional `position` |
 | `remove_challenge` | Remove a challenge item from a chapter | `chapterId` + `itemId` (the item `_id` from `get_course`'s `chapters[].items`) |
+| `move_item` | Move any chapter item (lesson, quiz or challenge) to a position, in the same or another chapter | `chapterId` + `itemId` + `position` (+ `toChapterId` to move it into another chapter) |
 
-The `lesson` object uses the same node fields as creation (`conceptKey`, `concepts`, `title`, `description`, `theory`, `difficulty`, `lessonEstimate`); a lesson's quiz and challenges are separate chapter items, edited with the quiz and challenge actions. `add_quiz` and `add_challenge` **append** to the chapter — the course editor at the edit link reorders items. Note that on `add_lesson` the `chapter` is a chapter **`_id`** (from `get_course`), not a title. Edit workflow:
+`position` is a **0-based index among the items of the chapter** (for `add_chapter`, among the chapters); omitted means "at the end". So to build a chapter in the lesson → quiz → challenge order, add them in that order with no `position`, or place one afterwards with `move_item` — there is no need to remove items and re-add them. The `lesson` object uses the same node fields as creation (`conceptKey`, `concepts`, `title`, `description`, `theory`, `difficulty`, `lessonEstimate`); a lesson's quiz and challenges are separate chapter items, edited with the quiz and challenge actions. Note that on `add_lesson` the `chapter` is a chapter **`_id`** (from `get_course`), not a title, and that `chapterTitle` (not `title`, which is the course title for `metadata`) names a chapter. Edit workflow:
 
-1. `get_course` → confirm `status: "draft"` and note each chapter's `_id`, its `items` (lessons, quizzes, challenges, in order) and the lessons' `_id`s. If it is published, tell the user it can't be edited and stop (offer to clone into a new draft instead).
-2. Make the change with `update_course` (one `action` per call; resolve any new challenge `_id`s via `get_challenges`/`get_my_challenges` first, same Tool rules as above).
-3. Re-read with `get_course` to confirm, update `courses/<slug>/course.json` so the local descriptor stays in sync, and report the **edit link** `https://dojocode.io/courses/edit/<courseId>`.
+1. `get_course` with `compact: true` → confirm `status: "draft"` and note each chapter's `_id`, its `items` (lessons, quizzes, challenges, in order, each with its item `_id`) and the lesson / quiz / challenge ids inside them. If it is published, tell the user it can't be edited and stop (offer to clone into a new draft instead).
+2. Make the change with `update_course` (one `action` per call; resolve any new challenge `_id`s via `get_challenges`/`get_my_challenges` with `compact: true` first, same Tool rules as above).
+3. Re-read with `get_course` (`compact: true`) to confirm, update `courses/<slug>/course.json` so the local descriptor stays in sync (use `get_lesson` when the descriptor needs a lesson's text), and report the **edit link** `https://dojocode.io/courses/edit/<courseId>`.
 4. To publish when the user is happy: `update_course` with `action: "metadata"`, `status: "published"`.
 
 > Requires the `challenge_author` access tier (you must own the course, or manage the organization that owns it).
@@ -2890,7 +2903,7 @@ A reference descriptor lives at `learning-paths/learning-path-example/learningPa
 - `icon`: one of `terminal`, `desktop`, `sliders`, `shield`, `code`, `globe` (default `code`).
 - `status`: `draft` (default) or `published`. **Publishing needs at least one course and every course published.**
 - `slug`: optional — generated from the title. It must not be used by another learning path **or a course**.
-- `order` and `isOfficial`: super admins only (Explore order, official flag); ignored for everyone else.
+- `order` and `isOfficial`: super admins only (Explore order, official flag); ignored for everyone else. `get_learning_paths` / `get_learning_path` return the current `order` of each path — the Explore page sorts the official ones by it, ascending — so read it before choosing a new value.
 
 ## Interactive learning path creation flow
 
@@ -2900,7 +2913,7 @@ Make sure you know the **goal** (what the learner can do at the end), the **audi
 
 ### STEP 2 — Find the courses
 
-- Organization workspace active (see above), then list candidates: `get_my_courses` (the organization's courses, drafts included) and `get_courses` (published community/official courses; filter with `search`, `templates`, `languages`, `category`). Use `get_course` to read one in detail.
+- Organization workspace active (see above), then list candidates: `get_my_courses` (the organization's courses, drafts included) and `get_courses` (published community/official courses; filter with `search`, `templates`, `languages`, `category`) — pass **`compact: true`** to both (ids, titles, status, difficulty, minutes, lesson count, author and template keys only; the default cards carry full template objects and the author's avatar). Use `get_course` (`compact: true`) to read one in detail.
 - Pick **3–6** courses that build on each other, fundamentals first. If a needed course does not exist, say so and offer to create it first (Part 3) — never pad the path with unrelated courses.
 - Check existing paths with `get_learning_paths` / `get_my_learning_paths` so you don't create a duplicate.
 
@@ -3238,7 +3251,7 @@ The challenge MCP commands are documented in Part 1. The resource-creation comma
 | `update_member_role` | Organization | Change a member's role (`admin`/`member`) | `organizationId`, `membershipId`, `role` |
 | `remove_member` | Organization | Remove a member from the org | `organizationId`, `membershipId` |
 
-Read-only / supporting commands you will use to resolve IDs and confirm results: `get_my_organizations`, `get_current_organization`, `get_challenges`, `get_my_challenges`, `get_contests`, `get_upcoming_contests`, `get_contest`, `get_contest_leaderboard`, `get_contest_analytics`, `get_hackathons`, `get_hackathon`, `get_hackathon_results`, `get_courses`, `get_my_courses`, `get_course`, `open_course`, `get_learning_paths`, `get_my_learning_paths`, `get_learning_path`, `get_projects`, `get_my_projects`, `open_project`, `open_edit_project`, `get_my_groups`, `get_group`, `get_my_students`, `get_student_assignments`, `get_assignment_progress`, `get_business_report`, `list_business_reports`.
+Read-only / supporting commands you will use to resolve IDs and confirm results: `get_my_organizations`, `get_current_organization`, `get_challenges`, `get_my_challenges`, `get_contests`, `get_upcoming_contests`, `get_contest`, `get_contest_leaderboard`, `get_contest_analytics`, `get_hackathons`, `get_hackathon`, `get_hackathon_results`, `get_courses`, `get_my_courses`, `get_course`, `get_lesson`, `open_course`, `get_learning_paths`, `get_my_learning_paths`, `get_learning_path`, `get_projects`, `get_my_projects`, `open_project`, `open_edit_project`, `get_my_groups`, `get_group`, `get_my_students`, `get_student_assignments`, `get_assignment_progress`, `get_business_report`, `list_business_reports`.
 
 ## Resource edit links (always use these)
 
