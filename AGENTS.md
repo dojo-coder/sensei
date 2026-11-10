@@ -2712,7 +2712,21 @@ A reference descriptor lives at `courses/course-example/course.json`.
               { "text": "4", "correct": false },
               { "text": "15", "correct": false }
             ],
-            "explanation": "Indexes start at 0, so nums[1] is the second element."
+            "explanation": "Indexes start at 0, so nums[1] is the second element.",
+            "variants": [
+              {
+                "template": "nodejs_jest",
+                "prompt": "What does this print?",
+                "code": "const nums = [4, 8, 15];\nconsole.log(nums[1]);",
+                "language": "javascript",
+                "options": [
+                  { "text": "8", "correct": true },
+                  { "text": "4", "correct": false },
+                  { "text": "15", "correct": false }
+                ],
+                "explanation": "Indexes start at 0, so nums[1] is the second element."
+              }
+            ]
           },
           {
             "type": "true_false",
@@ -2752,6 +2766,8 @@ Each node is **one lesson**, and inside its chapter it becomes, in order: the **
   - `reorder` → `code` holds 2–12 non-empty lines in the **correct** order (the learner gets them shuffled).
   - `spot_error` → `code` holds 2–40 lines and `errorLineIndex` is the 0-based index of the broken line.
   The server grades every answer; the learner retries until right, and the score is the first-try answers. An invalid quiz rejects the whole create (400) with the lesson, the question and the reason; `add_quiz` / `update_quiz` reject an invalid quiz with 422.
+  - **Per-track variants.** A course whose challenges come in several templates (say Python and Node) has **tracks**: each learner picks one template for the whole course and gets every challenge in it. A question written for one track reads wrong on another, so a question may carry `variants` (≤ 20): the same question re-written for one track, one object per `template` key (the exact key of a challenge template, unique per question — e.g. `python`, `nodejs_jest`, `vuets_jest`; `vue_jest` and `vuets_jest` are different tracks). A variant has the content fields of the question for the **same type** — `prompt`, `code`, `language`, `explanation` and the type's own fields (`options` / `answer` / `blanks` + `distractors` / `errorLineIndex`) — and cannot change the type; follow the type rules above for every variant too (an invalid variant rejects the quiz, naming the variant's template). The question itself is the **default**: learners on a track without a variant, and learners of a course with a single template, get it. Grading, progress and translations are per question, whatever variant a learner saw. Write variants only when the course really spans several templates and the question shows code or names a language; a concept question (`true_false`, "what is O(1)?") needs none. A variant for a template the course has no challenge on is stored but never shown until such a challenge is added.
+  - **Lessons have no variants.** A lesson's `theory` is written once; the AI tutor teaches it in the learner's track (it knows their template and language) and adapts the examples itself. Per-track lesson variants are not supported yet — keep the theory's code examples in the course's main language, or language-neutral when the course spans several.
 - `challenges`: array of real challenge `_id`s practiced after this lesson (may be empty).
 - `requiredChallenges`: subset of `challenges` that gates course completion. If omitted **or empty**, **every** challenge in the node is treated as required (safe default) — there is no "all bonus" node; list at least one required challenge. Challenges in `challenges` but not in `requiredChallenges` are bonus (award XP, don't gate completion).
 - `lessonEstimate`: minutes (optional, defaults to 15).
@@ -2776,7 +2792,7 @@ Creating a course is a **multi-turn conversation**. The platform's own AI uses o
 When the user asks to create a course, before authoring anything make sure you know:
 
 - **Topic / skill focus** (e.g. "arrays", "async JavaScript", "SQL joins").
-- **Target language(s) / framework(s) / template(s)** the challenges should use.
+- **Target language(s) / framework(s) / template(s)** the challenges should use. Several templates make a course with **tracks** (each learner picks one): then plan the quiz code questions with a variant per track (see `variants` above).
 - **Difficulty range / audience level** (beginner → advanced).
 - **The structure** — four numbers:
   - how many **chapters** (1–6),
@@ -2821,6 +2837,7 @@ Ask the user to confirm or adjust (swap a challenge, rename a node, change count
    - Each node with challenges declares a **non-empty `requiredChallenges`** subset of its `challenges` (the rest are bonus); a node without challenges has empty lists.
    - Write `theory` as rich markdown (a code example + a short "key takeaways" list). Do not write reflection `questions`.
    - Put a `quiz` on the approved lessons: 3–5 questions that check the **concept** (not trivia about a challenge), mixing at least three types, every snippet in the course's language with its `language` and `template` set, every question with a one-sentence `explanation`. Check each one against the type rules above (`___` count = `blanks` count, `reorder` lines in the right order, `errorLineIndex` in range) — one invalid question rejects the whole create.
+   - When the course's challenges span **several templates**, give every question that shows code a `variants` entry for each other track (its `template` = the challenge template key, the snippet rewritten in that language, same type and same number of options / blanks / lines), and leave the default question in the course's main template. Concept questions without code stay single.
 3. Call `create_course` with the `course.json` contents. (You are auto-enrolled as a learner of your own course — no extra step.)
 4. Save the response to `courses/[course-slug]/courseCreate.json` (keep at least `_id`, `slug` and `title`).
 5. Confirm with `get_course` (`compact: true` — ids, titles and the items of each chapter, no lesson text), then report the course and its **edit link** (always built on `https://dojocode.io`, never the local API host):
@@ -2851,7 +2868,7 @@ A course can be edited with `update_course` **only while its `status` is `draft`
 | `delete_lesson` | Remove a lesson | `lessonId` |
 | `reorder_lessons` | Set lesson order (quizzes and challenges keep their places between the lessons) | `lessonIds` (every lesson `_id`, in the new order) |
 | `add_quiz` | Add a quiz to a chapter | `chapterId` + `quiz` (same shape as a node's `quiz`) + optional `position` |
-| `update_quiz` | Replace a quiz's title, XP and questions | `quizId` + `quiz` |
+| `update_quiz` | Replace a quiz's title, XP and questions (send the **full** `questions` list, each with its full `variants` — a question sent without `variants` loses them) | `quizId` + `quiz` |
 | `delete_quiz` | Remove a quiz (and its chapter item) | `quizId` |
 | `add_challenge` | Add a challenge to a chapter | `chapterId` + `challengeId` (+ `required`, default `true`) + optional `position` |
 | `remove_challenge` | Remove a challenge item from a chapter | `chapterId` + `itemId` (the item `_id` from `get_course`'s `chapters[].items`) |

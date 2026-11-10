@@ -45,7 +45,21 @@
               { "text": "4", "correct": false },
               { "text": "15", "correct": false }
             ],
-            "explanation": "Indexes start at 0, so nums[1] is the second element."
+            "explanation": "Indexes start at 0, so nums[1] is the second element.",
+            "variants": [
+              {
+                "template": "nodejs_jest",
+                "prompt": "What does this print?",
+                "code": "const nums = [4, 8, 15];\nconsole.log(nums[1]);",
+                "language": "javascript",
+                "options": [
+                  { "text": "8", "correct": true },
+                  { "text": "4", "correct": false },
+                  { "text": "15", "correct": false }
+                ],
+                "explanation": "Indexes start at 0, so nums[1] is the second element."
+              }
+            ]
           },
           {
             "type": "true_false",
