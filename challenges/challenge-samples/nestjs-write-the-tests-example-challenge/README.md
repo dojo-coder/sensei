@@ -8,13 +8,13 @@ The NestJS discount endpoint in `src/discount.service.ts` and `src/discount.cont
 - `percent` must be between **0 and 100**, both included; outside that range the call throws a **`BadRequestException`**.
 - A negative or non-numeric `price` also throws a `BadRequestException`.
 - Your tests must **pass** against the reference code and **fail** against **every** hidden mutant.
-- A single happy-path discount catches almost nothing: think about the **edges of the percent range**, **invalid input** and **rounding**.
+- A single ordinary discount catches almost nothing: think about the **edges of the percent range**, **invalid input** and **rounding**.
 
 ### Examples
 
-- Input: `controller.apply('100', '20')` → Output: `{ total: 80 }`
-- Input: `controller.apply('100', '0')` → Output: `{ total: 100 }`
-- Input: `controller.apply('100', '100')` → Output: `{ total: 0 }`
-- Input: `controller.apply('19.99', '15')` → Output: `{ total: 16.99 }` _(16.9915 rounded to cents)_
-- Input: `controller.apply('100', '150')` → Output: throws `BadRequestException`
-- Input: `controller.apply('-5', '10')` → Output: throws `BadRequestException`
+- `controller.apply('100', '20')` returns `{ total: 80 }`
+- `controller.apply('100', '0')` returns `{ total: 100 }`
+- `controller.apply('100', '100')` returns `{ total: 0 }`
+- `controller.apply('19.99', '15')` returns `{ total: 16.99 }` _(16.9915 rounded to cents)_
+- `controller.apply('100', '150')` throws `BadRequestException`
+- `controller.apply('-5', '10')` throws `BadRequestException`

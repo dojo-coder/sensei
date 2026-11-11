@@ -13,9 +13,9 @@ The Fastify app in `src/app.ts` is already written and **correct**. Write the **
 
 ### Examples
 
-- Input: `{ "items": [{ "price": 2.5, "qty": 2 }, { "price": 1.25, "qty": 4 }] }` → Output: status `200`, `{ "total": 10 }`
-- Input: `{ "items": [{ "price": 3, "qty": 1 }] }` → Output: status `200`, `{ "total": 3 }`
-- Input: `{ "items": [{ "price": 0.1, "qty": 3 }] }` → Output: status `200`, `{ "total": 0.3 }` _(not 0.30000000000000004)_
-- Input: `{ "items": [] }` → Output: status `400`
-- Input: `{ "items": [{ "price": 2, "qty": 0 }] }` → Output: status `400`
-- Input: `{ "items": [{ "price": -1, "qty": 1 }] }` → Output: status `400`
+- A request with the body `{ "items": [{ "price": 2.5, "qty": 2 }, { "price": 1.25, "qty": 4 }] }` answers status `200` and `{ "total": 10 }`
+- A request with the body `{ "items": [{ "price": 3, "qty": 1 }] }` answers status `200` and `{ "total": 3 }`
+- A request with the body `{ "items": [{ "price": 0.1, "qty": 3 }] }` answers status `200` and `{ "total": 0.3 }` _(not 0.30000000000000004)_
+- A request with the body `{ "items": [] }` answers status `400`
+- A request with the body `{ "items": [{ "price": 2, "qty": 0 }] }` answers status `400`
+- A request with the body `{ "items": [{ "price": -1, "qty": 1 }] }` answers status `400`

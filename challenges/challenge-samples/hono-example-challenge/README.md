@@ -1,20 +1,14 @@
-Register a `GET /` route on the Hono app that returns the plain-text string `Hello, World!`.
+Add a `GET /` route to the Hono app, which answers with the plain text `Hello, World!`.
 
-The Hono scaffolding is already wired:
+### Rules & clarifications
 
-- `src/main.ts` — starts the server via `@hono/node-server` on port 3000 (readonly)
-- `src/app.ts` — exports the `Hono` instance — **the file you edit**
+- The answer has status `200` and its body is exactly `Hello, World!`, with the capital letters, the comma and the exclamation mark.
+- The body is plain text, not JSON: `{"message":"Hello, World!"}` is wrong.
+- A route that is not defined answers status `404`; the framework does this on its own.
+- In Hono, a handler must return its response: write `return c.text(...)`. Without `return`, the answer is empty.
+- Write the route in `src/app.ts`. The tests send requests to the exported `app` without starting a server; `src/main.ts`, which starts the server, is read-only.
 
-Replace the TODO comment in `src/app.ts` with a `GET /` route handler that returns `c.text('Hello, World!')`. Remember: Hono handlers MUST `return` the `c.text()` / `c.json()` call — calling without returning sends an empty response.
+### Examples
 
-## Expected solution
-
-```ts
-import { Hono } from 'hono';
-
-export const app = new Hono();
-
-app.get('/', (c) => c.text('Hello, World!'));
-```
-
-Tests use `app.request('/')` (Hono's built-in request injector — no server boot needed) and assert `response.status === 200` and `await response.text() === 'Hello, World!'`.
+- `GET /` answers status `200` and the text `Hello, World!`.
+- `GET /unknown` answers status `404`.

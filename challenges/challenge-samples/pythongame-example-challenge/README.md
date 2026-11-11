@@ -1,38 +1,28 @@
-**Space Dodger** is an arcade game written with `pygame-ce`: you fly a ship along the bottom of the screen and dodge the asteroids falling from above. The drawing, the starfield and the game loop are already written — but the ship does not answer the keyboard, the asteroids never fall and nothing ever collides.
+**Space Dodger** is an arcade game written with `pygame-ce`: a ship moves along the bottom of the screen and dodges the asteroids that fall from above. The drawing, the starfield and the game loop are given, but the ship does not answer the keyboard, the asteroids do not fall and nothing collides.
 
-Your job is to write the game logic in `app.py`. Open the **Preview** tab to watch the game come alive as you go.
+Write the game logic in `app.py`:
 
-### 1. `Ship.steer(keys)`
+a. `Ship.steer(keys)` moves the ship left or right, according to the keys that are held.
 
-Called once per frame with the keyboard state (`keys[pygame.K_LEFT]` is truthy while the left arrow is held).
+b. `Ship.hull()` returns the hit box of the ship.
 
-* **Left arrow** or **A** moves the ship left by `SPEED` pixels; **right arrow** or **D** moves it right by `SPEED` pixels.
-* The ship must stay fully on screen: its centre `x` never goes below `SIZE / 2` or above `WIDTH - SIZE / 2`.
-* The ship never moves vertically.
+c. `Asteroid.update()` advances the asteroid by one frame.
 
-### 2. `Ship.hull()`
+d. `Asteroid.bounds()` returns the square that wraps the asteroid.
 
-Returns the ship's hit box as a `pygame.Rect`: the `SIZE` x `SIZE` square centred on `(x, y)`, **shrunk by 6 pixels on every side**, so that a near miss stays a near miss.
+### Rules & clarifications
 
-For a ship at `(240, 570)` the hull is `pygame.Rect(229, 559, 22, 22)`.
+- `steer` is called once per frame with the keyboard state: `keys[pygame.K_LEFT]` is true while the left arrow is held.
+- The left arrow or **A** moves the ship left by `SPEED` pixels; the right arrow or **D** moves it right by `SPEED` pixels. With no key held, the ship stays still.
+- The ship stays fully on the screen: its centre `x` is never below `SIZE / 2` or above `WIDTH - SIZE / 2`. The ship never moves vertically.
+- `hull` returns a `pygame.Rect`: the `SIZE` x `SIZE` square centred on `(x, y)`, shrunk by 6 pixels on every side.
+- `update` moves the asteroid down by `speed` and sideways by `drift`. After the move, if `x < radius` or `x > WIDTH - radius`, the asteroid bounces: `drift` changes its sign.
+- `bounds` returns a `pygame.Rect`: the square centred on `(x, y)`, with a side of twice the `radius`.
+- The game loop reports a crash when `asteroid.bounds().colliderect(ship.hull())` is true, so collisions work as soon as both rectangles are right.
+- The tests do not open a window: they create a `Ship` or an `Asteroid`, call your methods and compare positions and rectangles.
+- Open the **Preview** to play. Click it first, so that it receives the keyboard; steer with the arrow keys or **A** / **D** and press **R** to fly again after a crash.
 
-### 3. `Asteroid.update()`
+### Examples
 
-Advances the asteroid by one frame.
-
-* It falls by `speed` and slides sideways by `drift`.
-* After moving, if it sticks out past the left or right edge (`x < radius` or `x > WIDTH - radius`) it bounces: `drift` flips its sign.
-
-### 4. `Asteroid.bounds()`
-
-Returns the square `pygame.Rect` that wraps the asteroid: centred on `(x, y)`, with a side of twice the `radius`.
-
-For an asteroid of radius `20` at `(100, 200)` the bounds are `pygame.Rect(80, 180, 40, 40)`.
-
-### How it is checked
-
-The tests never open a window — they build a `Ship` or an `Asteroid`, call your methods and compare positions and rectangles. The game loop already reports a crash when `asteroid.bounds().colliderect(ship.hull())` is true, so once both rectangles are right, collisions work on their own.
-
-### Controls
-
-Click the preview first so it receives the keyboard. **Arrow keys** or **A** / **D** to steer, **R** to fly again after a crash.
+- For a ship at `(240, 570)`, `hull()` returns `pygame.Rect(229, 559, 22, 22)` _(the 34 x 34 square, shrunk by 6 pixels on every side)_.
+- For an asteroid of radius `20` at `(100, 200)`, `bounds()` returns `pygame.Rect(80, 180, 40, 40)`.

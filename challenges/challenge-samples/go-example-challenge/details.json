@@ -1,4 +1,4 @@
 {
   "title": "Hello World",
-  "description": "Implement **HelloWorld** function that returns a string **'Hello World!'**"
+  "description": "Write the function `HelloWorld()`, which returns the string `Hello World!`.\n\n### Rules & clarifications\n\n- The text is exactly `Hello World!`: the capital letters, the space and the exclamation mark must match.\n- The function returns the string; it does not print it.\n- Write the function in `HelloWorld.go`. Press **Run** to execute `main.go`, which prints what your function returns.\n\n### Example\n\n`HelloWorld()` returns `\"Hello World!\"`."
 }

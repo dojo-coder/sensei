@@ -9,13 +9,13 @@ The Express app in `app.js` is already written and **correct**. Write the **Jest
 - `weightKg` must be a number **above 0** and **at most 30**. Anything else, including a missing body, answers status **`400`**.
 - Your tests must **pass** against the reference `app.js` and **fail** against **every** hidden mutant.
 - Test through HTTP with `request(app)`; you never need to start the server yourself. `index.js` starts it for the **preview** and the API tester, and `main.js` prints a few quotes for the **Run** button.
-- A single happy-path quote catches almost nothing: think about **partial kilograms**, **express delivery** and the **weight limit**.
+- A single ordinary quote catches almost nothing: think about **partial kilograms**, **express delivery** and the **weight limit**.
 
 ### Examples
 
-- Input: `{ "weightKg": 1 }` → Output: status `200`, `{ "cost": 5 }`
-- Input: `{ "weightKg": 2.5 }` → Output: status `200`, `{ "cost": 9 }` _(charged as 3 kg)_
-- Input: `{ "weightKg": 2.5, "express": true }` → Output: status `200`, `{ "cost": 18 }`
-- Input: `{ "weightKg": 30 }` → Output: status `200`, `{ "cost": 63 }`
-- Input: `{ "weightKg": 30.5 }` → Output: status `400`
-- Input: `{}` → Output: status `400`
+- A request with the body `{ "weightKg": 1 }` answers status `200` and `{ "cost": 5 }`
+- A request with the body `{ "weightKg": 2.5 }` answers status `200` and `{ "cost": 9 }` _(charged as 3 kg)_
+- A request with the body `{ "weightKg": 2.5, "express": true }` answers status `200` and `{ "cost": 18 }`
+- A request with the body `{ "weightKg": 30 }` answers status `200` and `{ "cost": 63 }`
+- A request with the body `{ "weightKg": 30.5 }` answers status `400`
+- A request with the body `{}` answers status `400`

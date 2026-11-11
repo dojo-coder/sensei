@@ -1,31 +1,18 @@
-Create a PostgreSQL `greetings` table, seed it with the row `(1, 'Hello, World!')`, and SELECT the message so it renders in the Preview panel.
+Create the table `greetings` in PostgreSQL, add one row with the message `Hello, World!` and select the message.
 
-The template runs PostgreSQL in WebAssembly via [`@electric-sql/pglite`](https://pglite.dev). Edit `script.sql`; on save every non-test `.sql` file is re-executed against the same in-memory database (in lex order — prefix files like `01-schema.sql`, `02-data.sql` if you need ordering).
+### Rules & clarifications
 
-## Schema requirements
+- The table has two columns: `id`, of type `INTEGER PRIMARY KEY`, and `message`, of type `TEXT NOT NULL`.
+- The table contains one row: `id` is `1` and `message` is exactly `Hello, World!`, with the capital letters, the comma and the exclamation mark.
+- The last statement is `SELECT message FROM greetings;`.
+- Write the statements in `script.sql`. Every time you save, the file is run again and the **Preview** shows the result of the last `SELECT`.
 
-```sql
-CREATE TABLE greetings (
-  id      INTEGER PRIMARY KEY,
-  message TEXT NOT NULL
-);
+### Example
+
+The `SELECT` statement returns one row:
+
 ```
-
-## Expected SELECT result
-
-The last `SELECT` statement in `script.sql` renders in the Preview. Yours should return one row with `message = 'Hello, World!'`.
-
-## Expected solution
-
-```sql
-CREATE TABLE greetings (
-  id      INTEGER PRIMARY KEY,
-  message TEXT NOT NULL
-);
-
-INSERT INTO greetings (id, message) VALUES (1, 'Hello, World!');
-
-SELECT message FROM greetings;
+message
+-------------
+Hello, World!
 ```
-
-Tests use the `@dojocode/sql-test-helpers/pglite` package: `createPgliteTestDb(import.meta.url)` returns a fresh PGlite instance pre-seeded by running every project `.sql` file in lex order, then exposes `db.query<T>(sql)` for assertions.

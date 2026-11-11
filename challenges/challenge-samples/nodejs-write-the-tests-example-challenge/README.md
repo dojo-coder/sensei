@@ -1,4 +1,4 @@
-The function `sum(a, b)` in `sum.js` is already written and **correct**. Your task is the reverse of a usual challenge: write the **Jest tests** in `sum.test.js` that prove it works.
+The function `sum(a, b)` in `sum.js` is already written and **correct**. This is the reverse of a usual challenge: write the **Jest tests** in `sum.test.js` that prove it works.
 
 Your tests run against the real `sum.js` and against several hidden **buggy copies** of it (mutants). A strong test suite passes on the real one and fails on every buggy one.
 
@@ -13,8 +13,8 @@ Your tests run against the real `sum.js` and against several hidden **buggy copi
 
 ### Examples
 
-- Input: `sum(1, 2)` → Output: `3`
-- Input: `sum(-2, -3)` → Output: `-5`
-- Input: `sum(-2, 5)` → Output: `3`
-- Input: `sum("1", 2)` → Output: throws `TypeError`
-- Input: `sum(1, undefined)` → Output: throws `TypeError`
+- `sum(1, 2)` returns `3`
+- `sum(-2, -3)` returns `-5`
+- `sum(-2, 5)` returns `3`
+- `sum("1", 2)` throws `TypeError`
+- `sum(1, undefined)` throws `TypeError`

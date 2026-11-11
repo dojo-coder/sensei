@@ -1,23 +1,26 @@
-Build an Astro + TypeScript page at `src/pages/index.astro` that renders an `<h1>` element containing the text `Hello, World!`.
+Build the Astro page at `/` so that it is a complete HTML document that shows a heading with the text `Hello, World!`.
 
-The frontmatter must declare a typed `message: string` constant set to `'Hello, World!'`, and the body must render it inside an `<h1>`. The page must include the standard HTML scaffolding.
+### Rules & clarifications
 
-## Expected output
+- The heading is an `<h1>` element inside `<body>`, and its text is exactly `Hello, World!`, with the capital letters, the comma and the exclamation mark.
+- The root element is `<html lang="en">`.
+- The `<head>` contains `<meta charset="UTF-8" />`.
+- Write the code in `src/pages/index.astro`. The tests render the page to HTML and check the document.
+- The tests check the content of the page, not its styling: no CSS is needed.
+- The rendered HTML has this structure:
 
-```astro
----
-const message: string = 'Hello, World!';
----
-
+```html
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>Astro</title>
   </head>
   <body>
-    <h1>{message}</h1>
+    <h1>Hello, World!</h1>
   </body>
 </html>
 ```
 
-Tests use Astro's experimental container API to render the page to a string and assert against the produced HTML.
+### Example
+
+Open the page → the heading `Hello, World!` is shown.

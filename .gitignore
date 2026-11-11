@@ -46,3 +46,6 @@ desktop.ini
 npm-debug.log*
 
 tools
+# Reference textbooks (downloaded with style/textbooks/fetch.py)
+/style/textbooks/*.pdf
+/style/textbooks/*.txt

@@ -1,17 +1,17 @@
-Build a Remix + TypeScript index route at `app/routes/_index.tsx` that renders an `<h1>` element containing the text `Hello, World!`.
+Build the Remix page at `/` so that it shows a single heading with the text `Hello, World!`.
 
-The seed ships:
+### Rules & clarifications
 
-- `app/routes/_index.tsx` — the `/` route component (this is the file you edit)
-- `app/root.tsx` — the root layout (readonly)
-- `vite.config.js` — already configured with the Remix Vite plugin (readonly)
+- The heading is an `<h1>` element and its text is exactly `Hello, World!`, with the capital letters, the comma and the exclamation mark.
+- The page has no other heading.
+- Write the code in the `Index` component in `app/routes/_index.tsx`. The root layout in `app/root.tsx` is read-only.
+- The tests check the content of the page, not its styling: no CSS is needed.
+- The rendered HTML has this structure:
 
-## Expected output
-
-```tsx
-export default function Index() {
-  return <h1>Hello, World!</h1>;
-}
+```html
+<h1>Hello, World!</h1>
 ```
 
-No `loader` / `action` is needed for this challenge — a plain React component is enough.
+### Example
+
+Open the page → the heading `Hello, World!` is shown.

@@ -1,29 +1,33 @@
-In this challenge, you will complete the implementation of a basic voting system. You are given a preloaded contract with some functionality missing. Your task is to complete the problem by adding key features.
+The contract `Voting` runs a simple election: the owner adds candidates, and every address can vote once for one of them. The state variables, the constructor and the function headers are given.
 
-### Requirements:
+Complete the contract:
 
-1. **Add a Candidate**:
+a. `addCandidate(_name)` adds a candidate to the election.
 
-   * Only the owner of the contract (the deployer) should be able to add candidates to the election.
-   * Candidates should be stored in the `candidates` array.
-   * Each candidate should be initialized with 0 votes in the `votes` mapping.
+b. `getAllCandidates()` returns the names of all the candidates.
 
-2. **Get All Candidates**:
+c. `getVotes(_candidate)` returns the number of votes of a candidate.
 
-   * Implement a function `getAllCandidates` that returns an array of all the candidate names.
+d. `vote(_candidate)` records the vote of the caller.
 
-3. **Get Vote Count for a Candidate**:
+e. The modifier `candidateExists(_candidate)` lets a function run only for a candidate that was added.
 
-   * Implement the function `getVotes` to return the number of votes for a specific candidate.
+### Rules & clarifications
 
-4. **Voting Functionality**:
+- The owner is the address that deployed the contract. The constructor stores it in `owner`.
+- Only the owner can add a candidate. A call to `addCandidate` from any other address reverts with the message `Only owner can perform this action`.
+- `addCandidate` appends the name to the array `candidates`. A new candidate has `0` votes in the mapping `votes`.
+- `getAllCandidates` returns the names in the order in which they were added.
+- `vote` adds `1` to the votes of the candidate and marks the caller in the mapping `hasVoted`.
+- An address can vote only once. A second call to `vote` from the same address reverts with the message `You have already voted`.
+- A vote for a name that was not added reverts with the message `Candidate does not exist`.
+- The three messages must match exactly.
+- Write the code in `src/Voting.sol`. Press **Run** to execute `Main.s.sol`, which deploys the contract, adds two candidates and casts one vote.
 
-   * Implement a `vote` function that allows an address to vote for a candidate.
-   * The voter should only be able to vote once. If they have already voted, the transaction should revert with the message: "You have already voted"
-   * If the voter has already voted, the transaction should be reverted with an error message.
-   * Ensure that only valid candidates can receive votes by checking that the candidate exists before accepting a vote.
+### Examples
 
-5. **Check for Existing Candidate** (Advanced):
-
-   * Implement a modifier `candidateExists` to ensure that a vote can only be cast for valid candidates.
-   * If the candidate does not exist, the transaction should revert with the message: "Candidate does not exist"
+- The owner calls `addCandidate("Alice")` → `getAllCandidates()` returns `["Alice"]` _(the name is appended to `candidates`)_.
+- Another address then calls `vote("Alice")` → `getVotes("Alice")` returns `1`.
+- The same address calls `vote("Alice")` again → the call reverts with `You have already voted`.
+- An address calls `vote("Bob")`, and `Bob` was not added → the call reverts with `Candidate does not exist`.
+- An address that is not the owner calls `addCandidate("Bob")` → the call reverts with `Only owner can perform this action`.

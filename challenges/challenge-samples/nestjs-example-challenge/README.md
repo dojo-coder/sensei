@@ -1,25 +1,12 @@
-Implement an `AppService.getHello()` method that returns the string `Hello, World!`.
+Write the method `getHello()` of the class `AppService`, which returns the string `Hello, World!`. The controller already answers `GET /` with the value this method returns.
 
-The NestJS scaffolding is already wired:
+### Rules & clarifications
 
-- `src/main.ts` — bootstraps the app on port 3000 (readonly)
-- `src/app.module.ts` — registers `AppController` + `AppService` (readonly)
-- `src/app.controller.ts` — handles `GET /` and delegates to `AppService.getHello()` (readonly)
-- `src/app.service.ts` — **the file you edit**
+- The text is exactly `Hello, World!`, with the capital letters, the comma and the exclamation mark, and no spaces before or after it.
+- The method returns a string, not an object.
+- Write the method in `src/app.service.ts`. The tests build the module and call the controller without starting a server; `src/app.controller.ts`, `src/app.module.ts` and `src/main.ts` are read-only.
 
-Replace the body of `AppService.getHello()` so it returns the string `'Hello, World!'`. NestJS will auto-serialize the string to a `text/plain` response.
+### Examples
 
-## Expected solution
-
-```ts
-import { Injectable } from '@nestjs/common';
-
-@Injectable()
-export class AppService {
-  getHello(): string {
-    return 'Hello, World!';
-  }
-}
-```
-
-Do not modify `app.controller.ts` or `app.module.ts` — they are readonly. Tests build a `TestingModule` with both providers and assert `controller.getHello()` returns `'Hello, World!'`.
+- `getHello()` returns `"Hello, World!"`.
+- `GET /` answers status `200` and the text `Hello, World!`.

@@ -1,4 +1,4 @@
-The SolidJS + TypeScript todo list in `App.tsx` is already written and **correct**. Your task is the reverse of a usual challenge: write the **tests** in `App.spec.tsx` (Vitest and `@solidjs/testing-library`) that prove it works, the way the starter test does.
+The SolidJS + TypeScript todo list in `App.tsx` is already written and **correct**. This is the reverse of a usual challenge: write the **tests** in `App.spec.tsx` (Vitest and `@solidjs/testing-library`) that prove it works, the way the starter test does.
 
 It renders a heading, an input, an **Add** button and the list; after adding `Buy milk` it looks like this:
 
@@ -28,8 +28,8 @@ Your tests run against the real component and against several hidden **buggy cop
 
 ### Examples
 
-- Input: add `"  Buy milk  "` → Output: list `["Buy milk"]`, heading `Todos (1)`
-- Input: add `"Buy milk"` → Output: the input is empty again
-- Input: add `""`, then `"   "` → Output: list `[]`, heading `Todos (0)`
-- Input: add `"Buy milk"`, then `"buy MILK"` → Output: list `["Buy milk"]` _(duplicates ignore case)_
-- Input: add `"Buy milk"`, then `"Walk dog"` → Output: list `["Buy milk", "Walk dog"]`
+- Add `"  Buy milk  "` → list `["Buy milk"]`, heading `Todos (1)`
+- Add `"Buy milk"` → the input is empty again
+- Add `""`, then `"   "` → list `[]`, heading `Todos (0)`
+- Add `"Buy milk"`, then `"buy MILK"` → list `["Buy milk"]` _(duplicates ignore case)_
+- Add `"Buy milk"`, then `"Walk dog"` → list `["Buy milk", "Walk dog"]`

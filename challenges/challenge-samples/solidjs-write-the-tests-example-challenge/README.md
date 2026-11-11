@@ -1,4 +1,4 @@
-The SolidJS counter in `App.jsx` is already written and **correct**. Your task is the reverse of a usual challenge: write the **tests** in `App.spec.jsx` (Vitest and `@solidjs/testing-library`) that prove it works, the way the starter test does.
+The SolidJS counter in `App.jsx` is already written and **correct**. This is the reverse of a usual challenge: write the **tests** in `App.spec.jsx` (Vitest and `@solidjs/testing-library`) that prove it works, the way the starter test does.
 
 It renders the count and three buttons:
 
@@ -25,8 +25,8 @@ Your tests run against the real component and against several hidden **buggy cop
 
 ### Examples
 
-- Input: no clicks → Output: `Count: 0`, **Decrement** is disabled
-- Input: click **Increment** → Output: `Count: 1`
-- Input: click **Increment** twice, then **Decrement** → Output: `Count: 1`
-- Input: click **Decrement** at 0 → Output: still `Count: 0`
-- Input: click **Increment**, then **Reset** → Output: `Count: 0`
+- No clicks → `Count: 0`, **Decrement** is disabled
+- Click **Increment** → `Count: 1`
+- Click **Increment** twice, then **Decrement** → `Count: 1`
+- Click **Decrement** at 0 → still `Count: 0`
+- Click **Increment**, then **Reset** → `Count: 0`

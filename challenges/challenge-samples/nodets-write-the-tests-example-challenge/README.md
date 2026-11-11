@@ -1,4 +1,4 @@
-The function `chunk<T>(list: T[], size: number): T[][]` in `chunk.ts` is already written and **correct**. Your task is the reverse of a usual challenge: write the **Jest tests** in `chunk.test.ts` that prove it works.
+The function `chunk<T>(list: T[], size: number): T[][]` in `chunk.ts` is already written and **correct**. This is the reverse of a usual challenge: write the **Jest tests** in `chunk.test.ts` that prove it works.
 
 Your tests run against the real `chunk.ts` and against several hidden **buggy copies** of it (mutants). A strong test suite passes on the real one and fails on every buggy one.
 
@@ -12,8 +12,8 @@ Your tests run against the real `chunk.ts` and against several hidden **buggy co
 
 ### Examples
 
-- Input: `chunk([1, 2, 3, 4], 2)` → Output: `[[1, 2], [3, 4]]`
-- Input: `chunk([1, 2, 3, 4, 5], 2)` → Output: `[[1, 2], [3, 4], [5]]` _(the last chunk is shorter)_
-- Input: `chunk([], 3)` → Output: `[]`
-- Input: `chunk([1], 0)` → Output: throws `RangeError`
-- Input: `chunk([1, 2], 1.5)` → Output: throws `RangeError`
+- `chunk([1, 2, 3, 4], 2)` returns `[[1, 2], [3, 4]]`
+- `chunk([1, 2, 3, 4, 5], 2)` returns `[[1, 2], [3, 4], [5]]` _(the last chunk is shorter)_
+- `chunk([], 3)` returns `[]`
+- `chunk([1], 0)` throws `RangeError`
+- `chunk([1, 2], 1.5)` throws `RangeError`
