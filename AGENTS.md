@@ -496,12 +496,16 @@ Same backbone as every challenge — an **intro**, `### Rules & clarifications`,
 
 - **Intro**: name the file with the correct code and the solver's test file, the test tools (Jest, Vitest, pytest, `supertest`, `app.inject()`, `app.request()`, `@nestjs/testing`, Testing Library, ...), then one sentence explaining the grading: "Your tests run against the real `sum.js` and against several hidden **buggy copies** of it (mutants). A strong test suite passes on the real one and fails on every buggy one." Browser challenges may show the rendered HTML in a fenced block, like `vuejs-example-challenge`.
 - **Rules & clarifications**: one bullet per behaviour of the reference code (every rule a mutant breaks must be here), then the grading rules (pass on the reference, fail on every mutant), template-specific test hints, and a last hint naming the areas to probe without naming the bugs: "A single assertion on `sum(1, 2)` catches almost nothing: cover **negative numbers** and **invalid input** too."
-- **Examples**: the reference behaviour as ``Input: `...` → Output: `...` `` bullets — function calls, HTTP requests with status + body, or UI interactions ("click **Increment** twice, then **Decrement**"). Verify every example against the reference with a script.
+- **Examples**: the reference behaviour, one bullet each, in the forms of the style guide — a function call ("`sum(1, 2)` returns `3`", "`sum("1", 2)` throws `TypeError`"), an HTTP request ("`GET /slug?text=DojoCode` answers status `200` and `{ "slug": "dojocode" }`", "A request with the body `{ "weightKg": 1 }` answers status `200` and `{ "cost": 5 }`"), or a UI interaction ("Click **Increment** twice, then **Decrement** → `Count: 1`"). Verify every example against the reference with a script.
+
+- **Never** describe a bug, say how many buggy copies there are, or give a ready test. The last hint names the areas to probe, not the bugs.
+
+The wording follows `style/challenge-description-style.md` like every other description.
 
 Example — `challenge-samples/nodejs-write-the-tests-example-challenge/README.md`:
 
 ```markdown
-The function `sum(a, b)` in `sum.js` is already written and **correct**. Your task is the reverse of a usual challenge: write the **Jest tests** in `sum.test.js` that prove it works.
+The function `sum(a, b)` in `sum.js` is already written and **correct**. This is the reverse of a usual challenge: write the **Jest tests** in `sum.test.js` that prove it works.
 
 Your tests run against the real `sum.js` and against several hidden **buggy copies** of it (mutants). A strong test suite passes on the real one and fails on every buggy one.
 
@@ -516,9 +520,9 @@ Your tests run against the real `sum.js` and against several hidden **buggy copi
 
 ### Examples
 
-- Input: `sum(1, 2)` → Output: `3`
-- Input: `sum(-2, -3)` → Output: `-5`
-- Input: `sum("1", 2)` → Output: throws `TypeError`
+- `sum(1, 2)` returns `3`
+- `sum(-2, -3)` returns `-5`
+- `sum("1", 2)` throws `TypeError`
 ```
 
 A browser example with the rendered HTML block is `challenge-samples/vuejs-write-the-tests-example-challenge/README.md`.
@@ -669,27 +673,39 @@ _Note: Package files are pre-configured in samples with only core framework pack
 
 ### details.json
 
-Contains challenge translation metadata and description. Based on translation this description can differ but should also required same for all translations.
+Contains the challenge title and description for one template. The description of a challenge is the same problem in every template; only the language-specific details (file names, signatures, syntax shown in rules) differ.
 
-**Critical Requirement:** Challenge descriptions must include **ALL information necessary for implementation** without requiring users to look at test files. **Users do NOT have access to test files**, so the description must be completely self-contained and comprehensive.
+**Wording — mandatory.** Before writing or editing any description, read [`style/challenge-description-style.md`](style/challenge-description-style.md) and follow it. A description reads like an exercise from a school textbook, not like generated text:
+
+- **Fixed shape**: the statement (optional context — 1-2 sentences for beginners, at most a short paragraph of facts for the higher levels — then the task in **one** sentence, and nothing else before the first heading), `### Input and output` (only when the task sentence cannot carry the data), `### Rules & clarifications`, `### Examples`. No other `###` heading, except `### What the tests check` for structure checks.
+- **Textbook openings**: "Write a program that reads … and prints …", "Write the function `name(params)`, which receives … and returns …", "Build a `Name` component that shows …", "When the **Save** button is clicked, …". Never "Your task is to…", "In this challenge…", "Implement a solution…".
+- **Every value has a name, a type and its limits**, written next to the name: "a natural number `n` (`1 ≤ n ≤ 100`)". Types are stated **once**: no separate typed-signature line after the task sentence, and the file to write in goes last in the rules.
+- **Names come from the problem** (`dependencies`, `prices`), never from the words the description itself uses (`rules`, `input`, `output`, `tests`, `result`).
+- **One rule per bullet**, special cases included. Name the language ("In Python, …"), never "in this language".
+- **Examples say what is given and what results**, small enough to check by hand: the ordinary case first and explained, special cases after it. For a function write "`f(7)` returns `True`", never an arrow. Every example is verified against the solution. Never show a wrong answer as an example.
+- **Positions that start at 0 are called "position"** ("the number at position `n`"), never "the n-th". When the limits make the obvious solution too slow for the tests, one rule says so.
+- **The level decides the size** (beginner: one requirement, short sentences, 600-1200 characters; intermediate: two or three lettered requirements; expert: a specification) — see the table in the guide.
+- **No filler**: no "simply", "just", "make sure to", "note that", no learning-outcomes section, no exclamation marks, no emoji.
+
+The guide also holds the Romanian rules and the EN → RO glossary taken from the 9th-grade Informatics textbooks (`style/textbooks/`). The platform translates descriptions into Romanian automatically, so challenge files contain **English only**; use the Romanian section when the user asks for a Romanian text or a review of a translation. Claude Code exposes the same procedure as the `challenge-description` skill.
+
+**Critical Requirement:** Challenge descriptions must include **ALL information necessary for implementation** without requiring users to look at test files. **Users see only the initial tests while solving, never the full suite**, so the description must be completely self-contained and comprehensive; it may point at the initial tests.
 
 **Important:** Challenge descriptions must be **concise and under 5000 characters** to ensure readability and maintainability. Focus on essential information:
 
 - Clear problem statement
-- **Complete function/method signatures with all parameters, return types, and expected behavior** (only required if specific functions/methods are tested in the challenge)
+- **The function/method the tests call, with every parameter, its type and limits, and what it returns** (only required if specific functions/methods are tested in the challenge). Name it in its call form and state each type once, as the style guide shows; do not add a separate typed-signature line
 - **All edge cases and error handling requirements (what errors to throw, when to throw them, error messages)**
 - **Input/output format specifications (data types, constraints, validation rules)**
 - **Complete examples with inputs and expected outputs for all scenarios**
 - Core requirements and features
-- Algorithm explanation (if applicable)
-- Key implementation details
-- Test selectors (for browser challenges)
+- Key implementation details the tests depend on
+- Test selectors (for browser challenges): the exact texts, roles, labels or `data-testid` values the tests look for
 - Sample test cases with expected behavior
-- Learning outcomes
 
 **What MUST be included:**
 
-- Exact function/method signatures (parameter names, types, return types) - **only if specific functions/methods are tested**
+- The exact name of the function/method, its parameter names, their types and the returned type, each stated once - **only if specific functions/methods are tested**
 - All edge cases and how they should be handled
 - Error messages that must be thrown (exact text)
 - Input validation rules and constraints
@@ -718,7 +734,7 @@ Avoid lengthy implementation details or extensive code examples that can be foun
 ```json
 {
   "title": "Pacman Game",
-  "description": "Build a simplified Pacman game where the player navigates a maze, collects dots, and tries to achieve the highest score! This challenge will help you practice Vue.js concepts..."
+  "description": "Build a simplified Pacman game: the player moves through a maze with the arrow keys and collects dots, and each dot adds 10 points to the score.\n\n### Rules & clarifications\n\n- ..."
 }
 ```
 
@@ -1562,7 +1578,7 @@ const increment = () => {
 
 ### Documentation
 
-- Write clear, concise problem descriptions
+- Write clear, concise problem descriptions, worded as `style/challenge-description-style.md` prescribes
 - **CRITICAL: Include ALL implementation requirements in the description** - users cannot see test files, so every detail needed for implementation must be explicitly stated in the description
 - Provide helpful examples and clarifications with complete input/output pairs
 - Specify exact error messages, edge cases, and validation rules
@@ -1601,7 +1617,7 @@ node createExportContent.js challenges/two-sum-challenge/templates/python
 
 0. **Session start (first)**: Call `get_templates` with `{}`, build the keyed config (template key → `{ _id, selectedLanguage }`), and save it to `templatesConfiguration.json` (create or overwrite). Use `templatesConfiguration.json` for all template IDs thereafter.
 1. **Create Challenge Structure**: Set up directories and basic files following the structure of template from samples folder.
-2. **Write Problem Description**: Create detailed challenge description following the structure of template from samples folder.
+2. **Write Problem Description**: Write the description following `style/challenge-description-style.md` (textbook wording, fixed shape, level-sized) and the content requirements under "details.json".
 3. **Implement Solutions**: Write complete author solutions following the structure of template from samples folder.
 4. **Create Test Suites**: Develop initial and comprehensive test cases following the structure of template from samples folder.
 5. **Generate ExportedContent**: Run `createExportContent.js` script to package challenge for distribution

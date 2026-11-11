@@ -1,19 +1,17 @@
-Build a Next.js App Router page at `/` that renders an `<h1>` element containing the text `Hello, World!`.
+Build the Next.js page at `/` so that it shows a single heading with the text `Hello, World!`.
 
-The seed ships a TypeScript App Router project structure under `src/app/`:
+### Rules & clarifications
 
-- `src/app/page.tsx` — the route component (this is the file you edit)
-- `src/app/layout.tsx` — the root layout (already wraps `<html><body>{children}</body></html>`, props typed as `{ children: React.ReactNode }`)
-- `next.config.js` — ESM Next config (already set)
+- The heading is an `<h1>` element and its text is exactly `Hello, World!`, with the capital letters, the comma and the exclamation mark.
+- The page has no other heading.
+- Write the code in the `Page` component in `src/app/page.tsx`. The layout in `src/app/layout.tsx` already wraps the page in `<html>` and `<body>`; do not change it.
+- The tests check the content of the page, not its styling: no CSS is needed.
+- The rendered HTML has this structure:
 
-Replace the body of `Page` in `src/app/page.tsx` so the rendered output contains exactly the text `Hello, World!` inside a single `<h1>` element.
-
-## Expected output
-
-```tsx
-export default function Page() {
-  return <h1>Hello, World!</h1>;
-}
+```html
+<h1>Hello, World!</h1>
 ```
 
-No client-side interactivity is needed — the page can be a Server Component (no `'use client'` directive).
+### Example
+
+Open the page → the heading `Hello, World!` is shown.

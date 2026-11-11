@@ -1,46 +1,28 @@
-Create a wrapper function that bridges deprecated API method signatures to a new API interface, ensuring backwards compatibility during migration.
+An application still calls an old user API, whose methods receive separate arguments. The new API has other method names, and every method receives a single object.
 
-## Challenge
+Write the function `createApiWrapper(newApi)`, which receives the new API and returns an object with the four old methods. Each old method calls the matching new method and returns its result.
 
-Your legacy codebase uses an old API with simple method signatures:
+### Input and output
 
-* `getUser(id)` - Get a user by ID
-* `saveUser(id, data)` - Update a user's data
-* `deleteUser(id)` - Delete a user
-* `listUsers(page, limit)` - List users with pagination
+- `newApi` is an object with four functions: `fetchUser({ userId })`, `updateUser({ userId, ...data })`, `removeUser({ userId })` and `getUsers({ page, limit })`.
+- The function returns an object with the methods `getUser(id)`, `saveUser(id, data)`, `deleteUser(id)` and `listUsers(page, limit)`.
 
-The new API has been refactored to use object parameters:
+### Rules & clarifications
 
-* `fetchUser({ userId })` - Get a user by ID
-* `updateUser({ userId, ...data })` - Update a user's data
-* `removeUser({ userId })` - Remove a user
-* `getUsers({ page, limit })` - List users with pagination
+- `getUser(id)` calls `newApi.fetchUser({ userId: id })`.
+- `saveUser(id, data)` calls `newApi.updateUser({ userId: id, ...data })`: the fields of `data` are placed next to `userId`. For an empty `data` object the argument is `{ userId: id }`.
+- `deleteUser(id)` calls `newApi.removeUser({ userId: id })`.
+- `listUsers(page, limit)` calls `newApi.getUsers({ page, limit })`.
+- Every old method returns exactly what the new method returns.
+- An `id` can be a number or a string and is passed on unchanged; `0` is a valid `id`.
+- Write the function in `index.js`. The same file starts a small server that uses your wrapper: open the **Preview** or the **API tester** and call `/user/get?id=1`, `/user/save?id=1&name=Jane`, `/user/delete?id=1` or `/users/list?page=1&limit=10`.
+- Press **Run** to execute `main.js`, which prints the result of each old method.
 
-## Task
+### Examples
 
-Implement the `createApiWrapper` function that takes the new API object and returns a wrapper object with the old method signatures. The wrapper should translate calls from the old format to the new format.
+For `const wrapper = createApiWrapper(newApi)`:
 
-## Example
-
-```javascript
-const newApi = {
-  fetchUser: ({ userId }) => ({ id: userId, name: 'John' }),
-  updateUser: ({ userId, name }) => ({ success: true, id: userId, name }),
-  removeUser: ({ userId }) => ({ deleted: true, id: userId }),
-  getUsers: ({ page, limit }) => ({ users: [], page, limit })
-};
-
-const wrapper = createApiWrapper(newApi);
-
-wrapper.getUser(1);           // Calls newApi.fetchUser({ userId: 1 })
-wrapper.saveUser(1, { name: 'Jane' }); // Calls newApi.updateUser({ userId: 1, name: 'Jane' })
-wrapper.deleteUser(1);        // Calls newApi.removeUser({ userId: 1 })
-wrapper.listUsers(1, 10);     // Calls newApi.getUsers({ page: 1, limit: 10 })
-```
-
-## Requirements
-
-1. `getUser(id)` should call `newApi.fetchUser({ userId: id })` and return the result
-2. `saveUser(id, data)` should call `newApi.updateUser({ userId: id, ...data })` and return the result
-3. `deleteUser(id)` should call `newApi.removeUser({ userId: id })` and return the result
-4. `listUsers(page, limit)` should call `newApi.getUsers({ page, limit })` and return the result
+- `wrapper.getUser(1)` calls `newApi.fetchUser({ userId: 1 })` and returns its result.
+- `wrapper.saveUser(1, { name: "Jane" })` calls `newApi.updateUser({ userId: 1, name: "Jane" })`.
+- `wrapper.deleteUser(1)` calls `newApi.removeUser({ userId: 1 })`.
+- `wrapper.listUsers(1, 10)` calls `newApi.getUsers({ page: 1, limit: 10 })`.

@@ -14,9 +14,9 @@ The Hono app in `src/app.ts` is already written and **correct**. Write the **Vit
 
 ### Examples
 
-- Input: `GET /slug?text=hello world` → Output: status `200`, `{ "slug": "hello-world" }`
-- Input: `GET /slug?text=DojoCode` → Output: status `200`, `{ "slug": "dojocode" }`
-- Input: `GET /slug?text=  Hello, World!  ` → Output: status `200`, `{ "slug": "hello-world" }`
-- Input: `GET /slug?text=a---b` → Output: status `200`, `{ "slug": "a-b" }`
-- Input: `GET /slug` → Output: status `400`
-- Input: `GET /slug?text=   ` → Output: status `400`
+- `GET /slug?text=hello world` answers status `200` and `{ "slug": "hello-world" }`
+- `GET /slug?text=DojoCode` answers status `200` and `{ "slug": "dojocode" }`
+- `GET /slug?text=  Hello, World!  ` answers status `200` and `{ "slug": "hello-world" }`
+- `GET /slug?text=a---b` answers status `200` and `{ "slug": "a-b" }`
+- `GET /slug` answers status `400`
+- `GET /slug?text=   ` answers status `400`

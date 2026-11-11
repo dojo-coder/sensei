@@ -1,11 +1,17 @@
-Render an `<h1>` element containing the text `Hello, World!`.
+Build the `App` component in SolidJS so that it shows a single heading with the text `Hello, World!`.
 
-The seeded `App.tsx` component is the entry point — replace its body so the rendered output matches the expected text exactly (case sensitive, including the comma and exclamation mark).
+### Rules & clarifications
 
-## Expected output
+- The heading is an `<h1>` element and its text is exactly `Hello, World!`, with the capital letters, the comma and the exclamation mark.
+- The page has no other heading.
+- Write the code in `App.tsx`. The file `main.tsx` already mounts the component on the page.
+- The tests check the content of the page, not its styling: no CSS is needed.
+- The rendered HTML has this structure:
 
-```tsx
+```html
 <h1>Hello, World!</h1>
 ```
 
-The `main.tsx` entry file already mounts `<App />` into `#root` — you only need to edit `App.tsx`. SolidJS components are plain functions that return JSX; no signals or effects are required for this challenge. The component should be typed as `Component<{}>` or simply use no type annotation.
+### Example
+
+Open the page → the heading `Hello, World!` is shown.

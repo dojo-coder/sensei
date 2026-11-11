@@ -1,3 +1,15 @@
-Write a program that prints **Hello World**.
+Write a program that prints the text `Hello World`.
 
-No function needed: the tests run your program and compare what it prints.
+### Rules & clarifications
+
+- The program prints only this text, on one line.
+- Write the program in `main.cpp`. No function is needed.
+- The tests run your program and compare what it prints with the expected text, character by character.
+
+### Example
+
+The program prints:
+
+```
+Hello World
+```

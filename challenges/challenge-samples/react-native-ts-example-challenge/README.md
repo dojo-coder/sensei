@@ -1,29 +1,20 @@
-Build a React Native Web + TypeScript `App` component that renders a `<Text>` element containing `Hello, World!` inside a centered `<View>`.
+Build the `App` component in React Native so that it shows the text `Hello, World!` in the centre of the screen.
 
-The template uses [`react-native-web`](https://necolas.github.io/react-native-web/) with TypeScript types from `@types/react-native`. The Vite alias (`react-native` → `react-native-web`) makes the import path identical to a real iOS/Android Expo project — the same `App.tsx` could ship unchanged to a mobile build.
+### Rules & clarifications
 
-The seed ships:
+- The text is exactly `Hello, World!`, with the capital letters, the comma and the exclamation mark.
+- Show the text with a `Text` component placed inside a `View`, both imported from `'react-native'`.
+- Style the components with `StyleSheet.create`, not with CSS.
+- Write the code in `App.tsx`. The file `index.tsx` already mounts the component.
+- The tests check the content of the page, not its styling: no CSS is needed.
+- The component renders this structure:
 
-- `App.tsx` — the component (this is the file you edit)
-- `index.tsx` — `AppRegistry` mount (readonly)
-
-## Expected solution
-
-```tsx
-import { View, Text, StyleSheet } from 'react-native';
-
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Hello, World!</Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  text: { fontSize: 24, fontWeight: '600' }
-});
+```jsx
+<View>
+  <Text>Hello, World!</Text>
+</View>
 ```
 
-For typed styles, you can use `ViewStyle`, `TextStyle`, `ImageStyle` from `react-native`. Tests use `@testing-library/react` against jsdom — `Text` renders as a `<div>` so `screen.getByText('Hello, World!')` works normally.
+### Example
+
+Open the preview → the text `Hello, World!` is shown.

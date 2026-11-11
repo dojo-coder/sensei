@@ -1,4 +1,4 @@
-The function `clamp(value, low, high)` in `clamp.py` is already written and **correct**. Your task is the reverse of a usual challenge: write the **pytest tests** in `test_clamp.py` that prove it works, using the `@m.describe` / `@m.it` style of the starter test.
+The function `clamp(value, low, high)` in `clamp.py` is already written and **correct**. This is the reverse of a usual challenge: write the **pytest tests** in `test_clamp.py` that prove it works, using the `@m.describe` / `@m.it` style of the starter test.
 
 Your tests run against the real `clamp.py` and against several hidden **buggy copies** of it (mutants). A strong test suite passes on the real one and fails on every buggy one.
 
@@ -12,9 +12,9 @@ Your tests run against the real `clamp.py` and against several hidden **buggy co
 
 ### Examples
 
-- Input: `clamp(5, 0, 10)` → Output: `5`
-- Input: `clamp(-5, 0, 10)` → Output: `0`
-- Input: `clamp(15, 0, 10)` → Output: `10`
-- Input: `clamp(0, 0, 10)` → Output: `0` _(the boundaries are inside the range)_
-- Input: `clamp(7, 3, 3)` → Output: `3`
-- Input: `clamp(5, 10, 0)` → Output: raises `ValueError`
+- `clamp(5, 0, 10)` returns `5`
+- `clamp(-5, 0, 10)` returns `0`
+- `clamp(15, 0, 10)` returns `10`
+- `clamp(0, 0, 10)` returns `0` _(the boundaries are inside the range)_
+- `clamp(7, 3, 3)` returns `3`
+- `clamp(5, 10, 0)` raises `ValueError`

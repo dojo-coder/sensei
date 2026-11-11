@@ -8,7 +8,7 @@ contract Voting {
     string[] public candidates;
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only the contract owner can perform this action.");
+        require(msg.sender == owner, "Only owner can perform this action");
         _;
     }
 

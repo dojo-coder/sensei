@@ -1,17 +1,17 @@
-Build a SvelteKit + TypeScript route at `src/routes/+page.svelte` that renders an `<h1>` element containing the text `Hello, World!`.
+Build the SvelteKit page at `/` so that it shows a single heading with the text `Hello, World!`.
 
-The seed ships:
+### Rules & clarifications
 
-- `src/routes/+page.svelte` — the route component with `<script lang="ts">` (this is the file you edit)
-- `svelte.config.js` — already configured with `adapter-auto` + `vitePreprocess` (readonly)
+- The heading is an `<h1>` element and its text is exactly `Hello, World!`, with the capital letters, the comma and the exclamation mark.
+- The page has no other heading.
+- Write the code in `src/routes/+page.svelte`, which uses `<script lang="ts">`.
+- The tests check the content of the page, not its styling: no CSS is needed.
+- The rendered HTML has this structure:
 
-## Expected output
-
-```svelte
-<script lang="ts">
-</script>
-
+```html
 <h1>Hello, World!</h1>
 ```
 
-Svelte 5 + TypeScript is supported. No runes are required for this challenge — a plain `<h1>` is enough.
+### Example
+
+Open the page → the heading `Hello, World!` is shown.

@@ -1,4 +1,4 @@
 {
   "title": "Hello World",
-  "description": "Implement **Hello** function that returns a string **'Hello World!'**"
+  "description": "Write the method `Hello()` of the class `HelloWorld`, which returns the string `Hello World!`.\n\n### Rules & clarifications\n\n- The text is exactly `Hello World!`: the capital letters, the space and the exclamation mark must match.\n- The method returns the string; it does not print it.\n- Write the method in `HelloWorld.cs`. Press **Run** to execute `Main.cs`, which prints what your method returns.\n\n### Example\n\n`HelloWorld.Hello()` returns `\"Hello World!\"`."
 }
