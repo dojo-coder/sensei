@@ -132,7 +132,7 @@ Backend templates run their framework's HTTP server and expose API endpoints. Te
 
 - **nestjs**: NestJS TypeScript with Vitest + @nestjs/testing (`Test.createTestingModule(...).compile()`). Author edits services / controllers; the controller's `getHello()` etc. is called directly in tests.
 - **fastify**: Fastify TypeScript with Vitest using `app.inject({ method, url })` against the `FastifyInstance` returned by `buildApp()`.
-- **hono**: Hono TypeScript with Vitest using `app.request(path)` against the exported Hono instance. Handlers MUST `return` `c.text()` / `c.json()` — calling without returning sends an empty response.
+- **hono**: Hono TypeScript with Vitest using `app.request(path)` against the exported Hono instance. Handlers MUST `return` `c.text()` / `c.json()` — calling without returning makes Hono answer `404 Not Found` (or `500` when a middleware runs first), verified on hono 4.12.
 
 #### Database Challenges
 
