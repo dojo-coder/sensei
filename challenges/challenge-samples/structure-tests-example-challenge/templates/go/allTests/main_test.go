@@ -28,8 +28,8 @@ func TestCount(t *testing.T) {
 			t.Error("print with fmt.Println")
 		}
 	})
-	t.Run("declares and updates total", func(t *testing.T) {
-		if !DojoDeclares(t, "total") || !DojoUses(t, "update:total@for") {
+	t.Run("keeps a running total in a variable", func(t *testing.T) {
+		if !DojoUses(t, "value:0") || DojoCount(t, "update@for") < 2 {
 			t.Error("keep a total that the loop updates")
 		}
 	})

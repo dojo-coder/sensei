@@ -1,4 +1,4 @@
-import { run, uses, count, calls, declares } from 'dojo-io';
+import { run, uses, count, calls } from 'dojo-io';
 
 describe('Count to five', () => {
   it('prints 1 to 5', () => {
@@ -21,8 +21,8 @@ describe('Count to five', () => {
     expect(calls('console.log')).toBe(true);
   });
 
-  it('declares and updates total', () => {
-    expect(declares('total')).toBe(true);
-    expect(uses('update:total@for')).toBe(true);
+  it('keeps a running total in a variable', () => {
+    expect(uses('value:0')).toBe(true);
+    expect(count('update@for')).toBeGreaterThanOrEqual(2);
   });
 });

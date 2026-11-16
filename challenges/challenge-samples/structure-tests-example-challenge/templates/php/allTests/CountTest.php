@@ -29,9 +29,9 @@ class CountTest extends TestCase
         $this->assertTrue(DojoIO::calls('echo'));
     }
 
-    public function testDeclaresAndUpdatesTotal(): void
+    public function testKeepsARunningTotalInAVariable(): void
     {
-        $this->assertTrue(DojoIO::declares('$total'));
-        $this->assertTrue(DojoIO::uses('update:$total@for'));
+        $this->assertTrue(DojoIO::uses('value:0'));
+        $this->assertGreaterThanOrEqual(2, DojoIO::count('update@for'));
     }
 }

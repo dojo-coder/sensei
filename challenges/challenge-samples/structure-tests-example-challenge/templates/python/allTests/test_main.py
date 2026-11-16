@@ -1,5 +1,5 @@
 from pytest import mark as m
-from challenge.dojo_io import run, uses, count, calls, declares
+from challenge.dojo_io import run, uses, count, calls
 
 
 @m.describe("Count to five")
@@ -24,8 +24,8 @@ class TestCountToFive:
     def test_calls_print(self):
         assert calls("print")
 
-    @m.it("declares and updates total")
-    def test_declares_and_updates_total(self):
-        assert declares("total")
-        assert uses("update:total@for")
+    @m.it("keeps a running total in a variable")
+    def test_keeps_a_running_total_in_a_variable(self):
+        assert uses("value:0"), "Start your total at 0"
+        assert count("update@for") >= 1, "Add the even numbers to your total inside the loop"
         assert uses("operator:%")

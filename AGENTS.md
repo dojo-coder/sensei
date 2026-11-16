@@ -1434,7 +1434,7 @@ class TestHelloWorld:
 - The 5–7 / 8–12 test counts do not apply: a print-only program needs 1–3 tests. For programs with input, use several different inputs (and extra ones in `allTests`) so hard-coding the answer cannot pass.
 - Each run is limited to 5 seconds; an infinite loop fails the test with a clear timeout message.
 
-**Structure checks (how the program is written)**: the same helper also checks that the learner used a construct, for tasks that prescribe one ("use a for loop", "put an if inside the loop", "do not use while", "keep a running total in `total`"). The platform parses the learner's source files (never the test files) into a report, and the helper answers from it — structure checks never run the program.
+**Structure checks (how the program is written)**: the same helper also checks that the learner used a construct, for tasks that prescribe one ("use a for loop", "put an if inside the loop", "do not use while", "keep a running total in a variable"). The platform parses the learner's source files (never the test files) into a report, and the helper answers from it — structure checks never run the program.
 
 | Template | Structure functions |
 | --- | --- |
@@ -1455,6 +1455,9 @@ Vocabulary (identical in all languages):
 
 - Constructs: `if`, `else-if`, `else`, `switch`, `ternary`, `for`, `for-each`, `while`, `do-while`, `loop` (any loop), `break`, `continue`, `return`, `try`, `function`, `class`, `comprehension` (Python only), `string`, `number`, `array`, `dict`, `comment`, `syntax-error`.
 - Named rows: `function:<name>`, `class:<name>`, `call:<name>`, `variable:<name>` (declared — loop variables too: `for i in ...`, `for (const x of xs)`, `foreach ($xs as $x)`, `for x in ...` in Rust/Ruby, and Python `with ... as f`), `update:<name>` (assigned again, including `+=` and `++`), `parameter:<name>`, `operator:<op>` (`operator:%`, `operator:==`), `import:<module>`, `recursion:<name>`.
+- Variables whatever their names: `variable` (how many are declared), `update` (how many assignments to an existing one, the `i++` of a C-style `for` included), `value:<literal>` (a variable is set to that number, text or boolean written in the code: `value:12`, `value:-1.5`, `value:Ana`, `value:true`), `use:<name>` (a declared variable is read) and `used-variable` (how many declared variables are read at least once). They take `uses` / `count` like any other row: `count("variable") >= 2`, `uses("value:12")`, `count("used-variable") >= 2`, `count("update@for") >= 1`.
+  - A value is reported only when it is written in the code (`price = 12`); a computed one (`total = price * quantity`) has none — the output test covers it. A number keeps its spelling: `12.0` is `value:12.0`, not `value:12`.
+  - Rust: code inside a macro call is only partly seen — an operator or an inline `{name}` inside `println!` is not reported. Compute into a variable first (`let total = price * quantity;`) and do not check operators that would sit inside the macro.
 - Nesting: `<kind>@<container>` is a row inside a construct — `if@for` (an if inside a for loop), `update:total@loop`, `return@if`, `call:print@function`. Containers: every branch, loop, `switch`, `try`, `function` and `class`.
 - `for` covers every for loop (Python `for in`, Go `for range`, PHP `foreach`, Ruby `each`/`times` blocks); `for-each` is the collection form only; Go's condition-only `for cond {}` counts as `while`.
 
@@ -1463,7 +1466,8 @@ Rules for structure checks:
 - Use them only for what the task actually asks for, and always next to output tests: they say that a construct **exists**, not that it does the right thing.
 - Give each one a clear message — it is what the learner sees: `assert uses("for"), "Use a for loop to count"`.
 - Negative checks are fine: `assert not uses("while")`.
-- Name the checked things in the task description (`total`, `for`, `if`), so the learner knows what is expected.
+- **Do not enforce variable names.** When a task asks for variables, check that they exist, hold the right values and are used — `count("variable") >= 2`, `uses("value:12")`, `count("used-variable") >= 2` — and let the learner name them. Use `declares(name)` / `variable:<name>` / `update:<name>` only when the name itself is the requirement (a name another file or the tests import).
+- Say in the task description what is checked (`for`, `if`, "two variables with the values 12 and 3"), so the learner knows what is expected.
 
 **Reference samples**: `challenges/challenge-samples/output-tests-example-challenge/templates/<template>/` contains "Print Hello World" (output only) and `challenges/challenge-samples/structure-tests-example-challenge/templates/<template>/` contains "Count to Five" (output + structure checks), both for all 11 templates. Copy their structure when creating such a challenge.
 

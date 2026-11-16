@@ -34,11 +34,11 @@ namespace Challenge
             Assert.True(DojoIO.Calls("Console.WriteLine"));
         }
 
-        [Fact(DisplayName = "declares and updates total")]
-        public void DeclaresAndUpdatesTotal()
+        [Fact(DisplayName = "keeps a running total in a variable")]
+        public void KeepsARunningTotalInAVariable()
         {
-            Assert.True(DojoIO.Declares("total"));
-            Assert.True(DojoIO.Uses("update:total@for"));
+            Assert.True(DojoIO.Uses("value:0"));
+            Assert.True(DojoIO.Count("update@for") >= 2);
         }
     }
 }
