@@ -19,8 +19,8 @@ RSpec.describe 'Count to five' do
     expect(DojoIO.calls('puts')).to be(true)
   end
 
-  it 'declares and updates total' do
-    expect(DojoIO.declares('total')).to be(true)
-    expect(DojoIO.uses('update:total@for')).to be(true)
+  it 'keeps a running total in a variable' do
+    expect(DojoIO.uses('value:0')).to be(true)
+    expect(DojoIO.count('update@for')).to be >= 1
   end
 end

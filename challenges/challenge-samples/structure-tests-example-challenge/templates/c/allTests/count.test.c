@@ -21,7 +21,7 @@ Test(count, calls_printf, .description = "calls printf") {
     cr_assert(dojo_calls("printf"));
 }
 
-Test(count, declares_and_updates_total, .description = "declares and updates total") {
-    cr_assert(dojo_declares_in("total", "main"));
-    cr_assert(dojo_uses("update:total@for"));
+Test(count, keeps_a_running_total, .description = "keeps a running total in a variable") {
+    cr_assert(dojo_uses("value:0"), "Start your total at 0");
+    cr_assert(dojo_count("update@for") >= 2, "Add the even numbers to your total inside the loop");
 }

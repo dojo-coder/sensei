@@ -21,7 +21,7 @@ TEST_CASE("calls cout") {
     REQUIRE(dojo_calls("cout"));
 }
 
-TEST_CASE("declares and updates total") {
-    REQUIRE(dojo_declares("total"));
-    REQUIRE(dojo_uses("update:total@for"));
+TEST_CASE("keeps a running total in a variable") {
+    REQUIRE(dojo_uses("value:0"));
+    REQUIRE(dojo_count("update@for") >= 2);
 }

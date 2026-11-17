@@ -1,4 +1,4 @@
-use crate::dojo_io::{calls, count, declares, run, uses};
+use crate::dojo_io::{calls, count, run, uses};
 
 #[test]
 fn prints_one_to_five() {
@@ -26,7 +26,7 @@ fn calls_println() {
 }
 
 #[test]
-fn declares_and_updates_total() {
-    assert!(declares("total"));
-    assert!(uses("update:total@for"));
+fn keeps_a_running_total_in_a_variable() {
+    assert!(uses("value:0"), "start your total at 0");
+    assert!(count("update@for") >= 1, "add the even numbers to your total inside the loop");
 }

@@ -39,9 +39,9 @@ public class CountTest {
     }
 
     @Test
-    @DisplayName("declares and updates total")
-    void declaresAndUpdatesTotal() {
-        assertTrue(DojoIO.declares("total", "main"));
-        assertTrue(DojoIO.uses("update:total@for"));
+    @DisplayName("keeps a running total in a variable")
+    void keepsARunningTotalInAVariable() {
+        assertTrue(DojoIO.uses("value:0"));
+        assertTrue(DojoIO.count("update@for") >= 2);
     }
 }
