@@ -1,4 +1,5 @@
 #include <iostream>
+using namespace std;
 
 int main() {
     int total = 0;
@@ -6,7 +7,7 @@ int main() {
         if (i % 2 == 0) {
             total += i;
         }
-        std::cout << i << std::endl;
+        cout << i << endl;
     }
     return 0;
 }

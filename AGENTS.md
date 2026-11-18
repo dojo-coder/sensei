@@ -80,7 +80,7 @@ The system supports two main categories of challenges:
 - **ruby**: Ruby with rspec testing framework
 - **rust**: Rust with test
 - **c**: C with Criterion testing framework
-- **cpp**: C++ with Catch2 testing framework
+- **cpp**: C++ with Catch2 testing framework. **Write all C++ in Romanian school style:** put `using namespace std;` after the `#include` lines and never write the `std::` prefix (`cout`, `cin`, `endl`, `string`, `vector`, `to_string`, `max`, `sort`, ...). This applies to every C++ line a learner sees: the starter, the solution, `main.cpp`, the visible tests, the README examples, lesson theory and quiz questions and variants. A teacher reported that `std::` confused students and cost class time (2026-11-17). Watch for names that `using namespace std;` makes ambiguous in learner code, such as a global `count`, `distance`, `max`, `data` or `size`. Rename the learner's identifier rather than bringing back `std::`.
 - **csharp**: C# with xUnit testing framework
 - **go**: Go with testing package
 - **solidity**: Solidity with Foundry (`forge test`) — Solidity-native tests via `forge-std/Test.sol`
@@ -877,9 +877,11 @@ int main() {
 #include <iostream>
 #include "app.hpp"
 
+using namespace std;
+
 int main() {
-    std::string result = longestPalindromicSubstring("example input");
-    std::cout << "longestPalindromicSubstring(\"example input\"): " << result << std::endl;
+    string result = longestPalindromicSubstring("example input");
+    cout << "longestPalindromicSubstring(\"example input\"): " << result << endl;
     return 0;
 }
 ```
@@ -1134,7 +1136,7 @@ Key layout rules for Solidity challenges:
 
 **C++ (Terminal)**:
 
-- Use `#include <catch2/catch_test_macros.hpp>` and `#include "app.hpp"`
+- Use `#include <catch2/catch_test_macros.hpp>` and `#include "app.hpp"`, then `using namespace std;`. Tests are written in school style too, with no `std::`.
 - Structure: `TEST_CASE("description") { ... }`
 - Use descriptive test names: `"babad -> 'bab' or 'aba'"`, `"empty -> ''"`
 - Use Catch2 assertions: `REQUIRE()`, `REQUIRE_THAT()`

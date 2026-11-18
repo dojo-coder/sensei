@@ -1,15 +1,16 @@
 #include <iostream>
 #include "app.hpp"
+using namespace std;
 
 int main() {
-    std::string result1 = longestPalindromicSubstring("babad");
-    std::cout << "longestPalindromicSubstring(\"babad\"): " << result1 << std::endl;
+    string result1 = longestPalindromicSubstring("babad");
+    cout << "longestPalindromicSubstring(\"babad\"): " << result1 << endl;
 
-    std::string result2 = longestPalindromicSubstring("cbbd");
-    std::cout << "longestPalindromicSubstring(\"cbbd\"): " << result2 << std::endl;
+    string result2 = longestPalindromicSubstring("cbbd");
+    cout << "longestPalindromicSubstring(\"cbbd\"): " << result2 << endl;
 
-    std::string result3 = longestPalindromicSubstring("");
-    std::cout << "longestPalindromicSubstring(\"\"): " << result3 << std::endl;
+    string result3 = longestPalindromicSubstring("");
+    cout << "longestPalindromicSubstring(\"\"): " << result3 << endl;
 
     return 0;
 }

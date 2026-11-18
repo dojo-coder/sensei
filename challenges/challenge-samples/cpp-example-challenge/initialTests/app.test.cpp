@@ -1,9 +1,10 @@
 #include <catch2/catch_test_macros.hpp>
 #include "app.hpp"
 #include <string>
+using namespace std;
 
 TEST_CASE("babad -> 'bab' or 'aba'") {
-    std::string res = longestPalindromicSubstring("babad");
+    string res = longestPalindromicSubstring("babad");
     REQUIRE((res == "bab" || res == "aba"));
 }
 
