@@ -1,8 +1,9 @@
 #include "app.hpp"
 #include <string>
 #include <algorithm>
+using namespace std;
 
-static inline int expandAroundCenter(const std::string& s, int l, int r) {
+static inline int expandAroundCenter(const string& s, int l, int r) {
     const int n = static_cast<int>(s.size());
     while (l >= 0 && r < n && s[l] == s[r]) {
         --l; ++r;
@@ -11,7 +12,7 @@ static inline int expandAroundCenter(const std::string& s, int l, int r) {
     return r - l - 1;
 }
 
-std::string longestPalindromicSubstring(const std::string& s) {
+string longestPalindromicSubstring(const string& s) {
     if (s.empty()) return "";
 
     int start = 0, end = 0; // inclusive
@@ -20,7 +21,7 @@ std::string longestPalindromicSubstring(const std::string& s) {
     for (int i = 0; i < n; ++i) {
         int len1 = expandAroundCenter(s, i, i);     // odd center
         int len2 = expandAroundCenter(s, i, i + 1); // even center
-        int maxLen = std::max(len1, len2);
+        int maxLen = max(len1, len2);
 
         if (maxLen > (end - start + 1)) {
             start = i - (maxLen - 1) / 2;

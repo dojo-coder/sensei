@@ -1,6 +1,7 @@
 #include "app.hpp"
+using namespace std;
 
-std::string longestPalindromicSubstring(const std::string& /*s*/) {
+string longestPalindromicSubstring(const string& /*s*/) {
     // TODO: return the longest contiguous palindromic substring of s
     return "";
 }

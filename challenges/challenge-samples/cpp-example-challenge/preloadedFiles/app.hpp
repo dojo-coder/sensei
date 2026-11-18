@@ -1,4 +1,5 @@
 #pragma once
 #include <string>
+using namespace std;
 
-std::string longestPalindromicSubstring(const std::string& s);
+string longestPalindromicSubstring(const string& s);
